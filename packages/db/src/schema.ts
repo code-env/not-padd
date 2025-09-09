@@ -1,17 +1,10 @@
+import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import {
-  pgTable,
-  text,
-  timestamp,
-  boolean,
-  integer,
-  jsonb,
-} from "drizzle-orm/pg-core";
-import {
-  user,
   account,
   rateLimitAttempts,
-  verification,
   session,
+  user,
+  verification,
 } from "./auth-schema";
 
 export const notpaddWorkspace = pgTable("notpadd_workspace", {
