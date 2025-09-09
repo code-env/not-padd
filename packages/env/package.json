@@ -1,0 +1,19 @@
+{
+  "name": "@notpadd/env",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./client": "./client.ts",
+    "./server": "./server.ts"
+  },
+  "devDependencies": {
+    "@notpadd/eslint-config": "workspace:*",
+    "@notpadd/typescript-config": "workspace:*",
+    "@types/node": "^20"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "^0.13.8",
+    "zod": "^4.0.14"
+  }
+}

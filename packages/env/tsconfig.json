@@ -1,0 +1,3 @@
+{
+  "extends": "@notpadd/typescript-config/base"
+}
