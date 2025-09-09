@@ -1,0 +1,10 @@
+{
+  "extends": "@notpadd/typescript-config/base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@notpadd/auth/*": ["../../packages/auth/src/*"]
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "with-hono",
+  "name": "notpadd",
   "private": true,
   "scripts": {
     "build": "turbo run build",

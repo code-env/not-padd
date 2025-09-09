@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@notpadd/api",
   "type": "module",
   "scripts": {
     "dev": "srvx"

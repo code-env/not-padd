@@ -1,0 +1,27 @@
+{
+  "name": "@notpadd/auth",
+  "main": "./dist/auth.cjs",
+  "module": "./dist/auth.mjs",
+  "types": "./dist/auth.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsup src/auth.ts src/auth-client.ts src/utils/send-mail.ts --format esm,cjs --dts -d dist --tsconfig tsconfig.build.json"
+  },
+  "exports": {
+    "./auth-client": "./dist/auth-client.mjs",
+    "./auth": "./dist/auth.mjs",
+    "./utils/send-mail": "./dist/utils/send-mail.mjs"
+  },
+  "devDependencies": {
+    "@notpadd/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "tsup": "^8.5.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "better-auth": "^1.2.9"
+  }
+}
