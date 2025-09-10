@@ -169,9 +169,6 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.19.9
-      dotenv:
-        specifier: ^16.5.0
-        version: 16.6.1
 
   packages/eslint-config:
     devDependencies:
