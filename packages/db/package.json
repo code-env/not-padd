@@ -25,9 +25,9 @@
     }
   },
   "devDependencies": {
+    "@notpadd/env": "workspace:*",
     "@notpadd/eslint-config": "workspace:*",
     "@notpadd/typescript-config": "workspace:*",
-    "@notpadd/env": "workspace:*",
     "@paralleldrive/cuid2": "^2.2.2",
     "@types/node": "^20",
     "@types/pg": "^8.15.4",
@@ -40,6 +40,7 @@
   "dependencies": {
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
-    "pg": "^8.16.1"
+    "pg": "^8.16.1",
+    "postgres": "^3"
   }
 }
