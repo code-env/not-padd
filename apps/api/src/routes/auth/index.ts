@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../";
 import { auth } from "@notpadd/auth/auth";
 import { Hono, type Context } from "hono";
 

@@ -4,7 +4,7 @@ import type { ENV } from "@notpadd/env/server";
 import { db } from "@notpadd/db";
 import { cors } from "hono/cors";
 import { auth } from "@notpadd/auth/auth";
-import routes from "@/routes/index";
+import routes from "./routes/index.ts";
 
 export interface ReqVariables {
   user: typeof auth.$Infer.Session.user | null;

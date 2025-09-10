@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import type { ReqVariables } from "@/index";
-import authRouter from "./auth";
+import type { ReqVariables } from "../index.ts";
+import authRouter from "./auth/index.ts";
 
 const routes = new Hono<{ Variables: ReqVariables }>();
 
