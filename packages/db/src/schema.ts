@@ -1,4 +1,11 @@
-import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  integer,
+} from "drizzle-orm/pg-core";
 import {
   account,
   rateLimitAttempts,
@@ -14,10 +21,25 @@ export const notpaddWorkspace = pgTable("notpadd_workspace", {
   ownerId: text("owner_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  storageLimit: integer("storage_limit").notNull().default(100),
+  storageUsed: integer("storage_used").notNull().default(0),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
   updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+export const notpaddFile = pgTable("notpadd_file", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => notpaddWorkspace.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  size: integer("size").notNull(),
+  createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
 });

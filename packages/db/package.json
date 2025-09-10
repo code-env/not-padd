@@ -17,6 +17,7 @@
   "devDependencies": {
     "@notpadd/eslint-config": "workspace:*",
     "@notpadd/typescript-config": "workspace:*",
+    "@notpadd/env": "workspace:*",
     "@paralleldrive/cuid2": "^2.2.2",
     "@types/node": "^20",
     "@types/pg": "^8.15.4",

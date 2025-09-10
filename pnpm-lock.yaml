@@ -103,7 +103,7 @@ importers:
         version: 16.6.1
       drizzle-orm:
         specifier: ^0.44.2
-        version: 0.44.5(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)
+        version: 0.44.5(@types/pg@8.15.5)(bun-types@1.2.21(@types/react@19.1.0))(kysely@0.28.5)(pg@8.16.3)
       pg:
         specifier: ^8.16.1
         version: 8.16.3
@@ -111,6 +111,9 @@ importers:
         specifier: ^5
         version: 5.8.3
     devDependencies:
+      '@notpadd/env':
+        specifier: workspace:*
+        version: link:../env
       '@notpadd/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -132,6 +135,25 @@ importers:
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(postcss@8.4.31)(typescript@5.8.3)
+
+  packages/env:
+    dependencies:
+      '@t3-oss/env-core':
+        specifier: ^0.13.8
+        version: 0.13.8(typescript@5.8.3)(zod@4.1.5)
+      zod:
+        specifier: ^4.0.14
+        version: 4.1.5
+    devDependencies:
+      '@notpadd/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@notpadd/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^20
+        version: 20.19.9
 
   packages/eslint-config:
     devDependencies:
@@ -930,6 +952,23 @@ packages:
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
+  '@t3-oss/env-core@0.13.8':
+    resolution: {integrity: sha512-L1inmpzLQyYu4+Q1DyrXsGJYCXbtXjC4cICw1uAKv0ppYPQv656lhZPU91Qd1VS6SO/bou1/q5ufVzBGbNsUpw==}
+    peerDependencies:
+      arktype: ^2.1.0
+      typescript: '>=5.0.0'
+      valibot: ^1.0.0-beta.7 || ^1.0.0
+      zod: ^3.24.0 || ^4.0.0-beta.0
+    peerDependenciesMeta:
+      arktype:
+        optional: true
+      typescript:
+        optional: true
+      valibot:
+        optional: true
+      zod:
+        optional: true
+
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -1125,6 +1164,11 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
+
+  bun-types@1.2.21:
+    resolution: {integrity: sha512-sa2Tj77Ijc/NTLS0/Odjq/qngmEPZfbfnOERi0KRUYhT9R8M4VBioWVmMWE5GrYbKMc+5lVybXygLdibHaqVqw==}
+    peerDependencies:
+      '@types/react': ^19
 
   bundle-require@5.1.0:
     resolution: {integrity: sha512-3WrrOuZiyaaZPWiEt4G3+IffISVC9HYlWueJEBWED4ZH4aIAC2PnkdnuRrR94M+w6yGWn4AglWtJtBI8YqvgoA==}
@@ -3051,6 +3095,11 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@t3-oss/env-core@0.13.8(typescript@5.8.3)(zod@4.1.5)':
+    optionalDependencies:
+      typescript: 5.8.3
+      zod: 4.1.5
+
   '@types/estree@1.0.8': {}
 
   '@types/json-schema@7.0.15': {}
@@ -3318,6 +3367,12 @@ snapshots:
 
   buffer-from@1.1.2: {}
 
+  bun-types@1.2.21(@types/react@19.1.0):
+    dependencies:
+      '@types/node': 20.19.9
+      '@types/react': 19.1.0
+    optional: true
+
   bundle-require@5.1.0(esbuild@0.25.9):
     dependencies:
       esbuild: 0.25.9
@@ -3457,9 +3512,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.44.5(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3):
+  drizzle-orm@0.44.5(@types/pg@8.15.5)(bun-types@1.2.21(@types/react@19.1.0))(kysely@0.28.5)(pg@8.16.3):
     optionalDependencies:
       '@types/pg': 8.15.5
+      bun-types: 1.2.21(@types/react@19.1.0)
       kysely: 0.28.5
       pg: 8.16.3
 
