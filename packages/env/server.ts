@@ -1,6 +1,10 @@
 import { createEnv as createEnvCore } from "@t3-oss/env-core";
 import BASE_ENV from "./base";
 import { z } from "zod";
+import { config } from "dotenv";
+import { resolve } from "path";
+
+config({ path: resolve(process.cwd(), "../../.env") });
 
 export const env = createEnvCore({
   ...BASE_ENV,
@@ -54,3 +58,5 @@ export const env = createEnvCore({
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   },
 });
+
+export type ENV = typeof env;
