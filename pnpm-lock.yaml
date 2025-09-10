@@ -24,6 +24,18 @@ importers:
         specifier: ^4.8.10
         version: 4.8.10
     devDependencies:
+      '@notpadd/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@notpadd/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@notpadd/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      '@notpadd/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@types/node':
         specifier: ^20.11.17
         version: 20.19.9

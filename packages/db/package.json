@@ -11,8 +11,18 @@
     "db:studio": "drizzle-kit studio"
   },
   "exports": {
-    ".": "./dist/index.js",
-    "./schema": "./dist/schema.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "import": "./dist/schema.js",
+      "require": "./dist/schema.cjs",
+      "default": "./dist/schema.js"
+    }
   },
   "devDependencies": {
     "@notpadd/eslint-config": "workspace:*",
