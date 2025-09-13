@@ -25,6 +25,7 @@ export const env = createEnvCore({
 
     // Server Configuration
     BACKEND_URL: z.string(),
+    FRONTEND_URL: z.string(),
     TRUSTED_ORIGINS: z
       .string()
       .transform((val) => val.trim())
