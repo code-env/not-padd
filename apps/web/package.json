@@ -21,6 +21,7 @@
   "devDependencies": {
     "@notpadd/eslint-config": "workspace:*",
     "@notpadd/typescript-config": "workspace:*",
+    "@notpadd/env": "workspace:*",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",

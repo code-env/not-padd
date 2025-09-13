@@ -5,15 +5,18 @@ import { Icons } from "@notpadd/ui/components/icons";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import { useState } from "react";
 import { toast } from "sonner";
+import { env } from "@notpadd/env/client";
 
 const SocialButton = () => {
+  console.log(env.NEXT_PUBLIC_BACKEND_URL);
+
   const [isLoading, setIsLoading] = useState(false);
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: process.env.NEXT_PUBLIC_CALLBACK_URL,
+        callbackURL: env.NEXT_PUBLIC_CALLBACK_URL,
       });
     } catch (error) {
       toast.error("Failed to sign in with Google");

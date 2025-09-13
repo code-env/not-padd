@@ -12,12 +12,14 @@ export const env = createEnv({
   runtimeEnv: {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
+    NEXT_PUBLIC_CALLBACK_URL: process.env.NEXT_PUBLIC_CALLBACK_URL,
   },
 
   clientPrefix: "NEXT_PUBLIC_",
   client: {
     NEXT_PUBLIC_BACKEND_URL: z.url(),
     NEXT_PUBLIC_FRONTEND_URL: z.url(),
+    NEXT_PUBLIC_CALLBACK_URL: z.url(),
   },
 });
 
