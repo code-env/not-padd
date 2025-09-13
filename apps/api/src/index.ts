@@ -1,16 +1,15 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
-import type { ENV } from "@notpadd/env/server";
 import { db } from "@notpadd/db";
 import { cors } from "hono/cors";
 import { auth } from "@notpadd/auth/auth";
 import routes from "./routes/index.ts";
+import { env } from "@notpadd/env/server";
 
 export interface ReqVariables {
   user: typeof auth.$Infer.Session.user | null;
   session: typeof auth.$Infer.Session.session | null;
   db: typeof db | null;
-  env: ENV;
 }
 
 const app = new Hono<{ Variables: ReqVariables }>();
@@ -18,7 +17,7 @@ const app = new Hono<{ Variables: ReqVariables }>();
 app.use(
   "*",
   cors({
-    origin: (_origin, c) => c.var.env.TRUSTED_ORIGINS,
+    origin: (_origin, c) => env.TRUSTED_ORIGINS.includes(_origin),
     credentials: true,
     allowHeaders: [
       "Content-Type",
@@ -35,6 +34,9 @@ app.use(
 
 app.use("*", async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  const vars = env.TRUSTED_ORIGINS;
+
+  console.log(vars);
 
   if (!session) {
     c.set("db", null);
