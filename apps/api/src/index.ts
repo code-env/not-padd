@@ -17,7 +17,10 @@ const app = new Hono<{ Variables: ReqVariables }>();
 app.use(
   "*",
   cors({
-    origin: (_origin, c) => env.TRUSTED_ORIGINS.includes(_origin),
+    origin: (origin, c) => {
+      if (env.TRUSTED_ORIGINS.includes("*")) return origin;
+      return env.TRUSTED_ORIGINS.includes(origin) ? origin : null;
+    },
     credentials: true,
     allowHeaders: [
       "Content-Type",
