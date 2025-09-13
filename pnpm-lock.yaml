@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.6.1
     devDependencies:
       prettier:
         specifier: ^3.6.2
@@ -156,6 +160,9 @@ importers:
       '@t3-oss/env-core':
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.8.3)(zod@4.1.5)
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.6.1
       zod:
         specifier: ^4.0.14
         version: 4.1.5

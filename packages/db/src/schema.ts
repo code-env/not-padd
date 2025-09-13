@@ -97,6 +97,7 @@ const schema = {
   verification,
   rateLimitAttempts,
   notpaddEvent,
+  notpaddFile,
   notpaddPost,
   notpaddWebhook,
   notpaddWorkspace,

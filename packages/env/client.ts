@@ -1,6 +1,10 @@
 import { createEnv } from "@t3-oss/env-core";
+import { config } from "dotenv";
+import { resolve } from "path";
 import BASE_ENV from "./base";
 import { z } from "zod";
+
+config({ path: resolve(process.cwd(), ".env") });
 
 export const env = createEnv({
   ...BASE_ENV,
