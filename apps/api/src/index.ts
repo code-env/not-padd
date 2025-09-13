@@ -37,9 +37,6 @@ app.use(
 
 app.use("*", async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  const vars = env.TRUSTED_ORIGINS;
-
-  console.log(vars);
 
   if (!session) {
     c.set("db", null);

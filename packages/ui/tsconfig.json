@@ -1,7 +1,11 @@
 {
-  "extends": "@notpadd/typescript-config/react-library.json",
+  "extends": "@notpadd/typescript-config/react-library",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@notpadd/ui/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

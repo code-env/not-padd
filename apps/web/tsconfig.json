@@ -1,6 +1,11 @@
 {
   "extends": "@notpadd/typescript-config/nextjs",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@notpadd/ui/*": ["../../packages/ui/src/*"]
+    },
     "plugins": [
       {
         "name": "next"
