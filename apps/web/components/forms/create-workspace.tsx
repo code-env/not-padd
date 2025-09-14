@@ -2,10 +2,7 @@
 
 import { replaceOrganizationWithWorkspace, REQUIRED_STRING } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@notpadd/ui/components/input";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
+import { authClient } from "@notpadd/auth/auth-client";
 import {
   Form,
   FormControl,
@@ -13,10 +10,12 @@ import {
   FormItem,
   FormMessage,
 } from "@notpadd/ui/components/form";
+import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import { useEffect, useState } from "react";
-import { authClient } from "@notpadd/auth/auth-client";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
 const formSchema = z.object({
   name: REQUIRED_STRING,

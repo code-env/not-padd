@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OrganizationInfo } from "@/components/organization-info";
 
 export default async function Home() {
   return (
@@ -7,6 +8,12 @@ export default async function Home() {
         <h1 className="font-semibold text-4xl ">Notpadd v3</h1>
         <p className="text-base">@skaleway</p>
       </div>
+      
+      {/* Organization Information */}
+      <div className="w-full max-w-2xl mt-10">
+        <OrganizationInfo />
+      </div>
+      
       <div className="absolute bottom-20">
         <Link href="/auth/login">Authenticate</Link>
       </div>
