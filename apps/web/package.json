@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@notpadd/auth": "workspace:*",
     "@notpadd/ui": "workspace:*",
+    "lucide-react": "^0.544.0",
     "next": "^15.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -22,10 +23,10 @@
     "zod": "^4.1.8"
   },
   "devDependencies": {
+    "@notpadd/db": "workspace:*",
     "@notpadd/env": "workspace:*",
     "@notpadd/eslint-config": "workspace:*",
     "@notpadd/typescript-config": "workspace:*",
-    "@notpadd/db": "workspace:*",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
