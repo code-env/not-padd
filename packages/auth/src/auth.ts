@@ -3,6 +3,7 @@ import schema from "@notpadd/db/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "@notpadd/env/server";
+import { organization } from "better-auth/plugins";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -39,6 +40,7 @@ export const auth = betterAuth({
   verification: {
     disableCleanup: true,
   },
+  plugins: [organization()],
 });
 
 export type Session = typeof auth.$Infer.Session;
