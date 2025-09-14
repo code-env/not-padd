@@ -1,0 +1,1 @@
+ALTER TABLE "notpadd_workspace" ADD COLUMN "last_used" boolean DEFAULT false NOT NULL;

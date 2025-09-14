@@ -29,6 +29,7 @@ export const notpaddWorkspace = pgTable("notpadd_workspace", {
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => new Date())
     .notNull(),
+  lastUsed: boolean("last_used").default(false).notNull(),
 });
 
 export const notpaddFile = pgTable("notpadd_file", {
