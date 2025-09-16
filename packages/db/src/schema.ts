@@ -21,6 +21,7 @@ export const organization = pgTable("organization", {
   slug: text("slug").notNull().unique(),
   logo: text("logo"),
   metadata: jsonb("metadata"),
+  lastUsed: boolean("last_used").default(false),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
@@ -54,8 +55,7 @@ export const invitation = pgTable("invitation", {
   role: text("role").notNull(),
   status: text("status").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  teamId: text("team_id")
-    .references(() => team.id, { onDelete: "cascade" }),
+  teamId: text("team_id").references(() => team.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),

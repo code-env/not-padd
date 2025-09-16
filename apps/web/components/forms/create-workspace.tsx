@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrganizationContext } from "@/contexts";
 import { replaceOrganizationWithWorkspace, REQUIRED_STRING } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@notpadd/auth/auth-client";
@@ -24,6 +25,7 @@ const formSchema = z.object({
 
 export function CreateWorkspace() {
   const [isLoading, setIsLoading] = useState(false);
+  const { createOrganization } = useOrganizationContext();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,9 +44,7 @@ export function CreateWorkspace() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      const { data, error } = await authClient.organization.create({
-        ...values,
-      });
+      const { data, error } = await createOrganization({ ...values });
 
       if (error) throw error;
 

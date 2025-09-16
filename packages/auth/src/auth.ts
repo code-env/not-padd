@@ -4,6 +4,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "@notpadd/env/server";
 import { organization } from "better-auth/plugins";
+import { getActiveOrganization } from "./utils/org";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -41,6 +42,21 @@ export const auth = betterAuth({
     disableCleanup: true,
   },
   plugins: [organization()],
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const organization = await getActiveOrganization(session.userId);
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organization?.id,
+            },
+          };
+        },
+      },
+    },
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;
