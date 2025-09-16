@@ -24,7 +24,6 @@ import {
   SidebarHeader,
 } from "@notpadd/ui/components/sidebar";
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",
