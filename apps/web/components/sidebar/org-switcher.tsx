@@ -20,15 +20,7 @@ import {
 } from "@notpadd/ui/components/sidebar";
 import Link from "next/link";
 
-export function OrganizationSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+export function OrganizationSwitcher() {
   const { isMobile } = useSidebar();
 
   const { activeOrganization, organizations, setActiveOrganization } =
