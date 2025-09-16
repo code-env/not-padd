@@ -1,15 +1,15 @@
 "use client";
 
-import * as React from "react";
 import { ChevronsUpDown, Plus } from "lucide-react";
+import * as React from "react";
 
+import { useOrganizationContext } from "@/contexts";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@notpadd/ui/components/dropdown-menu";
 import {
@@ -18,7 +18,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@notpadd/ui/components/sidebar";
-import { useOrganizationContext } from "@/contexts";
 import Link from "next/link";
 
 export function OrganizationSwitcher({
@@ -32,14 +31,8 @@ export function OrganizationSwitcher({
 }) {
   const { isMobile } = useSidebar();
 
-  const {
-    activeOrganization,
-    organizations,
-    setActiveOrganization,
-    createOrganization,
-  } = useOrganizationContext();
-
-  console.log(organizations);
+  const { activeOrganization, organizations, setActiveOrganization } =
+    useOrganizationContext();
 
   return (
     <SidebarMenu>

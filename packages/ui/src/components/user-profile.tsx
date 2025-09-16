@@ -8,22 +8,19 @@ import {
 
 import { cn } from "@notpadd/ui/lib/utils";
 
-const iconvVariants = cva(
-  "rounded-full border flex items-center justify-center",
-  {
-    variants: {
-      size: {
-        default: "size-10 min-w-10",
-        sm: "size-8 min-w-8",
-        lg: "size-10 min-w-10",
-        xs: "size-6 min-w-6",
-      },
+const iconvVariants = cva("border flex items-center justify-center", {
+  variants: {
+    size: {
+      default: "size-10 min-w-10",
+      sm: "size-8 min-w-8",
+      lg: "size-10 min-w-10",
+      xs: "size-6 min-w-6",
     },
-    defaultVariants: {
-      size: "default",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    size: "default",
+  },
+});
 
 interface ProfileProps extends VariantProps<typeof iconvVariants> {
   className?: string;
