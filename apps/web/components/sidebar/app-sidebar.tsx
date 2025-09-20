@@ -26,7 +26,7 @@ import {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="none" {...props}>
+    <Sidebar collapsible="none" {...props} className="h-screen">
       <SidebarHeader>
         <OrganizationSwitcher />
       </SidebarHeader>
