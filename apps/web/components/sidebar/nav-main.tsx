@@ -37,7 +37,7 @@ export function NavMain() {
   );
 }
 
-const useSidebarRoutes = (activeOrg: string) => {
+export const useSidebarRoutes = (activeOrg: string) => {
   return [
     {
       name: "Workspaces",
@@ -45,7 +45,7 @@ const useSidebarRoutes = (activeOrg: string) => {
         { name: "Overview", path: `/${activeOrg}` },
         { name: "Articles", path: `/${activeOrg}/articles` },
         { name: "Media", path: `/${activeOrg}/media` },
-        { name: "Mettings", path: `/${activeOrg}/settings` },
+        { name: "Settings", path: `/${activeOrg}/settings` },
       ],
     },
     {

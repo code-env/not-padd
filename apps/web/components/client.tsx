@@ -1,6 +1,8 @@
 "use client";
 
 import { useOrganizationContext } from "@/contexts";
+import { useSidebarRoutes } from "./sidebar/nav-main";
+import { notFound, usePathname } from "next/navigation";
 
 interface ClientProps {
   children: React.ReactNode;
@@ -9,18 +11,14 @@ interface ClientProps {
 
 export const Client = ({ children, slug }: ClientProps) => {
   const { activeOrganization } = useOrganizationContext();
+  const routes = useSidebarRoutes(activeOrganization?.slug ?? "");
+  const pathname = usePathname();
 
-  if (!activeOrganization) {
-    return <div>Loading...</div>;
+  const flatRoutes = routes.flatMap((route) => route.items);
+
+  if (!flatRoutes.some((route) => pathname.startsWith(route.path))) {
+    return notFound();
   }
 
-  if (activeOrganization.slug !== slug.toLowerCase()) {
-    return <div>Not found</div>;
-  }
-
-  return (
-    <div>
-      {children} {slug}
-    </div>
-  );
+  return <>{children}</>;
 };
