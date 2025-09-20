@@ -1,10 +1,11 @@
+import type { ReqVariables } from "@/index";
+import { db } from "@notpadd/db";
+import { articles, member, organization } from "@notpadd/db/schema";
+import { and, eq } from "drizzle-orm";
+import type { Context } from "hono";
 import { Hono } from "hono";
 import { z } from "zod";
-import { member, organization, articles } from "@notpadd/db/schema";
-import { eq, inArray, desc, and, sql } from "drizzle-orm";
-import type { ReqVariables } from "@/index";
-import type { Context } from "hono";
-import { db } from "@notpadd/db";
+
 const articlesRoutes = new Hono<{ Variables: ReqVariables }>();
 
 const isUserInOrganization = async (
@@ -43,6 +44,12 @@ const isUserInOrganization = async (
   return true;
 };
 
+const createArticleSchema = z.object({
+  title: z.string().min(1),
+  content: z.string().optional().default(""),
+  organizationId: z.string(),
+});
+
 const slugify = (text: string) => {
   return text.toLowerCase().replace(/ /g, "-");
 };
@@ -54,7 +61,7 @@ articlesRoutes.post("/:organizationId", async (c) => {
   }
 
   const { organizationId } = c.req.param();
-  const { title, content } = await c.req.json();
+  const { title, content } = createArticleSchema.parse(await c.req.json());
 
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
@@ -70,6 +77,79 @@ articlesRoutes.post("/:organizationId", async (c) => {
     content,
     organizationId,
   });
+
+  return c.json(article);
+});
+
+articlesRoutes.get("/:organizationId/:slug", async (c) => {
+  const { organizationId, slug } = c.req.param();
+  const user = c.get("user");
+  if (!user || !user.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const userInOrg = await isUserInOrganization(c, organizationId);
+  if (!userInOrg) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const article = await db
+    .select()
+    .from(articles)
+    .where(
+      and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
+    );
+  if (!article) {
+    return c.json({ error: "Article not found" }, 404);
+  }
+  return c.json(article);
+});
+
+articlesRoutes.put("/:organizationId/:slug", async (c) => {
+  const { organizationId, slug } = c.req.param();
+  const { title, content } = createArticleSchema.parse(await c.req.json());
+  const user = c.get("user");
+  if (!user || !user.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const userInOrg = await isUserInOrganization(c, organizationId);
+  if (!userInOrg) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const article = await db
+    .update(articles)
+    .set({ title, content })
+    .where(
+      and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
+    );
+  if (!article) {
+    return c.json({ error: "Article not found" }, 404);
+  }
+  return c.json(article);
+});
+
+articlesRoutes.delete("/:organizationId/:slug", async (c) => {
+  const { organizationId, slug } = c.req.param();
+  const user = c.get("user");
+  if (!user || !user.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const userInOrg = await isUserInOrganization(c, organizationId);
+  if (!userInOrg) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const article = await db
+    .delete(articles)
+    .where(
+      and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
+    );
+  if (!article) {
+    return c.json({ error: "Article not found" }, 404);
+  }
   return c.json(article);
 });
 
