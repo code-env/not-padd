@@ -24,9 +24,15 @@ importers:
 
   apps/api:
     dependencies:
+      drizzle-orm:
+        specifier: ^0.44.2
+        version: 0.44.5(@types/pg@8.15.5)(bun-types@1.2.21(@types/react@19.1.0))(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
       hono:
         specifier: ^4.8.10
         version: 4.8.10
+      zod:
+        specifier: ^4.1.9
+        version: 4.1.9
     devDependencies:
       '@notpadd/auth':
         specifier: workspace:*
@@ -3436,6 +3442,9 @@ packages:
   zod@4.1.8:
     resolution: {integrity: sha512-5R1P+WwQqmmMIEACyzSvo4JXHY5WiAFHRMg+zBZKgKS+Q1viRa0C1hmUKtHltoIFKtIdki3pRxkmpP74jnNYHQ==}
 
+  zod@4.1.9:
+    resolution: {integrity: sha512-HI32jTq0AUAC125z30E8bQNz0RQ+9Uc+4J7V97gLYjZVKRjeydPgGt6dvQzFrav7MYOUGFqqOGiHpA/fdbd0cQ==}
+
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
@@ -6448,3 +6457,5 @@ snapshots:
   zod@4.1.5: {}
 
   zod@4.1.8: {}
+
+  zod@4.1.9: {}

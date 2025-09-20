@@ -6,7 +6,9 @@ export type User = InferSelectModel<typeof schema.user>;
 export type Session = InferSelectModel<typeof schema.session>;
 export type Account = InferSelectModel<typeof schema.account>;
 export type Verification = InferSelectModel<typeof schema.verification>;
-export type RateLimitAttempts = InferSelectModel<typeof schema.rateLimitAttempts>;
+export type RateLimitAttempts = InferSelectModel<
+  typeof schema.rateLimitAttempts
+>;
 
 // Organization types
 export type Organization = InferSelectModel<typeof schema.organization>;
@@ -17,8 +19,7 @@ export type TeamMember = InferSelectModel<typeof schema.teamMember>;
 export type OrganizationRole = InferSelectModel<typeof schema.organizationRole>;
 
 // NotPadd types
-export type NotPaddWorkspace = InferSelectModel<typeof schema.notpaddWorkspace>;
-export type NotPaddFile = InferSelectModel<typeof schema.notpaddFile>;
-export type NotPaddPost = InferSelectModel<typeof schema.notpaddPost>;
-export type NotPaddEvent = InferSelectModel<typeof schema.notpaddEvent>;
-export type NotPaddWebhook = InferSelectModel<typeof schema.notpaddWebhook>;
+export type File = InferSelectModel<typeof schema.file>;
+export type Articles = InferSelectModel<typeof schema.articles>;
+export type Event = InferSelectModel<typeof schema.event>;
+export type Webhook = InferSelectModel<typeof schema.webhook>;

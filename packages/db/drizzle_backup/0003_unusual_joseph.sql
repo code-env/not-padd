@@ -1,0 +1,2 @@
+-- All tables and columns already exist with correct structure
+-- This migration is essentially a no-op since the database is already in the correct state

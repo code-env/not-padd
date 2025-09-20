@@ -5,13 +5,15 @@
     "dev": "srvx"
   },
   "dependencies": {
-    "hono": "^4.8.10"
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.8.10",
+    "zod": "^4.1.9"
   },
   "devDependencies": {
-    "@notpadd/typescript-config": "workspace:*",
-    "@notpadd/env": "workspace:*",
-    "@notpadd/db": "workspace:*",
     "@notpadd/auth": "workspace:*",
+    "@notpadd/db": "workspace:*",
+    "@notpadd/env": "workspace:*",
+    "@notpadd/typescript-config": "workspace:*",
     "@types/node": "^20.11.17",
     "srvx": "^0.8.7",
     "typescript": "^5.8.3"

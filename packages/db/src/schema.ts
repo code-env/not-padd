@@ -14,7 +14,6 @@ import {
   verification,
 } from "./auth-schema";
 
-// Organization table
 export const organization = pgTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -25,9 +24,10 @@ export const organization = pgTable("organization", {
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
+  storageLimit: integer("storage_limit").notNull().default(100),
+  storageUsed: integer("storage_used").notNull().default(0),
 });
 
-// Member table
 export const member = pgTable("member", {
   id: text("id").primaryKey(),
   userId: text("user_id")
@@ -42,7 +42,6 @@ export const member = pgTable("member", {
     .notNull(),
 });
 
-// Invitation table
 export const invitation = pgTable("invitation", {
   id: text("id").primaryKey(),
   email: text("email").notNull(),
@@ -61,7 +60,6 @@ export const invitation = pgTable("invitation", {
     .notNull(),
 });
 
-// Team table
 export const team = pgTable("team", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -76,7 +74,6 @@ export const team = pgTable("team", {
     .notNull(),
 });
 
-// Team Member table
 export const teamMember = pgTable("team_member", {
   id: text("id").primaryKey(),
   teamId: text("team_id")
@@ -90,7 +87,6 @@ export const teamMember = pgTable("team_member", {
     .notNull(),
 });
 
-// Organization Role table (for dynamic access control)
 export const organizationRole = pgTable("organization_role", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -106,29 +102,11 @@ export const organizationRole = pgTable("organization_role", {
     .notNull(),
 });
 
-export const notpaddWorkspace = pgTable("notpadd_workspace", {
+export const file = pgTable("file", {
   id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  ownerId: text("owner_id")
+  organizationId: text("organization_id")
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  storageLimit: integer("storage_limit").notNull().default(100),
-  storageUsed: integer("storage_used").notNull().default(0),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-  lastUsed: boolean("last_used").default(false).notNull(),
-});
-
-export const notpaddFile = pgTable("notpadd_file", {
-  id: text("id").primaryKey(),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => notpaddWorkspace.id, { onDelete: "cascade" }),
+    .references(() => organization.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   url: text("url").notNull(),
   size: integer("size").notNull(),
@@ -137,11 +115,11 @@ export const notpaddFile = pgTable("notpadd_file", {
     .notNull(),
 });
 
-export const notpaddPost = pgTable("notpadd_post", {
+export const articles = pgTable("articles", {
   id: text("id").primaryKey(),
-  workspaceId: text("workspace_id")
+  organizationId: text("organization_id")
     .notNull()
-    .references(() => notpaddWorkspace.id, { onDelete: "cascade" }),
+    .references(() => organization.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
@@ -156,23 +134,23 @@ export const notpaddPost = pgTable("notpadd_post", {
     .notNull(),
 });
 
-export const notpaddEvent = pgTable("notpadd_event", {
+export const event = pgTable("event", {
   id: text("id").primaryKey(),
   type: text("type").notNull(),
   payload: jsonb("payload").notNull(),
-  workspaceId: text("workspace_id")
+  organizationId: text("organization_id")
     .notNull()
-    .references(() => notpaddWorkspace.id, { onDelete: "cascade" }),
+    .references(() => organization.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
 });
 
-export const notpaddWebhook = pgTable("notpadd_webhook", {
+export const webhook = pgTable("webhook", {
   id: text("id").primaryKey(),
-  workspaceId: text("workspace_id")
+  organizationId: text("organization_id")
     .notNull()
-    .references(() => notpaddWorkspace.id, { onDelete: "cascade" }),
+    .references(() => organization.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
   secret: text("secret"),
   createdAt: timestamp("created_at")
@@ -183,7 +161,7 @@ export const notpaddWebhook = pgTable("notpadd_webhook", {
     .notNull(),
 });
 
-const schema = {
+export const schema = {
   user,
   account,
   session,
@@ -195,11 +173,10 @@ const schema = {
   team,
   teamMember,
   organizationRole,
-  notpaddEvent,
-  notpaddFile,
-  notpaddPost,
-  notpaddWebhook,
-  notpaddWorkspace,
+  event,
+  file,
+  articles,
+  webhook,
 };
 
 export default schema;
