@@ -25,10 +25,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
 }
+
+// <motion.div
+//   className="absolute left-[-50%] top-[-50%] h-[200%] w-[200%] bg-[conic-gradient(from_0deg,transparent_0%,#4DAFFE_10%,#4DAFFE_25%,transparent_35%)]"
+//   animate={{ rotate: 360 }}
+//   transition={{
+//     duration: 1.25,
+//     repeat: Infinity,
+//     ease: "linear",
+//     repeatType: "loop",
+//   }}
+// />;
