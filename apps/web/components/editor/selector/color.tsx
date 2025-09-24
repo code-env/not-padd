@@ -1,6 +1,5 @@
 import { Check, ChevronDown } from "lucide-react";
 import { EditorBubbleItem, useEditor } from "novel";
-import type { Dispatch, SetStateAction } from "react";
 
 import { Button } from "@notpadd/ui/components/button";
 import {
@@ -11,11 +10,6 @@ import {
 export interface BubbleColorMenuItem {
   name: string;
   color: string;
-}
-
-interface ColorSelectorProps {
-  isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const TEXT_COLORS: BubbleColorMenuItem[] = [
@@ -116,7 +110,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button className="gap-2 rounded-none" variant="ghost">
+        <Button size="sm" className="gap-2 rounded-none" variant="ghost">
           <span
             className="rounded-sm px-1"
             style={{
@@ -132,16 +126,16 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
 
       <PopoverContent
         sideOffset={5}
-        className="my-1 flex max-h-80 w-48 flex-col overflow-hidden overflow-y-auto rounded border p-1 shadow-xl "
+        className="my-1 flex max-h-80 w-48 flex-col overflow-hidden overflow-y-auto rounded border p-1 shadow-xl"
         align="start"
       >
         <div className="flex flex-col">
           <div className="my-1 px-2 text-sm font-semibold text-muted-foreground">
             Color
           </div>
-          {TEXT_COLORS.map(({ name, color }, index) => (
+          {TEXT_COLORS.map(({ name, color }) => (
             <EditorBubbleItem
-              key={index}
+              key={name}
               onSelect={() => {
                 editor.commands.unsetColor();
                 name !== "Default" &&
@@ -150,6 +144,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
                     .focus()
                     .setColor(color || "")
                     .run();
+                onOpenChange(false);
               }}
               className="flex cursor-pointer items-center justify-between px-2 py-1 text-sm hover:bg-accent"
             >
@@ -169,12 +164,14 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
           <div className="my-1 px-2 text-sm font-semibold text-muted-foreground">
             Background
           </div>
-          {HIGHLIGHT_COLORS.map(({ name, color }, index) => (
+          {HIGHLIGHT_COLORS.map(({ name, color }) => (
             <EditorBubbleItem
-              key={index}
+              key={name}
               onSelect={() => {
                 editor.commands.unsetHighlight();
-                name !== "Default" && editor.commands.setHighlight({ color });
+                name !== "Default" &&
+                  editor.chain().focus().setHighlight({ color }).run();
+                onOpenChange(false);
               }}
               className="flex cursor-pointer items-center justify-between px-2 py-1 text-sm hover:bg-accent"
             >

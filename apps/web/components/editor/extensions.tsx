@@ -1,16 +1,34 @@
 import {
+  AIHighlight,
+  CharacterCount,
+  CodeBlockLowlight,
+  Color,
+  CustomKeymap,
+  GlobalDragHandle,
+  HighlightExtension,
+  HorizontalRule,
+  MarkdownExtension,
+  Placeholder,
+  StarterKit,
+  TaskItem,
+  TaskList,
+  TextStyle,
   TiptapImage,
   TiptapLink,
+  TiptapUnderline,
+  Twitter,
   UpdatedImage,
-  TaskList,
-  TaskItem,
-  HorizontalRule,
-  StarterKit,
-  Placeholder,
-} from "novel";
+  Youtube,
+  Mathematics,
+} from "novel/extensions";
+import { UploadImagesPlugin } from "novel/plugins";
 
 import { cn } from "@notpadd/ui/lib/utils";
+import { common, createLowlight } from "lowlight";
 
+//TODO I am using cx here to get tailwind autocomplete working, idk if someone else can write a regex to just capture the class key in objects
+const aiHighlight = AIHighlight;
+//You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder;
 const tiptapLink = TiptapLink.configure({
   HTMLAttributes: {
@@ -20,14 +38,36 @@ const tiptapLink = TiptapLink.configure({
   },
 });
 
-const taskList = TaskList.configure({
+const tiptapImage = TiptapImage.extend({
+  addProseMirrorPlugins() {
+    return [
+      UploadImagesPlugin({
+        imageClass: cn("opacity-40 rounded-lg border border-stone-200"),
+      }),
+    ];
+  },
+}).configure({
+  allowBase64: true,
   HTMLAttributes: {
-    class: cn("not-prose pl-2"),
+    class: cn("rounded-lg border border-muted"),
   },
 });
+
+const updatedImage = UpdatedImage.configure({
+  HTMLAttributes: {
+    class: cn("rounded-lg border border-muted"),
+  },
+});
+
+const taskList = TaskList.configure({
+  HTMLAttributes: {
+    class: cn("not-prose pl-2 "),
+  },
+});
+
 const taskItem = TaskItem.configure({
   HTMLAttributes: {
-    class: cn("flex items-start my-4"),
+    class: cn("flex gap-2 items-start my-4"),
   },
   nested: true,
 });
@@ -61,7 +101,9 @@ const starterKit = StarterKit.configure({
   },
   codeBlock: {
     HTMLAttributes: {
-      class: cn("rounded-sm bg-muted border p-5 font-mono font-medium"),
+      class: cn(
+        "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium"
+      ),
     },
   },
   code: {
@@ -78,13 +120,57 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
+const codeBlockLowlight = CodeBlockLowlight.configure({
+  // configure lowlight: common /  all / use highlightJS in case there is a need to specify certain language grammars only
+  // common: covers 37 language grammars which should be good enough in most cases
+  lowlight: createLowlight(common),
+});
+
+const youtube = Youtube.configure({
+  HTMLAttributes: {
+    class: cn("rounded-lg border border-muted"),
+  },
+  inline: false,
+});
+
+const twitter = Twitter.configure({
+  HTMLAttributes: {
+    class: cn("not-prose"),
+  },
+  inline: false,
+});
+
+const mathematics = Mathematics.configure({
+  HTMLAttributes: {
+    class: cn("text-foreground rounded p-1 hover:bg-accent cursor-pointer"),
+  },
+  katexOptions: {
+    throwOnError: false,
+  },
+});
+
+const characterCount = CharacterCount.configure();
+
 export const defaultExtensions = [
   starterKit,
   placeholder,
-  TiptapLink,
-  TiptapImage,
-  UpdatedImage,
+  tiptapLink,
+  tiptapImage,
+  updatedImage,
   taskList,
   taskItem,
   horizontalRule,
+  aiHighlight,
+  codeBlockLowlight,
+  youtube,
+  twitter,
+  mathematics,
+  characterCount,
+  TiptapUnderline,
+  MarkdownExtension,
+  HighlightExtension,
+  TextStyle,
+  Color,
+  CustomKeymap,
+  GlobalDragHandle,
 ];

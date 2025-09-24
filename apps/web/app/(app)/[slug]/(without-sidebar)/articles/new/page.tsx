@@ -7,8 +7,18 @@ export const metadata: Metadata = {
   description: "Create a new article",
 };
 
+export const defaultValue = {
+  type: "doc",
+  content: [
+    {
+      type: "paragraph",
+      content: [],
+    },
+  ],
+};
+
 const CreateNewArticle = () => {
-  return <Editor />;
+  return <Editor initialValue={defaultValue} onChange={() => {}} />;
 };
 
 export default CreateNewArticle;
