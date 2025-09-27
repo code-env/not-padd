@@ -7,7 +7,12 @@ export const defaultValue = {
   content: [
     {
       type: "paragraph",
-      content: [],
+      content: [
+        {
+          type: "text",
+          text: "Type something...",
+        },
+      ],
     },
   ],
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "@notpadd/ui/styles/prose-mirror.css";
 
 import {
   EditorCommand,
@@ -71,7 +72,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
           immediatelyRender={false}
           initialContent={initialValue}
           extensions={extensions}
-          className="min-h-96 rounded-xl  p-4"
+          className="min-h-96 rounded-xl p-4"
           editorProps={{
             handleDOMEvents: {
               keydown: (_view, event) => handleCommandNavigation(event),

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./globals.css": "./src/styles/globals.css",
+    "./styles/*": "./src/styles/*.css",
     "./postcss.config": "./postcss.config.mjs",
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
@@ -23,6 +23,7 @@
     "@types/react-dom": "19.1.1",
     "eslint": "^9.31.0",
     "tailwindcss": "^4.1.13",
+    "tw-prose": "^0.0.10",
     "typescript": "5.8.2"
   },
   "dependencies": {
