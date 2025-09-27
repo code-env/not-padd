@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "@notpadd/ui/styles/prose-mirror.css";
 
 import {
   EditorCommand,

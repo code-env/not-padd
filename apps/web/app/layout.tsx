@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@notpadd/ui/styles/globals.css";
-import "@notpadd/ui/styles/prose-mirror.css";
 import Providers from "@/components/providers";
 
 const geistSans = localFont({
