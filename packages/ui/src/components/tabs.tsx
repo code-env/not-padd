@@ -177,7 +177,7 @@ function TabsTrigger({
   }, [value, registerTrigger]);
 
   return (
-    <MotionHighlightItem value={value} className="size-full">
+    <MotionHighlightItem value={value}>
       <motion.button
         ref={localRef}
         data-slot="tabs-trigger"

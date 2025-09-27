@@ -33,7 +33,7 @@ const UploadImage = () => {
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="password">Password</TabsTrigger>
           </TabsList>
-          <TabsContents className="mx-1 mb-1 -mt-2 rounded-sm h-full bg-background">
+          <TabsContents className="mx-1 mb-1 -mt-2 h-auto">
             <TabsContent value="account" className="space-y-6 p-6">
               <p className="text-sm text-muted-foreground">
                 Make changes to your account here. Click save when you&apos;re
@@ -43,7 +43,14 @@ const UploadImage = () => {
             <TabsContent value="password" className="space-y-6 p-6">
               <p className="text-sm text-muted-foreground">
                 Change your password here. After saving, you&apos;ll be logged
-                out.
+                out. Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Voluptate cum doloribus, odio laudantium perferendis veritatis
+                possimus! Ab maiores accusamus, rerum nesciunt, praesentium cum
+                veniam perferendis mollitia odit modi officia minima. Lorem
+                ipsum dolor sit amet consectetur adipisicing elit. Repudiandae,
+                doloribus provident omnis impedit modi placeat consequatur
+                commodi quas alias amet laudantium quam! Aliquam recusandae
+                corporis vero reiciendis aliquid necessitatibus dignissimos.
               </p>
             </TabsContent>
           </TabsContents>

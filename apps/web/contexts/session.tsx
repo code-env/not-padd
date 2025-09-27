@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  type PropsWithChildren,
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
 import { type Session } from "@notpadd/auth/auth";
-import { useRouter } from "next/navigation";
+import { type PropsWithChildren, createContext, useContext } from "react";
 
 type SessionContextType = Session;
 
