@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "@notpadd/ui/styles/prose-mirror.css";
 
 import {
@@ -9,12 +9,14 @@ import {
   EditorCommandItem,
   EditorCommandList,
   EditorContent,
+  EditorInstance,
   EditorRoot,
   type JSONContent,
 } from "novel";
 
 import { ImageResizer, handleCommandNavigation } from "novel/extensions";
 import { handleImageDrop, handleImagePaste } from "novel/plugins";
+import { useDebouncedCallback } from "use-debounce";
 
 import { defaultExtensions } from "@/components/editor/extensions";
 import { uploadFn } from "@/components/editor/image-upload";
@@ -50,6 +52,9 @@ interface EditorProps {
 }
 
 export default function Editor({ initialValue, onChange }: EditorProps) {
+  const [initialContent, setInitialContent] = useState<null | JSONContent>(
+    null
+  );
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
@@ -65,12 +70,36 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
     return new XMLSerializer().serializeToString(doc);
   };
 
+  const debouncedUpdates = useDebouncedCallback(
+    async (editor: EditorInstance) => {
+      const json = editor.getJSON();
+      window.localStorage.setItem(
+        "html-content",
+        highlightCodeblocks(editor.getHTML())
+      );
+      window.localStorage.setItem("novel-content", JSON.stringify(json));
+      window.localStorage.setItem(
+        "markdown",
+        editor.storage.markdown.getMarkdown()
+      );
+    },
+    500
+  );
+
+  useEffect(() => {
+    const content = window.localStorage.getItem("novel-content");
+    if (content) setInitialContent(JSON.parse(content));
+    else setInitialContent(defaultEditorContent);
+  }, []);
+
+  if (!initialContent) return null;
+
   return (
     <div className="relative w-full max-w-screen-lg  mx-auto">
       <EditorRoot>
         <EditorContent
           immediatelyRender={false}
-          initialContent={initialValue}
+          initialContent={initialContent}
           extensions={extensions}
           className="min-h-96 rounded-xl p-4"
           editorProps={{
@@ -87,6 +116,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
             },
           }}
           onUpdate={({ editor }) => {
+            debouncedUpdates(editor);
             onChange(editor.getHTML());
           }}
           slotAfter={<ImageResizer />}
