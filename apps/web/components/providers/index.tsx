@@ -6,6 +6,7 @@ import { OrganizationProvider } from "@/contexts";
 import { authClient } from "@notpadd/auth/auth-client";
 import { usePathname, useRouter } from "next/navigation";
 import { useMounted } from "@/hooks/use-mouted";
+import Modals from "@/components/modals";
 
 const Providers = ({ children }: { children: ReactNode }) => {
   const { data: activeOrganization, isPending } =
@@ -32,6 +33,7 @@ const Providers = ({ children }: { children: ReactNode }) => {
     <OrganizationProvider>
       {children}
       <Toaster />
+      <Modals />
     </OrganizationProvider>
   );
 };

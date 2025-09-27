@@ -5,8 +5,6 @@ import { useEffect, useState } from "react";
 import {
   EditorCommand,
   EditorCommandEmpty,
-  EditorCommandItem,
-  EditorCommandList,
   EditorContent,
   EditorInstance,
   EditorRoot,
@@ -23,13 +21,11 @@ import { ColorSelector } from "@/components/editor/selector/color";
 import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
 import { TextButtons } from "@/components/editor/selector/text-button";
-import {
-  slashCommand,
-  suggestionItems,
-} from "@/components/editor/slash-command";
+import { slashCommand } from "@/components/editor/slash-command";
 
 import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
+import SlashCommands from "./slash-commands";
 
 const hljs = require("highlight.js");
 
@@ -124,26 +120,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
             <EditorCommandEmpty className="px-2 text-muted-foreground">
               No results
             </EditorCommandEmpty>
-            <EditorCommandList>
-              {suggestionItems.map((item) => (
-                <EditorCommandItem
-                  value={item.title}
-                  onCommand={(val) => item.command?.(val)}
-                  className="flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent"
-                  key={item.title}
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-muted bg-background">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="font-medium">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                </EditorCommandItem>
-              ))}
-            </EditorCommandList>
+            <SlashCommands />
           </EditorCommand>
 
           <EditorMenu open={openAI} onOpenChange={setOpenAI}>
