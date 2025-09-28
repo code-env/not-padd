@@ -112,6 +112,7 @@ export const ourFileRouter = {
           uploadedBy: metadata.user.id,
           fileInsertedId: fileRecord?.[0]?.id,
           storageUsed: organizationRecord?.[0]?.storageUsed,
+          url: file.ufsUrl,
         };
       } catch (error: any) {
         if (file && error) {

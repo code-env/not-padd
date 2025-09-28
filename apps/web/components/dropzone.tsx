@@ -9,10 +9,8 @@ import {
 } from "uploadthing/client";
 
 import useUploader, { type EndPoint } from "@/hooks/use-uploader";
-import { Icons } from "@notpadd/ui/components/icons";
 import { cn } from "@notpadd/ui/lib/utils";
 import { Loader, Upload } from "lucide-react";
-import Image from "next/image";
 
 interface DropZoneProps {
   organizationId: string;

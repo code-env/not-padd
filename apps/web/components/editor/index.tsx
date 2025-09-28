@@ -16,7 +16,7 @@ import { handleImageDrop, handleImagePaste } from "novel/plugins";
 import { useDebouncedCallback } from "use-debounce";
 
 import { defaultExtensions } from "@/components/editor/extensions";
-import { uploadFn } from "@/components/editor/image-upload";
+import { useUploadFn } from "@/components/editor/image-upload";
 import { ColorSelector } from "@/components/editor/selector/color";
 import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
@@ -54,6 +54,8 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
+
+  const uploadFn = useUploadFn();
 
   const highlightCodeblocks = (content: string) => {
     const doc = new DOMParser().parseFromString(content, "text/html");

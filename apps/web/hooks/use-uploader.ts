@@ -2,7 +2,6 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useOrganizationContext } from "@/contexts";
 
 export type EndPoint = "mediaUploader";
 
@@ -14,9 +13,20 @@ export interface Attachment {
   type?: string;
 }
 
+const renameFile = (file: File) => {
+  const extension = file.name.split(".").pop() || "";
+  const renamedFile = new File(
+    [file],
+    `file_${crypto.randomUUID()}.${extension}`,
+    {
+      type: file.type,
+    }
+  );
+  return renamedFile;
+};
+
 export default function useUploader(endpoint: EndPoint) {
   const [attachment, setAttachment] = useState<Attachment | null>(null);
-  const { activeOrganization } = useOrganizationContext();
   const [uploadProgress, setUploadProgress] = useState<number>();
   const [url, setUrl] = useState<string | null>(null);
 
@@ -27,15 +37,7 @@ export default function useUploader(endpoint: EndPoint) {
       const file = files[0];
       if (!file) return files;
 
-      const extension = file.name.split(".").pop() || "";
-      const renamedFile = new File(
-        [file],
-        `file_${crypto.randomUUID()}.${extension}`,
-        {
-          type: file.type,
-        }
-      );
-
+      const renamedFile = renameFile(file);
       setAttachment({ file: renamedFile, isUploading: true });
 
       return [renamedFile];
