@@ -7,14 +7,10 @@ import {
 } from "@notpadd/db/schema";
 import { and, eq } from "drizzle-orm";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
+import { UploadThingError, UTApi } from "uploadthing/server";
 import { z } from "zod";
 
 const f = createUploadthing();
-
-function parseBytesToMB(bytes: number): number {
-  return Number((bytes / 1024 / 1024).toFixed(2));
-}
 
 const handleAuth = async (req: Request) => {
   const session = await auth.api.getSession({
@@ -79,35 +75,53 @@ export const ourFileRouter = {
         input.organizationId
       );
 
-      const size = parseBytesToMB(input.size);
+      console.log({
+        size: input.size,
+        storageUsed: organization.storageUsed,
+        storageLimit: organization.storageLimit,
+        storageUsedPlusSize: organization.storageUsed + input.size,
+      });
 
-      if (organization.storageUsed + size > organization.storageLimit)
+      if (organization.storageUsed + input.size > organization.storageLimit)
         throw new UploadThingError("Organization storage limit reached");
 
-      return { user, organization };
+      return { user, organization, size: input.size };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      const { organization } = metadata;
-      const fileRecord = await db.insert(fileTable).values({
-        id: crypto.randomUUID(),
-        organizationId: metadata.organization.id,
-        name: file.name,
-        url: file.ufsUrl,
-        size: parseBytesToMB(file.size),
-      });
-      const organizationRecord = await db
-        .update(organizationTable)
-        .set({
-          storageUsed: organization.storageUsed + parseBytesToMB(file.size),
-        })
-        .where(eq(organizationTable.id, organization.id));
+      try {
+        const { size } = metadata;
 
-      console.log({
-        fileRecord,
-        organizationRecord,
-      });
+        const values: typeof fileTable.$inferInsert = {
+          id: crypto.randomUUID(),
+          organizationId: metadata.organization.id,
+          name: file.name,
+          url: file.ufsUrl,
+          size,
+        };
 
-      return { uploadedBy: metadata.user.id };
+        const [fileRecord, organizationRecord] = await Promise.all([
+          db.insert(fileTable).values(values).returning({ id: fileTable.id }),
+          db
+            .update(organizationTable)
+            .set({ storageUsed: metadata.organization.storageUsed + size })
+            .where(eq(organizationTable.id, metadata.organization.id))
+            .returning({ storageUsed: organizationTable.storageUsed }),
+        ]);
+
+        return {
+          uploadedBy: metadata.user.id,
+          fileInsertedId: fileRecord?.[0]?.id,
+          storageUsed: organizationRecord?.[0]?.storageUsed,
+        };
+      } catch (error: any) {
+        if (file && error) {
+          const api = new UTApi();
+          await api.deleteFiles(file.key);
+        }
+
+        console.error("onUploadComplete DB error:", error.message);
+        throw new UploadThingError("Failed to persist uploaded file");
+      }
     }),
 } satisfies FileRouter;
 

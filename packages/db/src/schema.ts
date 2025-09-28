@@ -1,10 +1,10 @@
 import {
+  bigint,
   boolean,
   jsonb,
   pgTable,
   text,
   timestamp,
-  integer,
 } from "drizzle-orm/pg-core";
 import {
   account,
@@ -24,8 +24,10 @@ export const organization = pgTable("organization", {
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
-  storageLimit: integer("storage_limit").notNull().default(100),
-  storageUsed: integer("storage_used").notNull().default(0),
+  storageLimit: bigint("storage_limit", { mode: "number" })
+    .notNull()
+    .default(100 * 1024 * 1024),
+  storageUsed: bigint("storage_used", { mode: "number" }).notNull().default(0),
 });
 
 export const member = pgTable("member", {
@@ -109,7 +111,7 @@ export const file = pgTable("file", {
     .references(() => organization.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   url: text("url").notNull(),
-  size: integer("size").notNull(),
+  size: bigint("size", { mode: "number" }).notNull(),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
