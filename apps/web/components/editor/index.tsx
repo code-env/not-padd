@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   EditorCommand,
@@ -22,6 +22,7 @@ import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
 import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
+import UploadImage from "@/components/modals/upload-image";
 
 import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
@@ -54,6 +55,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
+  const editorRef = useRef<EditorInstance | null>(null);
 
   const uploadFn = useUploadFn();
 
@@ -99,6 +101,9 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
           initialContent={initialContent}
           extensions={extensions}
           className="min-h-96 rounded-xl p-4"
+          onCreate={({ editor }) => {
+            editorRef.current = editor;
+          }}
           editorProps={{
             handleDOMEvents: {
               keydown: (_view, event) => handleCommandNavigation(event),
@@ -113,6 +118,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
             },
           }}
           onUpdate={({ editor }) => {
+            editorRef.current = editor;
             debouncedUpdates(editor);
             onChange(editor.getHTML());
           }}
@@ -124,6 +130,8 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
             </EditorCommandEmpty>
             <SlashCommands />
           </EditorCommand>
+
+          <UploadImage />
 
           <EditorMenu open={openAI} onOpenChange={setOpenAI}>
             <Separator orientation="vertical" />

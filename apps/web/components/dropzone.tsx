@@ -11,6 +11,9 @@ import {
 import useUploader, { type EndPoint } from "@/hooks/use-uploader";
 import { cn } from "@notpadd/ui/lib/utils";
 import { Loader, Upload } from "lucide-react";
+import useModal from "@/hooks/use-modal";
+import { toast } from "sonner";
+import { useEditor } from "novel";
 
 interface DropZoneProps {
   organizationId: string;
@@ -18,16 +21,25 @@ interface DropZoneProps {
 }
 
 const DropZone = ({ organizationId, type }: DropZoneProps) => {
-  const { routeConfig, startUpload, isUploading, uploadProgress } =
+  const { routeConfig, startUpload, isUploading, uploadProgress, url } =
     useUploader(type);
+
+  const { onClose, type: modalType, isOpen } = useModal();
+
+  const { editor } = useEditor();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (file) {
-        startUpload([file], {
+        const promise = startUpload([file], {
           organizationId,
           size: file.size,
+        });
+        toast.promise(promise, {
+          loading: "Uploading image...",
+          success: "Image uploaded successfully.",
+          error: "Error uploading image.",
         });
       }
     },
@@ -50,9 +62,14 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
         .filter((file): file is File => file !== null);
       const file = files[0];
       if (file) {
-        startUpload([file], {
+        const promise = startUpload([file], {
           organizationId,
           size: file.size,
+        });
+        toast.promise(promise, {
+          loading: "Uploading image...",
+          success: "Image uploaded successfully.",
+          error: "Error uploading image.",
         });
       }
     }
@@ -69,6 +86,21 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
       window.removeEventListener("paste", handlePaste);
     };
   }, []);
+
+  useEffect(() => {
+    if (editor && url) {
+      editor
+        ?.chain()
+        .focus()
+        .setImage({ src: url as string })
+        .createParagraphNear()
+        .run();
+
+      if (isOpen && modalType === "upload-image") {
+        onClose();
+      }
+    }
+  }, [editor, url]);
 
   return (
     <div
