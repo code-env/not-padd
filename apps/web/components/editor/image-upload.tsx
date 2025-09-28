@@ -10,6 +10,7 @@ export const useUploadFn = () => {
   const { startUpload } = useUploader("mediaUploader");
 
   const onUpload = (file: File) => {
+    console.log(file);
     const promise = startUpload([file], {
       organizationId: activeOrganization?.id as string,
       size: file.size,
@@ -46,8 +47,8 @@ export const useUploadFn = () => {
         toast.error("File type not supported.");
         return false;
       }
-      if (file.size / 1024 / 1024 > 20) {
-        toast.error("File size too big (max 20MB).");
+      if (file.size / 1024 / 1024 > 4) {
+        toast.error("File size too big (max 4MB).");
         return false;
       }
       return true;

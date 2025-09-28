@@ -54,39 +54,6 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
     ),
   });
 
-  const onPaste = (e: ClipboardEvent) => {
-    if (e.clipboardData && e.clipboardData.items) {
-      const files = Array.from(e.clipboardData.items)
-        .filter((item) => item.kind === "file")
-        .map((item) => item.getAsFile())
-        .filter((file): file is File => file !== null);
-      const file = files[0];
-      if (file) {
-        const promise = startUpload([file], {
-          organizationId,
-          size: file.size,
-        });
-        toast.promise(promise, {
-          loading: "Uploading image...",
-          success: "Image uploaded successfully.",
-          error: "Error uploading image.",
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handlePaste = (e: Event) => {
-      const clipboardEvent = e as unknown as ClipboardEvent;
-      onPaste(clipboardEvent);
-    };
-
-    window.addEventListener("paste", handlePaste);
-    return () => {
-      window.removeEventListener("paste", handlePaste);
-    };
-  }, []);
-
   useEffect(() => {
     if (editor && url) {
       editor
@@ -106,13 +73,13 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
     <div
       {...getRootProps()}
       className={cn(
-        "transition-all duration-200 border-2 border-dashed border-primary/50 aspect-video rounded-lg p-4 relative overflow-hidden group",
+        "transition-all duration-200 border-2 border-dashed border-primary/50 aspect-video rounded-lg p-4 relative overflow-hidden group outline-none!",
         {
           "bg-primary/5 p-2": isDragActive,
         }
       )}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps()} className="outline-none!" />
 
       <div className="absolute inset-0 flex items-center justify-center flex-col gap-2">
         <div className="flex items-center justify-center size-10 bg-primary rounded-md text-primary-foreground">

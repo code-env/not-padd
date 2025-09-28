@@ -22,25 +22,18 @@ import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
 import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
-import UploadImage from "@/components/modals/upload-image";
 
+import UploadImage from "@/components/modals/upload-image";
 import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
 import SlashCommands from "./slash-commands";
+import { useOrganizationContext } from "@/contexts";
+import useUploader from "@/hooks/use-uploader";
+import { toast } from "sonner";
 
 const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
-
-export const defaultEditorContent = {
-  type: "doc",
-  content: [
-    {
-      type: "paragraph",
-      content: [],
-    },
-  ],
-};
 
 interface EditorProps {
   initialValue?: JSONContent;
@@ -51,12 +44,13 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   const [initialContent, setInitialContent] = useState<null | JSONContent>(
     null
   );
+  const { activeOrganization } = useOrganizationContext();
+  const { startUpload } = useUploader("mediaUploader");
+
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
-  const editorRef = useRef<EditorInstance | null>(null);
-
   const uploadFn = useUploadFn();
 
   const highlightCodeblocks = (content: string) => {
@@ -88,7 +82,40 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   useEffect(() => {
     const content = window.localStorage.getItem("novel-content");
     if (content) setInitialContent(JSON.parse(content));
-    else setInitialContent(defaultEditorContent);
+  }, []);
+
+  const onPaste = (e: ClipboardEvent) => {
+    console.log(e);
+    if (e.clipboardData && e.clipboardData.items) {
+      const files = Array.from(e.clipboardData.items)
+        .filter((item) => item.kind === "file")
+        .map((item) => item.getAsFile())
+        .filter((file): file is File => file !== null);
+      const file = files[0];
+      if (file) {
+        const promise = startUpload([file], {
+          organizationId: activeOrganization?.id as string,
+          size: file.size,
+        });
+        toast.promise(promise, {
+          loading: "Uploading image...",
+          success: "Image uploaded successfully.",
+          error: "Error uploading image.",
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handlePaste = (e: Event) => {
+      const clipboardEvent = e as unknown as ClipboardEvent;
+      onPaste(clipboardEvent);
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
   }, []);
 
   if (!initialContent) return null;
@@ -101,9 +128,6 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
           initialContent={initialContent}
           extensions={extensions}
           className="min-h-96 rounded-xl p-4"
-          onCreate={({ editor }) => {
-            editorRef.current = editor;
-          }}
           editorProps={{
             handleDOMEvents: {
               keydown: (_view, event) => handleCommandNavigation(event),
@@ -118,7 +142,6 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
             },
           }}
           onUpdate={({ editor }) => {
-            editorRef.current = editor;
             debouncedUpdates(editor);
             onChange(editor.getHTML());
           }}

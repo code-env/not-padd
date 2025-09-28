@@ -26,8 +26,6 @@ const Providers = ({ children }: { children: ReactNode }) => {
     }
   }, [activeOrganization, mounted, user]);
 
-  console.log(user);
-
   if (!mounted || isPending || isUserPending) return null;
   return (
     <OrganizationProvider>
