@@ -12,9 +12,12 @@ import {
   TabsContent,
   TabsContents,
 } from "@notpadd/ui/components/tabs";
+import DropZone from "../dropzone";
+import { useOrganizationContext } from "@/contexts";
 
 const UploadImage = () => {
   const { type, onClose } = useModal();
+  const { activeOrganization } = useOrganizationContext();
 
   const isModalOpen = type === "upload-image";
 
@@ -41,17 +44,10 @@ const UploadImage = () => {
               </p>
             </TabsContent>
             <TabsContent value="password" className="space-y-6 p-6">
-              <p className="text-sm text-muted-foreground">
-                Change your password here. After saving, you&apos;ll be logged
-                out. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Voluptate cum doloribus, odio laudantium perferendis veritatis
-                possimus! Ab maiores accusamus, rerum nesciunt, praesentium cum
-                veniam perferendis mollitia odit modi officia minima. Lorem
-                ipsum dolor sit amet consectetur adipisicing elit. Repudiandae,
-                doloribus provident omnis impedit modi placeat consequatur
-                commodi quas alias amet laudantium quam! Aliquam recusandae
-                corporis vero reiciendis aliquid necessitatibus dignissimos.
-              </p>
+              <DropZone
+                type="mediaUploader"
+                organizationId={activeOrganization?.id as string}
+              />
             </TabsContent>
           </TabsContents>
         </Tabs>

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useOrganizationContext } from "@/contexts";
 
-type EndPoint = "mediaUploader";
+export type EndPoint = "mediaUploader";
 
 export interface Attachment {
   file: File;

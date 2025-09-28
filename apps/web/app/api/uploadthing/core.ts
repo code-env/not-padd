@@ -12,6 +12,10 @@ import { z } from "zod";
 
 const f = createUploadthing();
 
+function parseBytesToMB(bytes: number): number {
+  return Number((bytes / 1024 / 1024).toFixed(2));
+}
+
 const handleAuth = async (req: Request) => {
   const session = await auth.api.getSession({
     headers: req.headers,
@@ -75,29 +79,33 @@ export const ourFileRouter = {
         input.organizationId
       );
 
-      if (organization.storageUsed + input.size > organization.storageLimit)
+      const size = parseBytesToMB(input.size);
+
+      if (organization.storageUsed + size > organization.storageLimit)
         throw new UploadThingError("Organization storage limit reached");
 
       return { user, organization };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       const { organization } = metadata;
+      const fileRecord = await db.insert(fileTable).values({
+        id: crypto.randomUUID(),
+        organizationId: metadata.organization.id,
+        name: file.name,
+        url: file.ufsUrl,
+        size: parseBytesToMB(file.size),
+      });
+      const organizationRecord = await db
+        .update(organizationTable)
+        .set({
+          storageUsed: organization.storageUsed + parseBytesToMB(file.size),
+        })
+        .where(eq(organizationTable.id, organization.id));
 
-      await Promise.all([
-        db.insert(fileTable).values({
-          id: crypto.randomUUID(),
-          organizationId: metadata.organization.id,
-          name: file.name,
-          url: file.ufsUrl,
-          size: file.size,
-        }),
-        db
-          .update(organizationTable)
-          .set({
-            storageUsed: organization.storageUsed + file.size,
-          })
-          .where(eq(organizationTable.id, organization.id)),
-      ]);
+      console.log({
+        fileRecord,
+        organizationRecord,
+      });
 
       return { uploadedBy: metadata.user.id };
     }),
