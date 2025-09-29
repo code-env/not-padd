@@ -24,8 +24,6 @@ import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
 
 import UploadImage from "@/components/modals/upload-image";
-import { useOrganizationContext } from "@/contexts";
-import useUploader from "@/hooks/use-uploader";
 import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
 import SlashCommands from "./slash-commands";
@@ -43,8 +41,6 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   const [initialContent, setInitialContent] = useState<null | JSONContent>(
     null
   );
-  const { activeOrganization } = useOrganizationContext();
-  const { startUpload } = useUploader("mediaUploader");
 
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -84,7 +80,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   if (!initialContent) return null;
 
   return (
-    <div className="relative w-full max-w-screen-lg  mx-auto">
+    <div className="relative w-full max-w-6xl mx-auto">
       <EditorRoot>
         <EditorContent
           immediatelyRender={false}
@@ -110,7 +106,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
           }}
           slotAfter={<ImageResizer />}
         >
-          <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
+          <EditorCommand className="z-50 h-full max-h-[330px] overflow-y-auto no-scrollbar rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
             <EditorCommandEmpty className="px-2 text-muted-foreground">
               No results
             </EditorCommandEmpty>

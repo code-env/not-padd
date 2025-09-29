@@ -7,6 +7,7 @@ import { authClient } from "@notpadd/auth/auth-client";
 import { usePathname, useRouter } from "next/navigation";
 import { useMounted } from "@/hooks/use-mouted";
 import Modals from "@/components/modals";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const Providers = ({ children }: { children: ReactNode }) => {
   const { data: activeOrganization, isPending } =
@@ -15,6 +16,8 @@ const Providers = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const mounted = useMounted();
+
+  const queryClient = new QueryClient();
 
   useEffect(() => {
     if (!mounted) return;
@@ -28,11 +31,13 @@ const Providers = ({ children }: { children: ReactNode }) => {
 
   if (!mounted || isPending || isUserPending) return null;
   return (
-    <OrganizationProvider>
-      {children}
-      <Toaster />
-      <Modals />
-    </OrganizationProvider>
+    <QueryClientProvider client={queryClient}>
+      <OrganizationProvider>
+        {children}
+        <Toaster />
+        <Modals />
+      </OrganizationProvider>
+    </QueryClientProvider>
   );
 };
 
