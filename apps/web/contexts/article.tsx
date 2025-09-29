@@ -30,11 +30,7 @@ export const ArticleProvider = ({
   const paths = pathname.split("/");
   const articleId = paths[3];
   const isId =
-    paths[2] === "articles" &&
-    !!articleId &&
-    (articleId === "new" || !articleId.startsWith("new"));
-
-  console.log({ isId });
+    paths[2] === "articles" && !!articleId && !articleId.startsWith("new");
 
   const { data: article } = useQuery({
     queryKey: [QUERY_KEYS.ARTICLE, articleId],
@@ -42,13 +38,20 @@ export const ArticleProvider = ({
     enabled: isId,
   });
 
-  const setArticle = (article: Articles | null) => {
-    setArticle(article);
+  const [articleState, setArticleState] = useState<Articles | null>(null);
+
+  const setArticle = (value: Articles | null) => {
+    setArticleState(value);
   };
 
   return (
     <ArticleContext.Provider
-      value={{ articleId, isId, article: article ?? null, setArticle }}
+      value={{
+        articleId,
+        isId,
+        article: articleState ?? article ?? null,
+        setArticle,
+      }}
     >
       {children}
     </ArticleContext.Provider>
