@@ -2,7 +2,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@notpadd/ui/components/sidebar";
 import React, { type ReactNode } from "react";
 
-const WithSidebarLayout = ({ children }: { children: ReactNode }) => {
+const LeftSidebarLayout = ({ children }: { children: ReactNode }) => {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -11,4 +11,4 @@ const WithSidebarLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default WithSidebarLayout;
+export default LeftSidebarLayout;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   EditorCommand,
@@ -24,12 +24,11 @@ import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
 
 import UploadImage from "@/components/modals/upload-image";
+import { useOrganizationContext } from "@/contexts";
+import useUploader from "@/hooks/use-uploader";
 import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
 import SlashCommands from "./slash-commands";
-import { useOrganizationContext } from "@/contexts";
-import useUploader from "@/hooks/use-uploader";
-import { toast } from "sonner";
 
 const hljs = require("highlight.js");
 
@@ -56,8 +55,6 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   const highlightCodeblocks = (content: string) => {
     const doc = new DOMParser().parseFromString(content, "text/html");
     doc.querySelectorAll("pre code").forEach((el) => {
-      // @ts-ignore
-      // https://highlightjs.readthedocs.io/en/latest/api.html?highlight=highlightElement#highlightelement
       hljs.highlightElement(el);
     });
     return new XMLSerializer().serializeToString(doc);
@@ -84,40 +81,6 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
     if (content) setInitialContent(JSON.parse(content));
   }, []);
 
-  const onPaste = (e: ClipboardEvent) => {
-    console.log(e);
-    if (e.clipboardData && e.clipboardData.items) {
-      const files = Array.from(e.clipboardData.items)
-        .filter((item) => item.kind === "file")
-        .map((item) => item.getAsFile())
-        .filter((file): file is File => file !== null);
-      const file = files[0];
-      if (file) {
-        const promise = startUpload([file], {
-          organizationId: activeOrganization?.id as string,
-          size: file.size,
-        });
-        toast.promise(promise, {
-          loading: "Uploading image...",
-          success: "Image uploaded successfully.",
-          error: "Error uploading image.",
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handlePaste = (e: Event) => {
-      const clipboardEvent = e as unknown as ClipboardEvent;
-      onPaste(clipboardEvent);
-    };
-
-    window.addEventListener("paste", handlePaste);
-    return () => {
-      window.removeEventListener("paste", handlePaste);
-    };
-  }, []);
-
   if (!initialContent) return null;
 
   return (
@@ -125,7 +88,7 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
       <EditorRoot>
         <EditorContent
           immediatelyRender={false}
-          initialContent={initialContent}
+          initialContent={initialContent ?? undefined}
           extensions={extensions}
           className="min-h-96 rounded-xl p-4"
           editorProps={{

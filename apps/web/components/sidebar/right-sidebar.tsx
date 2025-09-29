@@ -24,9 +24,11 @@ import {
   SidebarHeader,
 } from "@notpadd/ui/components/sidebar";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function RightSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} side="right" variant="floating">
       <SidebarHeader>
         <OrganizationSwitcher />
       </SidebarHeader>

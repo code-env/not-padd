@@ -13,11 +13,9 @@ const AfterAuthLayout = async ({ children }: { children: ReactNode }) => {
   if (!session) redirect("/auth/login");
 
   return (
-    <div>
-      <SessionProvider value={session}>
-        <Providers>{children}</Providers>
-      </SessionProvider>
-    </div>
+    <SessionProvider value={session}>
+      <Providers>{children}</Providers>
+    </SessionProvider>
   );
 };
 
