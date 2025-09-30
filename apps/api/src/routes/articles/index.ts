@@ -1,7 +1,7 @@
 import type { ReqVariables } from "@/index";
 import { db } from "@notpadd/db";
 import { articles, member, organization } from "@notpadd/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -14,7 +14,7 @@ const isUserInOrganization = async (
 ) => {
   const user = c.get("user");
   if (!user || !user.id) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const dbOrganization = await db
@@ -24,7 +24,7 @@ const isUserInOrganization = async (
     .limit(1);
 
   if (!dbOrganization || !dbOrganization[0]) {
-    return c.json({ error: "Organization not found" }, 404);
+    return c.json({ error: "Organization not found", success: false }, 404);
   }
 
   const dbMember = await db
@@ -38,7 +38,7 @@ const isUserInOrganization = async (
     )
     .limit(1);
   if (!dbMember || !dbMember[0]) {
-    return c.json({ error: "Member not found" }, 404);
+    return c.json({ error: "Member not found", success: false }, 404);
   }
 
   return true;
@@ -57,7 +57,7 @@ const slugify = (text: string) => {
 articlesRoutes.post("/:organizationId", async (c) => {
   const user = c.get("user");
   if (!user || !user.id) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const { organizationId } = c.req.param();
@@ -65,7 +65,7 @@ articlesRoutes.post("/:organizationId", async (c) => {
 
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const slug = slugify(title);
@@ -85,12 +85,12 @@ articlesRoutes.get("/:organizationId/:slug", async (c) => {
   const { organizationId, slug } = c.req.param();
   const user = c.get("user");
   if (!user || !user.id) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const article = await db
@@ -105,17 +105,57 @@ articlesRoutes.get("/:organizationId/:slug", async (c) => {
   return c.json(article);
 });
 
+articlesRoutes.get("/:organizationId", async (c) => {
+  const { organizationId } = c.req.param();
+  const { page, limit, search } = c.req.query();
+
+  const userInOrg = await isUserInOrganization(c, organizationId);
+  if (!userInOrg) {
+    return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  const pageNumber = parseInt(page || "1");
+  const limitNumber = parseInt(limit || "10");
+
+  const offset = (pageNumber - 1) * limitNumber;
+
+  const [result, total] = await Promise.all([
+    db
+      .select()
+      .from(articles)
+      .where(eq(articles.organizationId, organizationId))
+      .limit(limitNumber)
+      .offset(offset),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(articles)
+      .where(eq(articles.organizationId, organizationId)),
+  ]);
+
+  return c.json({
+    success: true,
+    message: "Articles fetched successfully",
+    data: {
+      data: result,
+      pagination: {
+        total: Number(total[0]?.count) || 0,
+        page: pageNumber,
+        limit: limitNumber,
+      },
+    },
+  });
+});
 articlesRoutes.put("/:organizationId/:slug", async (c) => {
   const { organizationId, slug } = c.req.param();
   const { title, content } = createArticleSchema.parse(await c.req.json());
   const user = c.get("user");
   if (!user || !user.id) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const article = await db
@@ -134,12 +174,12 @@ articlesRoutes.delete("/:organizationId/:slug", async (c) => {
   const { organizationId, slug } = c.req.param();
   const user = c.get("user");
   if (!user || !user.id) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
   const article = await db

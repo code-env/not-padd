@@ -8,11 +8,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@notpadd/ui/components/sidebar";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export function NavMain() {
   const { activeOrganization } = useOrganizationContext();
   const sections = useSidebarRoutes(activeOrganization?.slug as string);
+  const pathname = usePathname();
 
   return (
     <>
@@ -20,16 +22,18 @@ export function NavMain() {
         <SidebarGroup key={idx}>
           <SidebarGroupLabel>{section.name}</SidebarGroupLabel>
           <SidebarMenu>
-            {section.items.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <Link href={item.path}>
-                    {/* <item.icon /> */}
-                    <span>{item.name}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {section.items.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild isActive={isActive}>
+                    <Link href={item.path}>
+                      <span>{item.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       ))}

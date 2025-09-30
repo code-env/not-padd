@@ -3,4 +3,5 @@ export const QUERY_KEYS = {
   ARTICLE: "article",
   ARTICLE_LOCAL_KEY: "notpadd-article-",
   TAGS: "tags",
+  MEDIA: "media",
 };

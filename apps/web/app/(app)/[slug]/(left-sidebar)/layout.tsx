@@ -1,12 +1,17 @@
+import { type ReactNode } from "react";
+
+import Header from "@/components/header";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@notpadd/ui/components/sidebar";
-import React, { type ReactNode } from "react";
 
 const LeftSidebarLayout = ({ children }: { children: ReactNode }) => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <Header />
+        <div className="max-w-6xl w-full mx-auto p-10">{children}</div>
+      </SidebarInset>
     </SidebarProvider>
   );
 };
