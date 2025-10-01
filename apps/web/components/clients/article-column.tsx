@@ -7,6 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import ArticleAction from "./article-action";
 import type { Articles } from "@notpadd/db/types";
+import { cn } from "@notpadd/ui/lib/utils";
 
 export const columns: ColumnDef<Articles>[] = [
   {
@@ -15,7 +16,7 @@ export const columns: ColumnDef<Articles>[] = [
     cell: ({ row }) => {
       const title = row.original.title;
       return (
-        <div className="max-w-72 overflow-x-auto">
+        <div className="max-w-md min-w-md overflow-x-auto">
           <p className="truncate">{title}</p>
         </div>
       );
@@ -28,8 +29,11 @@ export const columns: ColumnDef<Articles>[] = [
       const status = row.original.publishedAt ? "published" : "draft";
       return (
         <Badge
-          className="rounded-[6px]"
-          variant={status === "published" ? "default" : "secondary"}
+          className={cn(
+            status === "published"
+              ? "bg-green-500/10 border border-green-500/20 text-green-800"
+              : "bg-yellow-500/10 border border-yellow-500/20 text-yellow-500"
+          )}
         >
           {status === "published" ? "Published" : "Draft"}
         </Badge>
@@ -45,15 +49,19 @@ export const columns: ColumnDef<Articles>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           variant="ghost"
         >
-          Published
+          Published At
           <ChevronsUpDown className="h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) =>
-      row.original.publishedAt
-        ? format(row.original.publishedAt, "MMM dd, yyyy")
-        : "N/A",
+    cell: ({ row }) => {
+      const publishedAt = row.original.publishedAt;
+      return (
+        <p className="px-4 text-red-200">
+          {publishedAt ? format(publishedAt, "MMM dd, yyyy") : "Not Published"}
+        </p>
+      );
+    },
   },
   {
     accessorKey: "updatedAt",
@@ -69,7 +77,14 @@ export const columns: ColumnDef<Articles>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => format(row.original.updatedAt, "MMM dd, yyyy"),
+    cell: ({ row }) => {
+      const updatedAt = row.original.updatedAt;
+      return (
+        <p className="px-4">
+          {updatedAt ? format(updatedAt, "MMM dd, yyyy") : "N/A"}
+        </p>
+      );
+    },
   },
   {
     id: "actions",

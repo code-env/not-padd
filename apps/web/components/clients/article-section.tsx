@@ -7,12 +7,25 @@ import { ARTICLES_QUERIES } from "@/lib/queries";
 import { Button } from "@notpadd/ui/components/button";
 import { Input } from "@notpadd/ui/components/input";
 import { useQuery } from "@tanstack/react-query";
+import {
+  type ColumnFiltersState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { File } from "lucide-react";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
+import { ArticlesLoading } from "@/components/loading-uis";
+import { columns } from "./article-column";
+import { ArticleTable } from "./article-table";
 
 export const ArticleSection = () => {
   const { activeOrganization } = useOrganizationContext();
-  const [search, setSearch] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: [QUERY_KEYS.ARTICLES, activeOrganization?.id],
     queryFn: () =>
@@ -23,8 +36,27 @@ export const ArticleSection = () => {
       }),
   });
 
+  const table = useReactTable({
+    data: data?.data || [],
+    columns,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col gap-10">
+        <ArticleHeader disabled={true} onSearch={() => {}} />
+        <ArticlesLoading columns={10} />
+      </div>
+    );
   }
 
   if (isError) {
@@ -37,15 +69,18 @@ export const ArticleSection = () => {
     <div className="flex flex-col gap-10">
       <ArticleHeader
         disabled={data?.data.length === 0 || isLoading}
-        onSearch={setSearch}
+        onSearch={(search) =>
+          table.setColumnFilters([{ id: "title", value: search }])
+        }
       />
+      <ArticleTable table={table} columns={columns} />
     </div>
   );
 };
 
 interface ArticleHeaderProps {
   disabled: boolean;
-  onSearch: Dispatch<SetStateAction<string>>;
+  onSearch: (search: string) => void;
 }
 
 const ArticleHeader = ({ disabled, onSearch }: ArticleHeaderProps) => {

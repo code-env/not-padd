@@ -37,6 +37,17 @@ export const ARTICLES_QUERIES = {
 
     return response.data.data;
   },
+  deleteArticle: async (organizationId: string, articleId: string) => {
+    const response = await apiClient.delete<APIResponse<Articles>>(
+      `/articles/${organizationId}/${articleId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
 };
 
 export const MEDIA_QUERIES = {

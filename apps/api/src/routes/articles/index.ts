@@ -76,19 +76,22 @@ articlesRoutes.post("/:organizationId", async (c) => {
 
     const slug = slugify(title);
 
-    const article = await db.insert(articles).values({
-      id: crypto.randomUUID(),
-      title,
-      slug,
-      description,
-      organizationId,
-    });
+    const article = await db
+      .insert(articles)
+      .values({
+        id: crypto.randomUUID(),
+        title,
+        slug,
+        description,
+        organizationId,
+      })
+      .returning();
 
     return c.json({
       success: true,
       message: "Article created successfully",
       data: {
-        data: article,
+        data: article[0],
       },
     });
   } catch (error: any) {
@@ -114,10 +117,16 @@ articlesRoutes.get("/:organizationId/:slug", async (c) => {
     .where(
       and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
     );
-  if (!article) {
-    return c.json({ error: "Article not found" }, 404);
+  if (!article || !article[0]) {
+    return c.json({ error: "Article not found", success: false }, 404);
   }
-  return c.json(article);
+  return c.json({
+    success: true,
+    message: "Article fetched successfully",
+    data: {
+      data: article[0],
+    },
+  });
 });
 
 articlesRoutes.get("/:organizationId", async (c) => {
@@ -179,14 +188,22 @@ articlesRoutes.put("/:organizationId/:slug", async (c) => {
     .where(
       and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
     );
+
   if (!article) {
-    return c.json({ error: "Article not found" }, 404);
+    return c.json({ error: "Article not found", success: false }, 404);
   }
-  return c.json(article);
+
+  return c.json({
+    success: true,
+    message: "Article fetched successfully",
+    data: {
+      data: article,
+    },
+  });
 });
 
-articlesRoutes.delete("/:organizationId/:slug", async (c) => {
-  const { organizationId, slug } = c.req.param();
+articlesRoutes.delete("/:organizationId/:articleId", async (c) => {
+  const { organizationId, articleId } = c.req.param();
   const user = c.get("user");
   if (!user || !user.id) {
     return c.json({ error: "Unauthorized", success: false }, 401);
@@ -198,14 +215,30 @@ articlesRoutes.delete("/:organizationId/:slug", async (c) => {
   }
 
   const article = await db
+    .select()
+    .from(articles)
+    .where(eq(articles.id, articleId));
+
+  if (!article || !article[0]) {
+    return c.json({ error: "Article not found", success: false }, 404);
+  }
+
+  await db
     .delete(articles)
     .where(
-      and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
+      and(
+        eq(articles.organizationId, organizationId),
+        eq(articles.id, articleId)
+      )
     );
-  if (!article) {
-    return c.json({ error: "Article not found" }, 404);
-  }
-  return c.json(article);
+
+  return c.json({
+    success: true,
+    message: "Article deleted successfully",
+    data: {
+      data: article[0],
+    },
+  });
 });
 
 export default articlesRoutes;
