@@ -12,7 +12,7 @@ import {
 import { Button } from "@notpadd/ui/components/button";
 
 export const ConfirmationModal = () => {
-  const { onClose, type, open, title, description, confirmText } =
+  const { onClose, open, title, description, confirmText } =
     useConfirmationModal();
 
   return (

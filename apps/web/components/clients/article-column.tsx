@@ -2,25 +2,13 @@
 
 import { Badge } from "@notpadd/ui/components/badge";
 import { Button } from "@notpadd/ui/components/button";
-import { CaretUpDownIcon } from "@phosphor-icons/react";
+import { ChevronsUpDown } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import PostActions from "./post-actions";
+import ArticleAction from "./article-action";
+import type { Articles } from "@notpadd/db/types";
 
-export type Post = {
-  id: string;
-  title: string;
-  status: "published" | "unpublished";
-  publishedAt: Date;
-  updatedAt: Date;
-  authors: Array<{
-    id: string;
-    name: string;
-    image: string | null;
-  }>;
-};
-
-export const columns: ColumnDef<Post>[] = [
+export const columns: ColumnDef<Articles>[] = [
   {
     accessorKey: "title",
     header: "Title",
@@ -37,11 +25,11 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.original.status;
+      const status = row.original.publishedAt ? "published" : "draft";
       return (
         <Badge
           className="rounded-[6px]"
-          variant={status === "published" ? "positive" : "pending"}
+          variant={status === "published" ? "default" : "secondary"}
         >
           {status === "published" ? "Published" : "Draft"}
         </Badge>
@@ -58,11 +46,14 @@ export const columns: ColumnDef<Post>[] = [
           variant="ghost"
         >
           Published
-          <CaretUpDownIcon className="h-4 w-4" />
+          <ChevronsUpDown className="h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => format(row.original.publishedAt, "MMM dd, yyyy"),
+    cell: ({ row }) =>
+      row.original.publishedAt
+        ? format(row.original.publishedAt, "MMM dd, yyyy")
+        : "N/A",
   },
   {
     accessorKey: "updatedAt",
@@ -74,7 +65,7 @@ export const columns: ColumnDef<Post>[] = [
           variant="ghost"
         >
           Last Updated
-          <CaretUpDownIcon className="h-4 w-4" />
+          <ChevronsUpDown className="h-4 w-4" />
         </Button>
       );
     },
@@ -84,11 +75,11 @@ export const columns: ColumnDef<Post>[] = [
     id: "actions",
     header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
-      const post = row.original;
+      const article = row.original;
 
       return (
         <div className="flex justify-end pr-10">
-          <PostActions post={post} />
+          <ArticleAction article={article} />
         </div>
       );
     },
