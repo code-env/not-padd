@@ -5,6 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 import {
   account,
@@ -117,24 +118,31 @@ export const file = pgTable("file", {
     .notNull(),
 });
 
-export const articles = pgTable("articles", {
-  id: text("id").primaryKey(),
-  organizationId: text("organization_id")
-    .notNull()
-    .references(() => organization.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  content: text("content").notNull(),
-  excerpt: text("excerpt"),
-  published: boolean("published").default(false).notNull(),
-  publishedAt: timestamp("published_at"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-});
+export const articles = pgTable(
+  "articles",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description").notNull(),
+    content: text("content").notNull().default(""),
+    excerpt: text("excerpt"),
+    published: boolean("published").default(false).notNull(),
+    publishedAt: timestamp("published_at"),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    orgSlugUnique: unique().on(table.organizationId, table.slug),
+  })
+);
 
 export const event = pgTable("event", {
   id: text("id").primaryKey(),

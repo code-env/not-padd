@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
-type ModalTypes = "upload-image" | "upload-youtube";
+import type { ModalTypes } from "@/lib/types";
+
 type ModalState = {
   type: ModalTypes | null;
   isOpen: boolean;

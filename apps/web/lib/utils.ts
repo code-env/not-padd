@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const REQUIRED_STRING = z.string().min(2);
+export const REQUIRED_STRING = z.string().min(2).trim();
 
 export function replaceOrganizationWithWorkspace(input: string): string {
   return input.replace(/organization/gi, (match) => {

@@ -46,39 +46,54 @@ const isUserInOrganization = async (
 
 const createArticleSchema = z.object({
   title: z.string().min(1),
-  content: z.string().optional().default(""),
-  organizationId: z.string(),
+  description: z.string().min(1),
 });
 
 const slugify = (text: string) => {
-  return text.toLowerCase().replace(/ /g, "-");
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/^-+|-+$/g, "");
 };
 
 articlesRoutes.post("/:organizationId", async (c) => {
-  const user = c.get("user");
-  if (!user || !user.id) {
-    return c.json({ error: "Unauthorized", success: false }, 401);
+  try {
+    const user = c.get("user");
+    if (!user || !user.id) {
+      return c.json({ error: "Unauthorized", success: false }, 401);
+    }
+
+    const { organizationId } = c.req.param();
+    const { title, description } = createArticleSchema.parse(
+      await c.req.json()
+    );
+
+    const userInOrg = await isUserInOrganization(c, organizationId);
+    if (!userInOrg) {
+      return c.json({ error: "Unauthorized", success: false }, 401);
+    }
+
+    const slug = slugify(title);
+
+    const article = await db.insert(articles).values({
+      id: crypto.randomUUID(),
+      title,
+      slug,
+      description,
+      organizationId,
+    });
+
+    return c.json({
+      success: true,
+      message: "Article created successfully",
+      data: {
+        data: article,
+      },
+    });
+  } catch (error: any) {
+    return c.json({ error: "Internal server error", success: false }, 500);
   }
-
-  const { organizationId } = c.req.param();
-  const { title, content } = createArticleSchema.parse(await c.req.json());
-
-  const userInOrg = await isUserInOrganization(c, organizationId);
-  if (!userInOrg) {
-    return c.json({ error: "Unauthorized", success: false }, 401);
-  }
-
-  const slug = slugify(title);
-
-  const article = await db.insert(articles).values({
-    id: crypto.randomUUID(),
-    title,
-    slug,
-    content,
-    organizationId,
-  });
-
-  return c.json(article);
 });
 
 articlesRoutes.get("/:organizationId/:slug", async (c) => {
@@ -147,7 +162,7 @@ articlesRoutes.get("/:organizationId", async (c) => {
 });
 articlesRoutes.put("/:organizationId/:slug", async (c) => {
   const { organizationId, slug } = c.req.param();
-  const { title, content } = createArticleSchema.parse(await c.req.json());
+  const { title, description } = createArticleSchema.parse(await c.req.json());
   const user = c.get("user");
   if (!user || !user.id) {
     return c.json({ error: "Unauthorized", success: false }, 401);
@@ -160,7 +175,7 @@ articlesRoutes.put("/:organizationId/:slug", async (c) => {
 
   const article = await db
     .update(articles)
-    .set({ title, content })
+    .set({ title, description })
     .where(
       and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
     );

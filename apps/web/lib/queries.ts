@@ -1,6 +1,11 @@
+import type { Articles } from "@notpadd/db/types";
 import { apiClient } from "./api-client";
-import type { Articles, File as Media } from "@notpadd/db/types";
-import type { APIResponse, ArticlesResponse, MediaResponse } from "./types";
+import type {
+  APIResponse,
+  ArticlesResponse,
+  CreateArticleSchema,
+  MediaResponse,
+} from "./types";
 
 export const ARTICLES_QUERIES = {
   getArticles: async (
@@ -19,6 +24,18 @@ export const ARTICLES_QUERIES = {
   getArticleById: async (articleId: string) => {
     const response = await apiClient.get<Articles>(`/articles/${articleId}`);
     return response.data;
+  },
+  createArticle: async (organizationId: string, data: CreateArticleSchema) => {
+    const response = await apiClient.post<APIResponse<Articles>>(
+      `/articles/${organizationId}`,
+      data
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
   },
 };
 

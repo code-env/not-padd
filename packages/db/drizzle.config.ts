@@ -6,7 +6,7 @@ import { resolve } from "path";
 config({ path: resolve(process.cwd(), "../../.env") });
 
 export default defineConfig({
-  out: "./drizzle_backup",
+  out: "./migrations",
   schema: ["./src/schema.ts", "./src/auth-schema.ts"],
   dialect: "postgresql",
   dbCredentials: {
