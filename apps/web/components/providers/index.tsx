@@ -17,7 +17,14 @@ const Providers = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const mounted = useMounted();
 
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+      },
+    },
+  });
 
   useEffect(() => {
     if (!mounted) return;
@@ -31,13 +38,13 @@ const Providers = ({ children }: { children: ReactNode }) => {
 
   if (!mounted || isPending || isUserPending) return null;
   return (
-    <QueryClientProvider client={queryClient}>
-      <OrganizationProvider>
+    <OrganizationProvider>
+      <QueryClientProvider client={queryClient}>
         {children}
         <Toaster />
         <Modals />
-      </OrganizationProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </OrganizationProvider>
   );
 };
 

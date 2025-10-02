@@ -31,18 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 export function RightSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const {
-    articleId,
-    isId,
-    article,
-    setArticle,
-    isLoading,
-    isError,
-    localArticle,
-    setLocalArticle,
-    isDirty,
-    setIsDirty,
-  } = useArticleContext();
+  const { article, setArticle, isLoading, isDirty } = useArticleContext();
 
   const form = useForm<UpdateArticleSchema>({
     resolver: zodResolver(updateArticleSchema),
@@ -133,6 +122,8 @@ export function RightSidebar({
               placeholder="Slug"
               className="bg-muted/50"
               {...register("slug")}
+              value={article?.slug}
+              disabled
             />
           </SidebarSection>
           <SidebarSection>

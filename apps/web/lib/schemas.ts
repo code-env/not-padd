@@ -14,3 +14,7 @@ export const updateArticleSchema = z.object({
   tags: z.array(REQUIRED_STRING),
   authors: z.array(REQUIRED_STRING),
 });
+
+export const createTagSchema = z.object({
+  name: REQUIRED_STRING,
+});

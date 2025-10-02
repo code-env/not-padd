@@ -1,4 +1,4 @@
-import type { Articles } from "@notpadd/db/types";
+import type { Articles, Tag } from "@notpadd/db/types";
 import { apiClient } from "./api-client";
 import type {
   APIResponse,
@@ -7,7 +7,8 @@ import type {
   MediaResponse,
   ArticleWithRelations,
   TagsResponse,
-  Tag,
+  AuthorsResponse,
+  AuthorsListItem,
 } from "./types";
 
 export const ARTICLES_QUERIES = {
@@ -112,7 +113,7 @@ export const TAGS_QUERIES = {
       throw new Error(response.data.error);
     }
 
-    return response.data.data;
+    return response.data.data.data; // unwrap to Tag
   },
   updateTagBySlug: async (
     organizationId: string,
@@ -128,7 +129,7 @@ export const TAGS_QUERIES = {
       throw new Error(response.data.error);
     }
 
-    return response.data.data;
+    return response.data.data.data; // unwrap to Tag
   },
   deleteTag: async (organizationId: string, tagId: string) => {
     const response = await apiClient.delete<APIResponse<{ data: Tag }>>(
@@ -139,6 +140,89 @@ export const TAGS_QUERIES = {
       throw new Error(response.data.error);
     }
 
+    return response.data.data.data; // unwrap to Tag
+  },
+};
+
+export const AUTHORS_QUERIES = {
+  getAuthors: async (
+    organizationId: string,
+    queries: { page: number; limit: number; articleId?: string }
+  ) => {
+    const searchParams = new URLSearchParams({
+      page: String(queries.page),
+      limit: String(queries.limit),
+      ...(queries.articleId ? { articleId: queries.articleId } : {}),
+    });
+
+    const response = await apiClient.get<APIResponse<AuthorsResponse>>(
+      `/authors/${organizationId}?${searchParams.toString()}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
     return response.data.data;
+  },
+  getAuthor: async (
+    organizationId: string,
+    articleId: string,
+    memberId: string
+  ) => {
+    const response = await apiClient.get<APIResponse<AuthorsListItem>>(
+      `/authors/${organizationId}/${articleId}/${memberId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  addAuthor: async (
+    organizationId: string,
+    data: { articleId: string; memberId: string }
+  ) => {
+    const response = await apiClient.post<
+      APIResponse<{ data: AuthorsListItem }>
+    >(`/authors/${organizationId}`, data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
+  updateAuthor: async (
+    organizationId: string,
+    articleId: string,
+    memberId: string,
+    data: { memberId: string }
+  ) => {
+    const response = await apiClient.put<
+      APIResponse<{ data: AuthorsListItem }>
+    >(`/authors/${organizationId}/${articleId}/${memberId}`, data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
+  deleteAuthor: async (
+    organizationId: string,
+    articleId: string,
+    memberId: string
+  ) => {
+    const response = await apiClient.delete<
+      APIResponse<{ data: AuthorsListItem }>
+    >(`/authors/${organizationId}/${articleId}/${memberId}`);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
   },
 };

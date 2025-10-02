@@ -57,7 +57,6 @@ const slugify = (text: string) => {
     .replace(/^-+|-+$/g, "");
 };
 
-// Create
 tagsRoutes.post("/:organizationId", async (c) => {
   try {
     const currentUser = c.get("user");
@@ -75,7 +74,6 @@ tagsRoutes.post("/:organizationId", async (c) => {
     const { name } = createTagSchema.parse(await c.req.json());
     const slug = slugify(name);
 
-    // Ensure unique per org
     const existing = await db
       .select({ id: tag.id })
       .from(tag)
@@ -106,7 +104,6 @@ tagsRoutes.post("/:organizationId", async (c) => {
   }
 });
 
-// Read one by id
 tagsRoutes.get("/:organizationId/:id", async (c) => {
   const { organizationId, id } = c.req.param();
   const currentUser = c.get("user");
@@ -136,7 +133,6 @@ tagsRoutes.get("/:organizationId/:id", async (c) => {
   });
 });
 
-// List
 tagsRoutes.get("/:organizationId", async (c) => {
   const { organizationId } = c.req.param();
   const { page, limit, search } = c.req.query();
@@ -182,7 +178,6 @@ tagsRoutes.get("/:organizationId", async (c) => {
   });
 });
 
-// Update by slug
 tagsRoutes.put("/:organizationId/:slug", async (c) => {
   const { organizationId, slug } = c.req.param();
   const currentUser = c.get("user");
@@ -215,7 +210,6 @@ tagsRoutes.put("/:organizationId/:slug", async (c) => {
   });
 });
 
-// Delete by id
 tagsRoutes.delete("/:organizationId/:tagId", async (c) => {
   const { organizationId, tagId } = c.req.param();
   const currentUser = c.get("user");

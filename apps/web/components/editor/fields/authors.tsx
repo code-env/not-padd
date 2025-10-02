@@ -22,6 +22,9 @@ import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { useState } from "react";
 import type { Control } from "react-hook-form";
 import type { UpdateArticleSchema } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/constants";
+import { AUTHORS_QUERIES } from "@/lib/queries";
 
 type Author = {
   id: string;
@@ -68,6 +71,11 @@ export const AuthorSelector = ({
 }: AuthorSelectorProps) => {
   const [authors, setAuthors] = useState<Author[]>(AUTHORS);
   const [selectedAuthors, setSelectedAuthors] = useState<Author[]>([]);
+
+  const { data: authors } = useQuery({
+    queryKey: [QUERY_KEYS.AUTHORS],
+    queryFn: () => AUTHORS_QUERIES.getAuthors(),
+  });
 
   const selected = selectedAuthors;
 

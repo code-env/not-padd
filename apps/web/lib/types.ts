@@ -1,8 +1,16 @@
-import type { Articles, File as Media } from "@notpadd/db/types";
-import { createArticleSchema, updateArticleSchema } from "./schemas";
+import type { Articles, File as Media, Tag } from "@notpadd/db/types";
+import {
+  createArticleSchema,
+  createTagSchema,
+  updateArticleSchema,
+} from "./schemas";
 import { z } from "zod";
 
-export type ModalTypes = "upload-image" | "upload-youtube" | "create-article";
+export type ModalTypes =
+  | "upload-image"
+  | "upload-youtube"
+  | "create-article"
+  | "create-tag";
 
 export type ConfirmationModalTypes = "delete-article";
 
@@ -37,9 +45,26 @@ export type ArticleWithRelations = Articles & {
 export type CreateArticleSchema = z.infer<typeof createArticleSchema>;
 export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;
 
-// Tags
-export type Tag = import("@notpadd/db/types").Tag;
 export type TagsResponse = {
   data: Tag[];
+  pagination: Pagination;
+};
+
+export type CreateTagSchema = z.infer<typeof createTagSchema>;
+
+// Authors
+export type AuthorsListItem = {
+  articleId: string;
+  memberId: string;
+  organizationId: string;
+  createdAt: string | Date;
+  userId: string | null;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+};
+
+export type AuthorsResponse = {
+  data: AuthorsListItem[];
   pagination: Pagination;
 };

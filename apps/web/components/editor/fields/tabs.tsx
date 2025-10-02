@@ -17,10 +17,15 @@ import {
 } from "@notpadd/ui/components/popover";
 import { cn } from "@notpadd/ui/lib/utils";
 
-import { Check, ChevronDown, Plus, X } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useController, type Control } from "react-hook-form";
+import { useOrganizationContext } from "@/contexts";
+import useModal from "@/hooks/use-modal";
+import { QUERY_KEYS } from "@/lib/constants";
+import { TAGS_QUERIES } from "@/lib/queries";
 import type { UpdateArticleSchema } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronDown, Plus, X } from "lucide-react";
+import { useMemo } from "react";
+import { useController, type Control } from "react-hook-form";
 
 type TagSelectorProps = {
   control: Control<UpdateArticleSchema>;
@@ -31,6 +36,7 @@ export const TagSelector = ({
   control,
   defaultTags = [],
 }: TagSelectorProps) => {
+  const { onOpen } = useModal();
   const {
     field: { onChange, value },
     fieldState: { error },
@@ -39,9 +45,19 @@ export const TagSelector = ({
     control,
     defaultValue: defaultTags,
   });
-  const [tags, setTags] = useState<string[]>([]);
 
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { activeOrganization } = useOrganizationContext();
+
+  const { data: tags } = useQuery({
+    queryKey: [QUERY_KEYS.TAGS, activeOrganization?.id],
+    queryFn: () =>
+      TAGS_QUERIES.getTags(activeOrganization?.id || "", {
+        page: 1,
+        limit: 10,
+        search: "",
+      }),
+    enabled: !!activeOrganization?.id,
+  });
 
   const addTag = (tag: string) => {
     if (value?.includes(tag)) {
@@ -57,19 +73,11 @@ export const TagSelector = ({
   };
 
   const selected = useMemo(() => {
-    if (tags.length > 0 && value && value?.length > 0) {
-      return tags.filter((opt) => value.includes(opt));
+    if (tags && tags.data.length > 0 && value && value?.length > 0) {
+      return tags.data.filter((opt) => value.includes(opt.name));
     }
     return [];
   }, [tags, value]);
-
-  const handleToggleTag = (tagToToggle: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagToToggle)
-        ? prev.filter((tag) => tag !== tagToToggle)
-        : [...prev, tagToToggle]
-    );
-  };
 
   return (
     <Popover>
@@ -81,17 +89,17 @@ export const TagSelector = ({
                 <li className="text-muted-foreground">Select some tags</li>
               )}
               {selected.map((item) => (
-                <li key={item}>
+                <li key={item.id}>
                   <Badge
                     className="font-normal bg-background"
                     variant="outline"
                   >
-                    {item}
+                    {item.name}
                     <button
                       className="ml-1 h-auto p-0 hover:bg-transparent"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedTags(selected.filter((tag) => tag !== item));
+                        handleRemoveTag(item.name);
                       }}
                       type="button"
                       aria-label={`Remove ${item}`}
@@ -117,24 +125,27 @@ export const TagSelector = ({
               <button
                 className="flex items-center gap-1 p-1 hover:bg-accent"
                 type="button"
+                onClick={() => {
+                  onOpen("create-tag");
+                }}
               >
                 <Plus className="size-4 text-muted-foreground" />
                 <span className="sr-only">Add a new tag</span>
               </button>
             </div>
-            {tags.length > 0 && (
+            {tags && tags.data.length > 0 && (
               <CommandGroup>
-                {tags.map((option) => (
+                {tags.data.map((option) => (
                   <CommandItem
-                    key={option}
-                    onSelect={() => handleToggleTag(option)}
+                    key={option.id}
+                    onSelect={() => addTag(option.name)}
                     className="cursor-pointer hover:bg-sidebar!"
                   >
-                    {option}
+                    {option.name}
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
-                        selected.some((item) => item === option)
+                        selected.some((item) => item.id === option.id)
                           ? "opacity-100"
                           : "opacity-0"
                       )}
@@ -143,7 +154,7 @@ export const TagSelector = ({
                 ))}
               </CommandGroup>
             )}
-            {tags.length > 0 && <CommandSeparator />}
+            {tags && tags.data.length > 0 && <CommandSeparator />}
           </CommandList>
         </Command>
       </PopoverContent>
