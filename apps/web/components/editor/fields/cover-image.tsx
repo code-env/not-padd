@@ -44,21 +44,29 @@ export const CoverImage = () => {
         });
         toast.promise(promise, {
           loading: "Uploading image...",
-          success: () => {
-            if (url && article && imageBlurhash) {
-              setArticle({
-                ...article,
-                image: url,
-                imageBlurhash,
-              });
-            }
-            return "Image uploaded successfully.";
-          },
+          success: "Image uploaded successfully.",
           error: "Error uploading image.",
         });
+        promise
+          .then((res) => {
+            const first = res?.[0];
+            const uploadedUrl = first?.ufsUrl as string | undefined;
+            const uploadedBlurhash = first?.serverData?.imageBlurhash as
+              | string
+              | undefined;
+            if (article && uploadedUrl && uploadedBlurhash) {
+              setArticle({
+                ...article,
+                image: uploadedUrl,
+                imageBlurhash: uploadedBlurhash,
+              });
+              router.refresh();
+            }
+          })
+          .catch(() => {});
       }
     },
-    [startUpload]
+    [startUpload, article, articleId, activeOrganization?.id]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
