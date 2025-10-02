@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { Sidebar, SidebarFooter } from "@notpadd/ui/components/sidebar";
+import { RightSidebarLoading } from "@/components/loading-uis";
 import { useArticleContext } from "@/contexts";
 import { cn } from "@notpadd/ui/lib/utils";
 import { Input } from "@notpadd/ui/components/input";
@@ -13,10 +14,15 @@ import {
   TooltipTrigger,
 } from "@notpadd/ui/components/tooltip";
 import { Textarea } from "@notpadd/ui/components/textarea";
-import { AuthorSelector, TagSelector } from "@/components/editor/fields";
+import {
+  AuthorSelector,
+  TagSelector,
+  CoverImage,
+} from "@/components/editor/fields";
 
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, X } from "lucide-react";
 import { Button } from "@notpadd/ui/components/button";
+import Image from "next/image";
 
 export function RightSidebar({
   ...props
@@ -34,6 +40,17 @@ export function RightSidebar({
     setIsDirty,
   } = useArticleContext();
 
+  if (isLoading) return <RightSidebarLoading />;
+
+  const removeImage = () => {
+    if (!article) return;
+    setArticle({
+      ...article,
+      image: null,
+      imageBlurhash: null,
+    });
+  };
+
   return (
     <Sidebar {...props} side="right" variant="floating">
       <div className="size-full p-4 flex flex-col gap-6">
@@ -46,7 +63,30 @@ export function RightSidebar({
                 <CircleAlert />
               </SidebarTooltip>
             </SidebarSectionTitle>
-            <div className="h-40 w-full bg-muted/50 border flex items-center justify-center flex-col gap-2"></div>
+            {article?.image ? (
+              <div className="h-48 border relative group/image overflow-hidden">
+                <Image
+                  placeholder="blur"
+                  blurDataURL={article?.imageBlurhash as string}
+                  src={article?.image as string}
+                  alt={article?.title as string}
+                  className="object-cover"
+                  fill
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/40 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200">
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={removeImage}
+                  >
+                    <X />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <CoverImage />
+            )}
           </SidebarSection>
           <SidebarSection>
             <SidebarSectionTitle>
@@ -107,20 +147,21 @@ export function RightSidebar({
   );
 }
 
-const SidebarSection = ({
+export const SidebarSection = ({
   children,
   className,
 }: {
   children: React.ReactNode;
   className?: string;
 }) => {
-  const num1 = 10;
-  const num2 = 20;
-  const sum = eval;
   return <div className={cn("flex flex-col gap-2", className)}>{children}</div>;
 };
 
-const SidebarSectionTitle = ({ children }: { children: React.ReactNode }) => {
+export const SidebarSectionTitle = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   return (
     <h1 className="text-muted-foreground text-sm flex items-center gap-2 [&>svg]:size-4 [&>svg]:shrink-0">
       {children}
@@ -128,7 +169,7 @@ const SidebarSectionTitle = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const SidebarTooltip = ({
+export const SidebarTooltip = ({
   children,
   content,
 }: {
