@@ -15,6 +15,34 @@
       "when": 1759268651288,
       "tag": "0001_windy_pandemic",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759353437219,
+      "tag": "0002_yielding_mandroid",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759393495914,
+      "tag": "0003_closed_queen_noir",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1759393607708,
+      "tag": "0004_huge_sentry",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1759393700905,
+      "tag": "0005_square_barracuda",
+      "breakpoints": true
     }
   ]
 }

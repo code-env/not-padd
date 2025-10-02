@@ -20,6 +20,8 @@ import { cn } from "@notpadd/ui/lib/utils";
 
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { useState } from "react";
+import type { Control } from "react-hook-form";
+import type { UpdateArticleSchema } from "@/lib/types";
 
 type Author = {
   id: string;
@@ -55,7 +57,15 @@ const AUTHORS: Author[] = [
   },
 ];
 
-export const AuthorSelector = () => {
+type AuthorSelectorProps = {
+  control: Control<UpdateArticleSchema>;
+  defaultAuthors?: string[];
+};
+
+export const AuthorSelector = ({
+  control,
+  defaultAuthors = [],
+}: AuthorSelectorProps) => {
   const [authors, setAuthors] = useState<Author[]>(AUTHORS);
   const [selectedAuthors, setSelectedAuthors] = useState<Author[]>([]);
 

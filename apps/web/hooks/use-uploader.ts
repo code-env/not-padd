@@ -2,7 +2,7 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export type EndPoint = "mediaUploader";
+export type EndPoint = "mediaUploader" | "coverImageUploader";
 
 export interface Attachment {
   file: File;
@@ -28,6 +28,7 @@ export default function useUploader(endpoint: EndPoint) {
   const [attachment, setAttachment] = useState<Attachment | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>();
   const [url, setUrl] = useState<string | null>(null);
+  const [imageBlurhash, setImageBlurhash] = useState<string | null>(null);
 
   const { startUpload, isUploading, routeConfig } = useUploadThing(endpoint, {
     onBeforeUploadBegin(files) {
@@ -55,6 +56,7 @@ export default function useUploader(endpoint: EndPoint) {
             : null
         );
         setUrl(uploadResult?.ufsUrl || null);
+        setImageBlurhash(uploadResult?.serverData.imageBlurhash || null);
       }
     },
     onUploadError(e) {
@@ -94,5 +96,6 @@ export default function useUploader(endpoint: EndPoint) {
     reset,
     routeConfig,
     url,
+    imageBlurhash,
   };
 }

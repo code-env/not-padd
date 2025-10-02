@@ -3,7 +3,6 @@
 import { useOrganizationContext } from "@/contexts";
 import { replaceOrganizationWithWorkspace, REQUIRED_STRING } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authClient } from "@notpadd/auth/auth-client";
 import {
   Form,
   FormControl,
@@ -50,6 +49,7 @@ export function CreateWorkspace() {
 
       if (data) {
         toast.success(`${data.name} was created`);
+        window.location.href = `/${data.slug}`;
       }
     } catch (error: any) {
       const message = replaceOrganizationWithWorkspace(error.message);

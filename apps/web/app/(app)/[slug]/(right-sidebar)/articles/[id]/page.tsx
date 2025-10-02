@@ -1,11 +1,11 @@
+import Editor from "@/components/editor";
 import { auth } from "@notpadd/auth/auth";
-import { headers } from "next/headers";
-import React, { type ReactNode } from "react";
 import { db } from "@notpadd/db";
 import { articles } from "@notpadd/db/schema";
 import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import ArticleClient from "@/components/clients/article-client";
+import { type ReactNode } from "react";
 
 interface PageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -42,7 +42,7 @@ const ArticleSlug = async ({ params }: SlugParams) => {
     return notFound();
   }
 
-  return <ArticleClient article={article} />;
+  return <Editor />;
 };
 
 export default ArticleSlug;

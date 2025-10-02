@@ -1,11 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import type { Articles } from "@notpadd/db/types";
-import { usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { ARTICLES_QUERIES } from "@/lib/queries";
 import { QUERY_KEYS } from "@/lib/constants";
+import { ARTICLES_QUERIES } from "@/lib/queries";
+import type { Articles } from "@notpadd/db/types";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useOrganizationContext } from "./organization-context";
 
 interface ArticleContextType {
   articleId: string | undefined;
@@ -14,8 +15,8 @@ interface ArticleContextType {
   setArticle: (article: Articles | undefined) => void;
   isLoading: boolean;
   isError: boolean;
-  localArticle: Articles | undefined;
-  setLocalArticle: (article: Articles | undefined) => void;
+  localArticle: Articles["content"] | undefined;
+  setLocalArticle: (article: Articles["content"] | undefined) => void;
   isDirty: boolean;
   setIsDirty: (isDirty: boolean) => void;
 }
@@ -28,7 +29,7 @@ const ArticleContext = createContext<ArticleContextType>({
   isLoading: false,
   isError: false,
   localArticle: undefined,
-  setLocalArticle: (article: Articles | undefined) => {},
+  setLocalArticle: (article: Articles["content"] | undefined) => {},
   isDirty: false,
   setIsDirty: (isDirty: boolean) => {},
 });
@@ -39,6 +40,7 @@ export const ArticleProvider = ({
   children: React.ReactNode;
 }) => {
   const pathname = usePathname();
+  const { activeOrganization } = useOrganizationContext();
   const paths = pathname.split("/");
   const articleId = paths[3];
   const isId =
@@ -52,16 +54,21 @@ export const ArticleProvider = ({
     isError,
   } = useQuery({
     queryKey: [QUERY_KEYS.ARTICLE, articleId],
-    queryFn: () => ARTICLES_QUERIES.getArticleById(articleId ?? ""),
+    queryFn: () =>
+      ARTICLES_QUERIES.getArticleById(
+        activeOrganization?.id ?? "",
+        articleId ?? ""
+      ),
     enabled: isId,
   });
 
   const [articleState, setArticleState] = useState<Articles | undefined>(
     undefined
   );
-  const [localArticle, setLocalArticle] = useState<Articles | undefined>(
-    undefined
-  );
+  const [localArticle, setLocalArticle] = useState<
+    Articles["content"] | undefined
+  >(undefined);
+
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
@@ -75,24 +82,15 @@ export const ArticleProvider = ({
       `${QUERY_KEYS.ARTICLE_LOCAL_KEY}${articleId}`
     );
     if (localArticle) {
-      setLocalArticle(JSON.parse(localArticle));
-      const isSame = Object.keys(JSON.parse(localArticle)).every(
-        (key) =>
-          JSON.parse(localArticle)[key] ===
-          JSON.stringify(articleState?.[key as keyof Articles])
-      );
-      if (!isSame) {
-        setIsDirty(true);
-        return;
-      }
-      setIsDirty(false);
+      setLocalArticle(localArticle);
+      setIsDirty(true);
       return;
     }
   }, [articleId, articleState]);
 
-  const setArticle = (value: Articles | undefined) => {
-    setArticleState(value);
-  };
+  const setArticle = (value: Articles | undefined) => setArticleState(value);
+
+  console.log(article);
 
   return (
     <ArticleContext.Provider

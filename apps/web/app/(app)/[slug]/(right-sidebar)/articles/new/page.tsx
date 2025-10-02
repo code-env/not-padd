@@ -18,7 +18,7 @@ export const defaultValue = {
 };
 
 const CreateNewArticle = () => {
-  return <Editor initialValue={defaultValue} onChange={() => {}} />;
+  return <Editor />;
 };
 
 export default CreateNewArticle;

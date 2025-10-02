@@ -1,5 +1,5 @@
 import type { Articles, File as Media } from "@notpadd/db/types";
-import { createArticleSchema } from "./schemas";
+import { createArticleSchema, updateArticleSchema } from "./schemas";
 import { z } from "zod";
 
 export type ModalTypes = "upload-image" | "upload-youtube" | "create-article";
@@ -22,8 +22,17 @@ export type MediaResponse = {
 };
 
 export type ArticlesResponse = {
-  data: Articles[];
+  data: (Articles & {
+    tags?: string[];
+    authors?: { id: string; name: string; email: string; image: string }[];
+  })[];
   pagination: Pagination;
 };
 
+export type ArticleWithRelations = Articles & {
+  tags?: string[];
+  authors?: { id: string; name: string; email: string; image: string }[];
+};
+
 export type CreateArticleSchema = z.infer<typeof createArticleSchema>;
+export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;

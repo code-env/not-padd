@@ -27,20 +27,33 @@ import UploadImage from "@/components/modals/upload-image";
 import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
 import SlashCommands from "./slash-commands";
+import { QUERY_KEYS } from "@/lib/constants";
+import { useArticleContext } from "@/contexts";
 
 const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
 
-interface EditorProps {
-  initialValue?: JSONContent;
-  onChange: (content: string) => void;
-}
+const defaultValue = {
+  type: "doc",
+  content: [
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "Type something...",
+        },
+      ],
+    },
+  ],
+};
 
-export default function Editor({ initialValue, onChange }: EditorProps) {
+export default function Editor() {
   const [initialContent, setInitialContent] = useState<null | JSONContent>(
     null
   );
+  const { articleId, localArticle, article } = useArticleContext();
 
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -63,7 +76,10 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
         "html-content",
         highlightCodeblocks(editor.getHTML())
       );
-      window.localStorage.setItem("novel-content", JSON.stringify(json));
+      window.localStorage.setItem(
+        `${QUERY_KEYS.ARTICLE_LOCAL_KEY}${articleId}`,
+        JSON.stringify(json)
+      );
       window.localStorage.setItem(
         "markdown",
         editor.storage.markdown.getMarkdown()
@@ -73,9 +89,17 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
   );
 
   useEffect(() => {
-    const content = window.localStorage.getItem("novel-content");
-    if (content) setInitialContent(JSON.parse(content));
-  }, []);
+    if (localArticle !== undefined) {
+      setInitialContent(JSON.parse(localArticle));
+    } else if (article) {
+      if (article.content && article.content !== "") {
+        console.log("article.content", article.content);
+        setInitialContent(JSON.parse(article.content));
+      } else {
+        setInitialContent(defaultValue);
+      }
+    }
+  }, [article, localArticle]);
 
   if (!initialContent) return null;
 
@@ -102,7 +126,6 @@ export default function Editor({ initialValue, onChange }: EditorProps) {
           }}
           onUpdate={({ editor }) => {
             debouncedUpdates(editor);
-            onChange(editor.getHTML());
           }}
           slotAfter={<ImageResizer />}
         >

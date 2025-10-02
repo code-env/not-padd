@@ -73,7 +73,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
           <DropdownMenuItem>
             <Link
               className="flex w-full cursor-default items-center gap-2"
-              href={`/${activeOrganization?.slug}/editor/article/${article.id}`}
+              href={`/${activeOrganization?.slug}/articles/${article.id}`}
             >
               <Pencil size={16} /> <span>Edit</span>
             </Link>

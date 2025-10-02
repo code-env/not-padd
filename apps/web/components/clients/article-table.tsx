@@ -38,7 +38,7 @@ export function ArticleTable<TData, TValue>({
     ) {
       return;
     }
-    router.push(`/${activeOrganization?.slug}/editor/a/${article.id}`);
+    router.push(`/${activeOrganization?.slug}/articles/${article.id}`);
   };
 
   return (

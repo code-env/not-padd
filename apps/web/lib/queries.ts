@@ -5,6 +5,7 @@ import type {
   ArticlesResponse,
   CreateArticleSchema,
   MediaResponse,
+  ArticleWithRelations,
 } from "./types";
 
 export const ARTICLES_QUERIES = {
@@ -21,9 +22,16 @@ export const ARTICLES_QUERIES = {
     }
     return response.data.data;
   },
-  getArticleById: async (articleId: string) => {
-    const response = await apiClient.get<Articles>(`/articles/${articleId}`);
-    return response.data;
+  getArticleById: async (organizationId: string, articleId: string) => {
+    const response = await apiClient.get<APIResponse<ArticleWithRelations>>(
+      `/articles/${organizationId}/${articleId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
   },
   createArticle: async (organizationId: string, data: CreateArticleSchema) => {
     const response = await apiClient.post<APIResponse<Articles>>(

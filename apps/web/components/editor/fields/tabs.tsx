@@ -18,15 +18,50 @@ import {
 import { cn } from "@notpadd/ui/lib/utils";
 
 import { Check, ChevronDown, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useController, type Control } from "react-hook-form";
+import type { UpdateArticleSchema } from "@/lib/types";
 
-const TAGS = ["React", "Next.js", "Tailwind", "TypeScript", "JavaScript"];
+type TagSelectorProps = {
+  control: Control<UpdateArticleSchema>;
+  defaultTags?: string[];
+};
 
-export const TagSelector = () => {
-  const [tags, setTags] = useState<string[]>(TAGS);
+export const TagSelector = ({
+  control,
+  defaultTags = [],
+}: TagSelectorProps) => {
+  const {
+    field: { onChange, value },
+    fieldState: { error },
+  } = useController({
+    name: "tags",
+    control,
+    defaultValue: defaultTags,
+  });
+  const [tags, setTags] = useState<string[]>([]);
+
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const selected = selectedTags;
+  const addTag = (tag: string) => {
+    if (value?.includes(tag)) {
+      return;
+    }
+    const newValue = [...(value || []), tag];
+    onChange(newValue);
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    const newValue = (value || []).filter((tag: string) => tag !== tag);
+    onChange(newValue);
+  };
+
+  const selected = useMemo(() => {
+    if (tags.length > 0 && value && value?.length > 0) {
+      return tags.filter((opt) => value.includes(opt));
+    }
+    return [];
+  }, [tags, value]);
 
   const handleToggleTag = (tagToToggle: string) => {
     setSelectedTags((prev) =>

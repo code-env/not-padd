@@ -136,6 +136,9 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       try {
         const { size } = metadata;
+        const imageResponse = await fetch(file.ufsUrl);
+        const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+        const blurDataUrl = await generateBlurDataUrl(imageBuffer);
 
         const values: typeof fileTable.$inferInsert = {
           id: crypto.randomUUID(),
@@ -156,6 +159,7 @@ export const ourFileRouter = {
 
         return {
           uploadedBy: metadata.user.id,
+          imageBlurhash: blurDataUrl,
           fileInsertedId: fileRecord?.[0]?.id,
           storageUsed: organizationRecord?.[0]?.storageUsed,
           url: file.ufsUrl,

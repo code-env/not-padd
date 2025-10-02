@@ -23,6 +23,10 @@ import {
 import { CircleAlert, X } from "lucide-react";
 import { Button } from "@notpadd/ui/components/button";
 import Image from "next/image";
+import type { ArticleWithRelations, UpdateArticleSchema } from "@/lib/types";
+import { updateArticleSchema } from "@/lib/schemas";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export function RightSidebar({
   ...props
@@ -39,6 +43,23 @@ export function RightSidebar({
     isDirty,
     setIsDirty,
   } = useArticleContext();
+
+  const form = useForm<UpdateArticleSchema>({
+    resolver: zodResolver(updateArticleSchema),
+    defaultValues: {
+      title: article?.title,
+      description: article?.description,
+      slug: article?.slug,
+      tags: [],
+      authors: [],
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   if (isLoading) return <RightSidebarLoading />;
 
@@ -111,7 +132,7 @@ export function RightSidebar({
             <Input
               placeholder="Slug"
               className="bg-muted/50"
-              value={article?.slug}
+              {...register("slug")}
             />
           </SidebarSection>
           <SidebarSection>
@@ -122,7 +143,10 @@ export function RightSidebar({
               </SidebarTooltip>
             </SidebarSectionTitle>
             <div className="flex flex-wrap gap-2">
-              <TagSelector />
+              <TagSelector
+                control={form.control}
+                defaultTags={(article as ArticleWithRelations)?.tags ?? []}
+              />
             </div>
           </SidebarSection>
           <SidebarSection>
@@ -133,7 +157,14 @@ export function RightSidebar({
               </SidebarTooltip>
             </SidebarSectionTitle>
             <div className="flex flex-wrap gap-2">
-              <AuthorSelector />
+              <AuthorSelector
+                control={form.control}
+                defaultAuthors={
+                  (article as ArticleWithRelations)?.authors?.map(
+                    (a) => a.id
+                  ) ?? []
+                }
+              />
             </div>
           </SidebarSection>
         </div>
