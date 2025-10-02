@@ -18,47 +18,31 @@ import {
 import { UserProfile } from "@notpadd/ui/components/user-profile";
 import { cn } from "@notpadd/ui/lib/utils";
 
-import { Check, ChevronDown, Plus, X } from "lucide-react";
-import { useState } from "react";
-import type { Control } from "react-hook-form";
-import type { UpdateArticleSchema } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
+import { useOrganizationContext } from "@/contexts";
 import { QUERY_KEYS } from "@/lib/constants";
 import { AUTHORS_QUERIES } from "@/lib/queries";
+import type { AuthorsListItem, UpdateArticleSchema } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronDown, ChevronsUpDown, Plus, X } from "lucide-react";
+import { useState } from "react";
+import { useController, type Control } from "react-hook-form";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@notpadd/ui/components/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@notpadd/ui/components/tooltip";
 
 type Author = {
-  id: string;
+  userId: string;
   name: string;
   email: string;
   image: string;
 };
-
-const AUTHORS: Author[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    image: "https://github.com/shadcn.png",
-  },
-  {
-    id: "2",
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    image: "https://github.com/shadcn.png",
-  },
-  {
-    id: "3",
-    name: "John Smith",
-    email: "john.smith@example.com",
-    image: "https://github.com/shadcn.png",
-  },
-  {
-    id: "4",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    image: "https://github.com/shadcn.png",
-  },
-];
 
 type AuthorSelectorProps = {
   control: Control<UpdateArticleSchema>;
@@ -69,83 +53,86 @@ export const AuthorSelector = ({
   control,
   defaultAuthors = [],
 }: AuthorSelectorProps) => {
-  const [authors, setAuthors] = useState<Author[]>(AUTHORS);
+  const { activeOrganization } = useOrganizationContext();
   const [selectedAuthors, setSelectedAuthors] = useState<Author[]>([]);
+
+  const {
+    field: { onChange, value },
+    fieldState: { error },
+  } = useController({
+    name: "authors",
+    control,
+    defaultValue: defaultAuthors,
+  });
 
   const { data: authors } = useQuery({
     queryKey: [QUERY_KEYS.AUTHORS],
-    queryFn: () => AUTHORS_QUERIES.getAuthors(),
+    queryFn: () =>
+      AUTHORS_QUERIES.getAuthors(activeOrganization?.id ?? "", {
+        page: 1,
+        limit: 100,
+      }),
   });
+
+  const addAuthor = (author: AuthorsListItem) => {
+    if (value?.includes(author.name ?? "")) {
+      return;
+    }
+    const newValue = [...(value || []), author.name];
+    onChange(newValue);
+  };
 
   const selected = selectedAuthors;
 
-  const handleToggleAuthor = (authorToToggle: Author) => {
-    setSelectedAuthors((prev) =>
-      prev.includes(authorToToggle)
-        ? prev.filter((author) => author !== authorToToggle)
-        : [...prev, authorToToggle]
-    );
-  };
-
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-muted/50 p-2 text-sm">
-          <div className="flex items-center justify-between gap-2">
-            <ul className="flex flex-wrap gap-1">
-              {selected.length === 0 && (
-                <li className="text-muted-foreground">Select some tags</li>
-              )}
-              {selected.map((item) => (
-                <li key={item.id}>
-                  <Badge
-                    className="font-normal bg-background"
-                    variant="outline"
-                  >
-                    {item.name}
-                    <button
-                      className="ml-1 h-auto p-0 hover:bg-transparent"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedAuthors(
-                          selected.filter((author) => author !== item)
-                        );
-                      }}
-                      type="button"
-                      aria-label={`Remove ${item}`}
-                      title={`Remove ${item}`}
-                    >
-                      <X className="size-2.5 p-0" />
-                    </button>
-                  </Badge>
+      <PopoverTrigger className="w-full">
+        <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-muted/50 px-3 py-1.5 text-sm">
+          <ul className="-space-x-2 flex flex-wrap">
+            {selected.length === 0 && (
+              <li className="text-muted-foreground">Select authors</li>
+            )}
+            {selected.length === 1 && (
+              <li className="flex items-center gap-2">
+                <UserProfile
+                  name={selected[0]?.name as string}
+                  url={selected[0]?.image as string}
+                />
+                <p className="max-w-64 text-sm">{selected[0]?.name}</p>
+              </li>
+            )}
+            {selected.length > 1 &&
+              selected.map((author) => (
+                <li className="flex items-center" key={author.userId}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Avatar className="size-6">
+                        <AvatarImage src={author.image || undefined} />
+                        <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-64 text-xs">{author.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </li>
               ))}
-            </ul>
-            <ChevronDown className="size-4 shrink-0 opacity-50" />
-          </div>
+          </ul>
+          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
         </div>
       </PopoverTrigger>
-      <PopoverContent align="start" className="min-w-[350.67px] p-0">
+      <PopoverContent align="center" className="min-w-[350.67px] p-0">
         <Command className="w-full">
-          <CommandInput placeholder="Search tags..." />
+          <CommandInput placeholder="Search authors..." />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <div className="flex items-center justify-between gap-1 bg-background px-2 pt-2 pb-1 font-normal text-xs">
-              <span className="text-muted-foreground text-xs">Authors</span>
-              <button
-                className="flex items-center gap-1 p-1 hover:bg-accent"
-                type="button"
-              >
-                <Plus className="size-4 text-muted-foreground" />
-                <span className="sr-only">Add a new author</span>
-              </button>
-            </div>
-            {authors.length > 0 && (
+
+            {authors?.data && authors?.data.length > 0 && (
               <CommandGroup>
-                {authors.map((option) => (
+                {authors?.data.map((option) => (
                   <CommandItem
-                    key={option.id}
-                    onSelect={() => handleToggleAuthor(option)}
+                    key={option.userId}
+                    onSelect={() => addAuthor(option)}
                     className="cursor-pointer hover:bg-sidebar!"
                   >
                     <UserProfile
@@ -158,7 +145,7 @@ export const AuthorSelector = ({
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
-                        selected.some((item) => item.id === option.id)
+                        selected.some((item) => item.userId === option.userId)
                           ? "opacity-100"
                           : "opacity-0"
                       )}
@@ -167,7 +154,7 @@ export const AuthorSelector = ({
                 ))}
               </CommandGroup>
             )}
-            {authors.length > 0 && <CommandSeparator />}
+            {authors?.data && authors?.data.length > 0 && <CommandSeparator />}
           </CommandList>
         </Command>
       </PopoverContent>
