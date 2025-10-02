@@ -36,3 +36,10 @@ export type ArticleWithRelations = Articles & {
 
 export type CreateArticleSchema = z.infer<typeof createArticleSchema>;
 export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;
+
+// Tags
+export type Tag = import("@notpadd/db/types").Tag;
+export type TagsResponse = {
+  data: Tag[];
+  pagination: Pagination;
+};
