@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   EditorCommand,
@@ -22,13 +22,15 @@ import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
 import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
+import { Separator } from "@notpadd/ui/components/separator";
+import { TextareaAutosize } from "@notpadd/ui/components/resizable-textarea";
 
 import UploadImage from "@/components/modals/upload-image";
-import { Separator } from "@notpadd/ui/components/separator";
 import EditorMenu from "./menu";
 import SlashCommands from "./slash-commands";
 import { QUERY_KEYS } from "@/lib/constants";
 import { useArticleContext } from "@/contexts";
+import { useArticleForm } from "@/contexts";
 
 const hljs = require("highlight.js");
 
@@ -36,17 +38,6 @@ const extensions = [...defaultExtensions, slashCommand];
 
 const defaultValue = {
   type: "doc",
-  content: [
-    {
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "Type something...",
-        },
-      ],
-    },
-  ],
 };
 
 export default function Editor() {
@@ -54,7 +45,7 @@ export default function Editor() {
     null
   );
   const { articleId, localArticle, article } = useArticleContext();
-
+  const editorRef = useRef<EditorInstance | null>(null);
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
@@ -67,6 +58,15 @@ export default function Editor() {
       hljs.highlightElement(el);
     });
     return new XMLSerializer().serializeToString(doc);
+  };
+
+  const form = useArticleForm();
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      editorRef.current?.commands.focus();
+    }
   };
 
   const debouncedUpdates = useDebouncedCallback(
@@ -106,6 +106,14 @@ export default function Editor() {
   return (
     <div className="relative w-full max-w-6xl mx-auto">
       <EditorRoot>
+        <div className="h-14 mb-4 flex items-center justify-between"></div>
+        <TextareaAutosize
+          id="title"
+          placeholder="Article Title"
+          {...form.register("title")}
+          className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
+          onKeyDown={handleKeyDown}
+        />
         <EditorContent
           immediatelyRender={false}
           initialContent={initialContent ?? undefined}
@@ -124,7 +132,11 @@ export default function Editor() {
                 "prose dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full",
             },
           }}
+          onCreate={({ editor }) => {
+            editorRef.current = editor;
+          }}
           onUpdate={({ editor }) => {
+            editorRef.current = editor;
             debouncedUpdates(editor);
           }}
           slotAfter={<ImageResizer />}

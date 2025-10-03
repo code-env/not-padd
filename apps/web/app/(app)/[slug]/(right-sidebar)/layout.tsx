@@ -1,5 +1,5 @@
 import { RightSidebar } from "@/components/sidebar/right-sidebar";
-import { ArticleProvider } from "@/contexts";
+import { ArticleProvider, ArticleFormProvider } from "@/contexts";
 import { SidebarInset, SidebarProvider } from "@notpadd/ui/components/sidebar";
 import React, { type ReactNode } from "react";
 
@@ -17,10 +17,12 @@ const RightSidebarLayout = ({ children }: RightSidebarLayoutProps) => {
           } as React.CSSProperties
         }
       >
-        <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] border bg-sidebar m-auto sticky top-2 overflow-auto no-scrollbar py-10">
-          {children}
-        </SidebarInset>
-        <RightSidebar />
+        <ArticleFormProvider>
+          <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] border bg-sidebar m-auto sticky top-2 overflow-auto no-scrollbar py-10">
+            {children}
+          </SidebarInset>
+          <RightSidebar />
+        </ArticleFormProvider>
       </SidebarProvider>
     </ArticleProvider>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@notpadd/ui/components/badge";
 import {
   Command,
   CommandEmpty,
@@ -22,10 +21,6 @@ import { useOrganizationContext } from "@/contexts";
 import { QUERY_KEYS } from "@/lib/constants";
 import { AUTHORS_QUERIES } from "@/lib/queries";
 import type { AuthorsListItem, UpdateArticleSchema } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { Check, ChevronDown, ChevronsUpDown, Plus, X } from "lucide-react";
-import { useState } from "react";
-import { useController, type Control } from "react-hook-form";
 import {
   Avatar,
   AvatarFallback,
@@ -36,13 +31,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@notpadd/ui/components/tooltip";
-
-type Author = {
-  userId: string;
-  name: string;
-  email: string;
-  image: string;
-};
+import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useMemo } from "react";
+import { useController, type Control } from "react-hook-form";
 
 type AuthorSelectorProps = {
   control: Control<UpdateArticleSchema>;
@@ -54,8 +46,6 @@ export const AuthorSelector = ({
   defaultAuthors = [],
 }: AuthorSelectorProps) => {
   const { activeOrganization } = useOrganizationContext();
-  const [selectedAuthors, setSelectedAuthors] = useState<Author[]>([]);
-
   const {
     field: { onChange, value },
     fieldState: { error },
@@ -74,7 +64,14 @@ export const AuthorSelector = ({
       }),
   });
 
+  const defaultAuthorsList = useMemo(() => {
+    return authors?.data.filter((author) =>
+      defaultAuthors.includes(author.userId ?? "")
+    );
+  }, [authors, defaultAuthors]);
+
   const addAuthor = (author: AuthorsListItem) => {
+    console.log(author);
     if (value?.includes(author.name ?? "")) {
       return;
     }
@@ -82,37 +79,41 @@ export const AuthorSelector = ({
     onChange(newValue);
   };
 
-  const selected = selectedAuthors;
+  const selected = value;
 
   return (
     <Popover>
       <PopoverTrigger className="w-full">
         <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-muted/50 px-3 py-1.5 text-sm">
           <ul className="-space-x-2 flex flex-wrap">
-            {selected.length === 0 && (
+            {defaultAuthorsList?.length === 0 && (
               <li className="text-muted-foreground">Select authors</li>
             )}
-            {selected.length === 1 && (
+            {defaultAuthorsList?.length === 1 && (
               <li className="flex items-center gap-2">
                 <UserProfile
-                  name={selected[0]?.name as string}
-                  url={selected[0]?.image as string}
+                  name={defaultAuthorsList[0]?.name ?? ""}
+                  size="sm"
+                  url={defaultAuthorsList[0]?.image ?? ""}
                 />
-                <p className="max-w-64 text-sm">{selected[0]?.name}</p>
+                <p className="max-w-64 text-sm">
+                  {defaultAuthorsList.map((author) => author.name).join(", ")}
+                </p>
               </li>
             )}
-            {selected.length > 1 &&
-              selected.map((author) => (
-                <li className="flex items-center" key={author.userId}>
+            {selected?.length &&
+              selected?.length > 1 &&
+              selected?.map((author) => (
+                <li className="flex items-center" key={author}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Avatar className="size-6">
-                        <AvatarImage src={author.image || undefined} />
-                        <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={author || undefined} />
+                        <AvatarFallback>{author.charAt(0)}</AvatarFallback>
                       </Avatar>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-64 text-xs">{author.name}</p>
+                      <p className="max-w-64 text-xs">{author}</p>
                     </TooltipContent>
                   </Tooltip>
                 </li>
@@ -145,7 +146,7 @@ export const AuthorSelector = ({
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
-                        selected.some((item) => item.userId === option.userId)
+                        selected?.includes(option.name as string)
                           ? "opacity-100"
                           : "opacity-0"
                       )}

@@ -24,25 +24,14 @@ import { CircleAlert, X } from "lucide-react";
 import { Button } from "@notpadd/ui/components/button";
 import Image from "next/image";
 import type { ArticleWithRelations, UpdateArticleSchema } from "@/lib/types";
-import { updateArticleSchema } from "@/lib/schemas";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useArticleForm } from "@/contexts";
 
 export function RightSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { article, setArticle, isLoading, isDirty } = useArticleContext();
 
-  const form = useForm<UpdateArticleSchema>({
-    resolver: zodResolver(updateArticleSchema),
-    defaultValues: {
-      title: article?.title,
-      description: article?.description,
-      slug: article?.slug,
-      tags: [],
-      authors: [],
-    },
-  });
+  const form = useArticleForm();
 
   const {
     register,
@@ -59,6 +48,10 @@ export function RightSidebar({
       image: null,
       imageBlurhash: null,
     });
+  };
+
+  const onSubmit = (data: UpdateArticleSchema) => {
+    console.log(data);
   };
 
   return (
@@ -109,6 +102,7 @@ export function RightSidebar({
               placeholder="Description"
               className="resize-none bg-muted/50"
               rows={3}
+              {...register("description")}
             />
           </SidebarSection>
           <SidebarSection>
@@ -161,7 +155,7 @@ export function RightSidebar({
         </div>
       </div>
       <SidebarFooter>
-        <Button disabled={isDirty} className="w-full">
+        <Button className="w-full" onClick={handleSubmit(onSubmit)}>
           Save
         </Button>
       </SidebarFooter>
