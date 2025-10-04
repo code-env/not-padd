@@ -33,7 +33,7 @@ import { LoadingButton } from "@notpadd/ui/components/loading-button";
 export function RightSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { article, setArticle, isLoading } = useArticleContext();
+  const { article, setArticle, isLoading, isDirty } = useArticleContext();
   const { activeOrganization } = useOrganizationContext();
 
   const { mutate: updateArticle, isPending } = useMutation({
@@ -190,13 +190,24 @@ export function RightSidebar({
         </div>
       </div>
       <SidebarFooter>
+        {isDirty && (
+          <div className="mb-2 text-xs text-muted-foreground bg-amber-50/10 dark:bg-amber-900/20 border border-amber-500/10 dark:border-amber-800 rounded-md p-2">
+            <div className="flex items-center gap-1">
+              <div className="h-lh">
+                <CircleAlert className="size-3 text-amber-600 dark:text-amber-400 h-lh " />
+              </div>
+              Local content has been modified and needs to be saved.
+            </div>
+          </div>
+        )}
         <LoadingButton
           className="w-full"
           loading={isPending}
           disabled={
             !(
               form.formState.isDirty ||
-              Object.keys(form.formState.dirtyFields || {}).length > 0
+              Object.keys(form.formState.dirtyFields || {}).length > 0 ||
+              isDirty
             ) || isPending
           }
           onClick={handleSubmit(onSubmit, onInvalid)}

@@ -69,6 +69,43 @@ export default function Editor() {
 
   const form = useArticleForm();
 
+  const getLocalStorageKey = (suffix: string) => {
+    return `${QUERY_KEYS.ARTICLE_LOCAL_KEY}${articleId}${suffix}`;
+  };
+
+  const setFormValue = (
+    field: "json" | "markdown" | "content",
+    value: string
+  ) => {
+    form.setValue(field, value, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
+  const getStoredContent = (suffix: string, shouldHighlight = false) => {
+    const content = localStorage.getItem(getLocalStorageKey(suffix)) ?? "";
+    return shouldHighlight ? highlightCodeblocks(content) : content;
+  };
+
+  const updateFormFromEditor = (editor: EditorInstance) => {
+    const json = editor.getJSON();
+    const html = editor.getHTML();
+    const markdown = editor.storage.markdown.getMarkdown();
+
+    setFormValue("json", JSON.stringify(json));
+    setFormValue("markdown", markdown);
+    setFormValue("content", highlightCodeblocks(html));
+  };
+
+  const updateFormFromLocalStorage = () => {
+    const localJson = JSON.parse(localArticle ?? "{}");
+
+    setFormValue("json", JSON.stringify(localJson));
+    setFormValue("markdown", getStoredContent("-markdown"));
+    setFormValue("content", getStoredContent("-html-content", true));
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -79,31 +116,17 @@ export default function Editor() {
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
       const json = editor.getJSON();
-      window.localStorage.setItem(
-        "html-content",
-        highlightCodeblocks(editor.getHTML())
-      );
-      window.localStorage.setItem(
-        `${QUERY_KEYS.ARTICLE_LOCAL_KEY}${articleId}`,
-        JSON.stringify(json)
-      );
-      window.localStorage.setItem(
-        "markdown",
-        editor.storage.markdown.getMarkdown()
-      );
+      const html = editor.getHTML();
+      const markdown = editor.storage.markdown.getMarkdown();
 
-      form.setValue("json", JSON.stringify(json), {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      form.setValue("markdown", editor.storage.markdown.getMarkdown(), {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      form.setValue("content", highlightCodeblocks(editor.getHTML()), {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
+      window.localStorage.setItem(
+        getLocalStorageKey("-html-content"),
+        highlightCodeblocks(html)
+      );
+      window.localStorage.setItem(getLocalStorageKey(""), JSON.stringify(json));
+      window.localStorage.setItem(getLocalStorageKey("-markdown"), markdown);
+
+      updateFormFromEditor(editor);
     },
     500
   );
@@ -122,40 +145,27 @@ export default function Editor() {
     }
 
     setInitialContent(defaultValue);
-  }, [isLoading, article, localArticle, defaultValue]);
+  }, [isLoading, article, localArticle]);
 
   useEffect(() => {
     if (isLoading) return;
     const localJson = JSON.parse(localArticle ?? "{}");
-    if (JSON.stringify(localJson) !== JSON.stringify(initialContent)) {
+    if (JSON.stringify(localJson) === JSON.stringify(article?.json)) {
+      setIsDirty(false);
+      return;
+    } else {
       setIsDirty(true);
     }
-  }, [initialContent, isLoading, localArticle]);
+  }, [isLoading, localArticle]);
 
   useEffect(() => {
     if (!isDirty && isLoading) return;
 
-    const localJson = JSON.parse(localArticle ?? "{}");
-
-    if (JSON.stringify(localJson) !== JSON.stringify(initialContent)) {
-      form.setValue("json", JSON.stringify(localJson), {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      form.setValue("markdown", localStorage.getItem("markdown") ?? "", {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      form.setValue(
-        "content",
-        highlightCodeblocks(localStorage.getItem("html-content") ?? ""),
-        {
-          shouldDirty: true,
-          shouldTouch: true,
-        }
-      );
+    if (isDirty) {
+      updateFormFromLocalStorage();
+      setIsDirty(false);
     }
-  }, [isDirty]);
+  }, [isDirty, isLoading, localArticle]);
 
   if (!initialContent) return null;
 
