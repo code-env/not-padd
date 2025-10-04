@@ -18,7 +18,7 @@ const RightSidebarLayout = ({ children }: RightSidebarLayoutProps) => {
         }
       >
         <ArticleFormProvider>
-          <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] border bg-sidebar m-auto sticky top-2 overflow-auto no-scrollbar py-10">
+          <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] border bg-sidebar m-auto sticky top-2 overflow-auto no-scrollbar py-4">
             {children}
           </SidebarInset>
           <RightSidebar />
