@@ -159,6 +159,9 @@ export const articles = pgTable(
     description: text("description").notNull(),
     content: text("content").notNull().default(""),
     markdown: text("markdown").notNull().default(""),
+    creatorId: text("creator_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "set null" }),
     json: jsonb("json").notNull().default({}),
     excerpt: text("excerpt"),
     image: text("image"),

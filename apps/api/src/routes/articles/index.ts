@@ -108,6 +108,7 @@ articlesRoutes.post("/:organizationId", async (c) => {
           slug,
           description,
           organizationId,
+          creatorId: memberRow.id,
         })
         .returning();
 

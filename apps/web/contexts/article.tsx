@@ -91,8 +91,6 @@ export const ArticleProvider = ({
 
   const setArticle = (value: Articles | undefined) => setArticleState(value);
 
-  console.log(article);
-
   return (
     <ArticleContext.Provider
       value={{

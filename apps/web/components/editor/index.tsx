@@ -49,7 +49,8 @@ export default function Editor() {
     null
   );
   const router = useRouter();
-  const { articleId, localArticle, article, isLoading } = useArticleContext();
+  const { articleId, localArticle, article, isLoading, setIsDirty, isDirty } =
+    useArticleContext();
   const { activeOrganization } = useOrganizationContext();
   const editorRef = useRef<EditorInstance | null>(null);
   const [openNode, setOpenNode] = useState(false);
@@ -108,17 +109,53 @@ export default function Editor() {
   );
 
   useEffect(() => {
+    if (isLoading) return;
+
+    if (article?.json && article.json !== null && !isDirty) {
+      setInitialContent(article.json);
+      return;
+    }
+
     if (localArticle !== undefined) {
       setInitialContent(JSON.parse(localArticle));
-    } else if (article) {
-      if (article.content && article.content !== "") {
-        console.log("article.content", article.content);
-        setInitialContent(JSON.parse(article.content));
-      } else {
-        setInitialContent(defaultValue);
-      }
+      return;
     }
-  }, [article, localArticle]);
+
+    setInitialContent(defaultValue);
+  }, [isLoading, article, localArticle, defaultValue]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    const localJson = JSON.parse(localArticle ?? "{}");
+    if (JSON.stringify(localJson) !== JSON.stringify(initialContent)) {
+      setIsDirty(true);
+    }
+  }, [initialContent, isLoading, localArticle]);
+
+  useEffect(() => {
+    if (!isDirty && isLoading) return;
+
+    const localJson = JSON.parse(localArticle ?? "{}");
+
+    if (JSON.stringify(localJson) !== JSON.stringify(initialContent)) {
+      form.setValue("json", JSON.stringify(localJson), {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      form.setValue("markdown", localStorage.getItem("markdown") ?? "", {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      form.setValue(
+        "content",
+        highlightCodeblocks(localStorage.getItem("html-content") ?? ""),
+        {
+          shouldDirty: true,
+          shouldTouch: true,
+        }
+      );
+    }
+  }, [isDirty]);
 
   if (!initialContent) return null;
 

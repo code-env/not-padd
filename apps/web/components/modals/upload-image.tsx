@@ -4,7 +4,9 @@ import {
   Dialog,
   DialogContent,
   DialogContentWrapper,
+  DialogHeader,
   DialogMiniPadding,
+  DialogTitle,
 } from "@notpadd/ui/components/dialog";
 import DropZone from "../dropzone";
 
@@ -21,6 +23,9 @@ const UploadImage = () => {
   return (
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
       <DialogContent>
+        <DialogHeader className="hidden">
+          <DialogTitle>Upload Image</DialogTitle>
+        </DialogHeader>
         <DialogMiniPadding>
           <DialogContentWrapper className="p-0">
             <DropZone

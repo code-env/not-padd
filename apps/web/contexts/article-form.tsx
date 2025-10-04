@@ -39,8 +39,6 @@ export const ArticleFormProvider = ({
     mode: "onChange",
   });
 
-  console.log(defaultTags, defaultAuthors);
-
   useEffect(() => {
     methods.reset(
       {

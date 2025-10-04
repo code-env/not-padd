@@ -54,8 +54,6 @@ export function RightSidebar({
 
   const form = useArticleForm();
 
-  console.log(form.formState.dirtyFields);
-
   const {
     register,
     handleSubmit,

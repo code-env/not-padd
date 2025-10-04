@@ -13,6 +13,7 @@ import { cn } from "@notpadd/ui/lib/utils";
 import { Loader, Upload } from "lucide-react";
 import { useEditor } from "novel";
 import { toast } from "sonner";
+import { Progress } from "@notpadd/ui/components/progress";
 
 interface DropZoneProps {
   organizationId: string;
@@ -72,7 +73,7 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
     <div
       {...getRootProps()}
       className={cn(
-        "transition-all duration-200 border-2 border-dashed border-primary/50 aspect-video rounded-lg p-4 relative overflow-hidden group outline-none!",
+        "transition-all duration-200 border-2 border-dashed border-primary/5 aspect-video rounded-lg p-4 relative overflow-hidden group outline-none!",
         {
           "bg-primary/5 p-2": isDragActive,
         }
@@ -90,9 +91,11 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
       </div>
 
       {isUploading && (
-        <div className="absolute inset-0 flex items-center justify-center z-20 aspect-video bg-background flex-col gap-2">
-          <Loader className="size-14 animate-spin" />
-          <span className="text-sm"> {uploadProgress} % Uploaded</span>
+        <div className="absolute inset-0 flex items-center justify-center z-20 aspect-video bg-sidebar flex-col gap-2 px-4">
+          <div className="flex flex-col items-center gap-2 w-full">
+            <span>{uploadProgress}%</span>
+            <Progress value={uploadProgress} className="w-full" />
+          </div>
         </div>
       )}
     </div>
