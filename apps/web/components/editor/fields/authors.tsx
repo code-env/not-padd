@@ -33,13 +33,9 @@ import { useController, useFormContext, type Control } from "react-hook-form";
 
 type AuthorSelectorProps = {
   control: Control<UpdateArticleSchema>;
-  defaultAuthors?: string[];
 };
 
-export const AuthorSelector = ({
-  control,
-  defaultAuthors = [],
-}: AuthorSelectorProps) => {
+export const AuthorSelector = ({ control }: AuthorSelectorProps) => {
   const { activeOrganization } = useOrganizationContext();
   const {
     field: { onChange, value },
@@ -47,13 +43,12 @@ export const AuthorSelector = ({
   } = useController({
     name: "authors",
     control,
-    defaultValue: defaultAuthors,
   });
 
   const { article } = useArticleContext();
   const { setValue } = useFormContext<UpdateArticleSchema>();
 
-  const { data: authors } = useQuery({
+  const { data: authors, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.AUTHORS],
     queryFn: () =>
       AUTHORS_QUERIES.getAuthors(
@@ -68,47 +63,49 @@ export const AuthorSelector = ({
 
   useEffect(() => {
     if (!authors?.data) return;
-    if (!Array.isArray(value) || value.length === 0) return;
+    if (!Array.isArray(value)) return;
 
     const mapped = value.map((v: string) => {
-      const byMemberId = authors.data.find((a) => a.memberId === v);
-      if (byMemberId) return v;
-      const byUserId = authors.data.find((a) => a.userId === v);
-      if (byUserId) return byUserId.memberId;
-      const byName = authors.data.find((a) => a.name === v);
-      if (byName) return byName.memberId;
-      return v;
+      return authors.data.find((a) => a.userId === v);
     });
 
     const cleaned = mapped.filter(
-      (m): m is string => typeof m === "string" && m.trim() !== ""
+      (m): m is AuthorsListItem =>
+        typeof m === "object" && m !== undefined && m.id !== ""
     );
 
     const changed =
-      cleaned.length !== value.length || cleaned.some((m, i) => m !== value[i]);
+      cleaned.length !== value.length ||
+      cleaned.some((m, i) => m.userId !== value[i]);
     if (!changed) return;
 
-    setValue("authors", cleaned, {
-      shouldDirty: false,
-      shouldTouch: false,
-      shouldValidate: false,
-    });
+    setValue(
+      "authors",
+      cleaned.map((m) => m.userId),
+      {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      }
+    );
   }, [authors?.data, value, setValue]);
 
   const selectedAuthors = useMemo(() => {
+    if (isLoading) return [];
+
     if (!authors?.data || !Array.isArray(value) || value.length === 0) {
       return [] as AuthorsListItem[];
     }
-    return authors.data.filter((a) => value.includes(a.memberId));
-  }, [authors, value]);
+    return authors.data.filter((a) => value.includes(a.userId));
+  }, [authors, value, isLoading]);
 
   const addAuthor = (author: AuthorsListItem) => {
-    const memberId = author.memberId;
-    if (!memberId) return;
-    if (value?.includes(memberId)) {
+    const userId = author.userId;
+    if (!userId) return;
+    if (value?.includes(userId)) {
       return;
     }
-    const newValue = [...(value || []), memberId];
+    const newValue = [...(value || []), userId];
     onChange(newValue);
   };
 
@@ -118,7 +115,7 @@ export const AuthorSelector = ({
         <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-muted/50 px-3 py-1.5 text-sm">
           <ul className="-space-x-2 flex flex-wrap">
             {selectedAuthors.length === 0 && (
-              <li className="text-muted-foreground">Select authors</li>
+              <li className="text-muted-foreground">Select </li>
             )}
             {selectedAuthors.length === 1 && (
               <li className="flex items-center gap-2">
@@ -134,7 +131,7 @@ export const AuthorSelector = ({
             )}
             {selectedAuthors.length > 1 &&
               selectedAuthors.map((author) => (
-                <li className="flex items-center" key={author.memberId}>
+                <li className="flex items-center" key={author.userId}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <UserProfile
@@ -178,7 +175,7 @@ export const AuthorSelector = ({
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
-                        value?.includes(option.memberId as string)
+                        value?.includes(option.userId)
                           ? "opacity-100"
                           : "opacity-0"
                       )}

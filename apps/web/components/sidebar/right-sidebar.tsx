@@ -177,14 +177,7 @@ export function RightSidebar({
               </SidebarTooltip>
             </SidebarSectionTitle>
             <div className="flex flex-wrap gap-2">
-              <AuthorSelector
-                control={form.control}
-                defaultAuthors={
-                  (article as ArticleWithRelations)?.authors?.map(
-                    (a) => a.id
-                  ) ?? []
-                }
-              />
+              <AuthorSelector control={form.control} />
             </div>
           </SidebarSection>
         </div>
