@@ -19,6 +19,7 @@ const SocialButton = () => {
         callbackURL: env.NEXT_PUBLIC_CALLBACK_URL,
       });
     } catch (error) {
+      console.error(error);
       toast.error("Failed to sign in with Google");
     } finally {
       setIsLoading(false);

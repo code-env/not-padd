@@ -196,9 +196,13 @@ export const useOrganizationActions = () => {
       slug?: string;
       logo?: string;
       metadata?: Record<string, any>;
+      organizationId: string;
     }) => {
       try {
-        const result = await authClient.organization.update({ data });
+        const result = await authClient.organization.update({
+          data,
+          organizationId: data.organizationId,
+        });
         return result;
       } catch (error) {
         console.error("Failed to update organization:", error);

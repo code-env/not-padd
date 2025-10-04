@@ -9,7 +9,7 @@ interface ClientProps {
   slug: string;
 }
 
-export const Client = ({ children, slug }: ClientProps) => {
+export const Client = ({ children }: ClientProps) => {
   const { activeOrganization } = useOrganizationContext();
   const routes = useSidebarRoutes(activeOrganization?.slug ?? "");
   const pathname = usePathname();

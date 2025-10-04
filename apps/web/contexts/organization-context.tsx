@@ -44,6 +44,7 @@ interface OrganizationContextType {
     slug?: string;
     logo?: string;
     metadata?: Record<string, any>;
+    organizationId: string;
   }) => Promise<any>;
   deleteOrganization: (organizationId: string) => Promise<any>;
   checkSlug: (slug: string) => Promise<any>;

@@ -1,6 +1,5 @@
 "use client";
 
-import type { ClipboardEvent } from "react";
 import { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -8,12 +7,12 @@ import {
   generatePermittedFileTypes,
 } from "uploadthing/client";
 
+import useModal from "@/hooks/use-modal";
 import useUploader, { type EndPoint } from "@/hooks/use-uploader";
 import { cn } from "@notpadd/ui/lib/utils";
 import { Loader, Upload } from "lucide-react";
-import useModal from "@/hooks/use-modal";
-import { toast } from "sonner";
 import { useEditor } from "novel";
+import { toast } from "sonner";
 
 interface DropZoneProps {
   organizationId: string;
@@ -67,7 +66,7 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
         onClose();
       }
     }
-  }, [editor, url]);
+  }, [editor, url, isOpen, modalType, onClose]);
 
   return (
     <div

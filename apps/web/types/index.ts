@@ -6,9 +6,15 @@ import type {
 } from "@notpadd/db/types";
 
 export interface Organization
-  extends Omit<DbOrganization, "logo" | "metadata"> {
+  extends Omit<
+    DbOrganization,
+    "logo" | "metadata" | "lastUsed" | "storageLimit" | "storageUsed"
+  > {
   logo?: string | null | undefined;
   metadata?: any;
+  lastUsed?: boolean;
+  storageLimit?: number;
+  storageUsed?: number;
 }
 
 export type Member = DbMember;

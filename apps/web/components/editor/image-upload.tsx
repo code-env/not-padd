@@ -20,9 +20,9 @@ export const useUploadFn = () => {
       toast.promise(
         promise.then(async (data) => {
           if (data && data.length > 0) {
-            const res = data[0]?.serverData;
+            const res = data[0]?.ufsUrl;
             const image = new Image();
-            image.src = res?.url as string;
+            image.src = res as string;
             image.onload = () => {
               resolve(res);
             };

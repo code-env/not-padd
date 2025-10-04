@@ -20,7 +20,7 @@ async function getWorkspaceFromSlug({ params }: PageProps) {
     headers: await headers(),
   });
 
-  if (!organization) null;
+  // no-op removed
 
   return organization;
 }

@@ -164,13 +164,16 @@ export const ourFileRouter = {
           storageUsed: organizationRecord?.[0]?.storageUsed,
           url: file.ufsUrl,
         };
-      } catch (error: any) {
+      } catch (error) {
         if (file && error) {
           const api = new UTApi();
           await api.deleteFiles(file.key);
         }
 
-        console.error("onUploadComplete DB error:", error.message);
+        console.error(
+          "onUploadComplete DB error:",
+          error instanceof Error ? error.message : "Unknown error"
+        );
         throw new UploadThingError("Failed to persist uploaded file");
       }
     }),
@@ -231,13 +234,16 @@ export const ourFileRouter = {
           image: updated?.image,
           imageBlurhash: updated?.imageBlurhash,
         };
-      } catch (error: any) {
+      } catch (error) {
         if (file && error) {
           const api = new UTApi();
           await api.deleteFiles(file.key);
         }
 
-        console.error("onUploadComplete DB error:", error.message);
+        console.error(
+          "onUploadComplete DB error:",
+          error instanceof Error ? error.message : "Unknown error"
+        );
         throw new UploadThingError("Failed to persist uploaded file");
       }
     }),

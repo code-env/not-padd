@@ -36,7 +36,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@notpadd/ui/components/button";
 import { SidebarTrigger } from "@notpadd/ui/components/sidebar";
 
-const hljs = require("highlight.js");
+import hljs from "highlight.js";
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -60,7 +60,7 @@ export default function Editor() {
 
   const highlightCodeblocks = (content: string) => {
     const doc = new DOMParser().parseFromString(content, "text/html");
-    doc.querySelectorAll("pre code").forEach((el) => {
+    doc.querySelectorAll<HTMLElement>("pre code").forEach((el) => {
       hljs.highlightElement(el);
     });
     return new XMLSerializer().serializeToString(doc);

@@ -33,7 +33,7 @@ import { LoadingButton } from "@notpadd/ui/components/loading-button";
 export function RightSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { article, setArticle, isLoading, isDirty } = useArticleContext();
+  const { article, setArticle, isLoading } = useArticleContext();
   const { activeOrganization } = useOrganizationContext();
 
   const { mutate: updateArticle, isPending } = useMutation({

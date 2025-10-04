@@ -1,18 +1,9 @@
 "use client";
 
-import React from "react";
-
 import type { Articles } from "@notpadd/db/types";
-import { useArticleContext } from "@/contexts";
 
 const ArticleClient = ({ article }: { article: Articles }) => {
-  const {
-    articleId,
-    isId,
-    article: articleState,
-    setArticle,
-  } = useArticleContext();
-
+  console.log(article);
   return <div>ArticleClient</div>;
 };
 

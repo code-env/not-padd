@@ -24,7 +24,7 @@ type ArticleActionProps = {
 export default function ArticleAction({ article }: ArticleActionProps) {
   const { onOpen, onClose } = useConfirmationModal();
   const queryClient = useQueryClient();
-  const { mutate: deleteArticle, isPending } = useMutation({
+  const { mutate: deleteArticle } = useMutation({
     mutationFn: (articleId: string) =>
       ARTICLES_QUERIES.deleteArticle(activeOrganization?.id ?? "", articleId),
     onSuccess: (data: any) => {
@@ -79,7 +79,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={(e) => {
+            onClick={() => {
               onOpen(
                 "delete-article",
                 "Delete Article",
