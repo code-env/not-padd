@@ -2,6 +2,7 @@
 
 import { QUERY_KEYS } from "@/lib/constants";
 import { ARTICLES_QUERIES } from "@/lib/queries";
+import type { ArticleWithRelations } from "@/lib/types";
 import type { Articles } from "@notpadd/db/types";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
@@ -11,8 +12,8 @@ import { useOrganizationContext } from "./organization-context";
 interface ArticleContextType {
   articleId: string | undefined;
   isId: boolean;
-  article: Articles | undefined;
-  setArticle: (article: Articles | undefined) => void;
+  article: ArticleWithRelations | undefined;
+  setArticle: (article: ArticleWithRelations | undefined) => void;
   isLoading: boolean;
   isError: boolean;
   localArticle: Articles["content"] | undefined;

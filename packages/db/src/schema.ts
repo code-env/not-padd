@@ -158,6 +158,8 @@ export const articles = pgTable(
     slug: text("slug").notNull().unique(),
     description: text("description").notNull(),
     content: text("content").notNull().default(""),
+    markdown: text("markdown").notNull().default(""),
+    json: jsonb("json").notNull().default({}),
     excerpt: text("excerpt"),
     image: text("image"),
     imageBlurhash: text("image_blurhash"),

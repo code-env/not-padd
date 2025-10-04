@@ -9,9 +9,27 @@ import type {
   TagsResponse,
   AuthorsResponse,
   AuthorsListItem,
+  UpdateArticleSchema,
 } from "./types";
 
 export const ARTICLES_QUERIES = {
+  updateArticle: async (
+    organizationId: string,
+    articleId: string,
+    data: UpdateArticleSchema
+  ) => {
+    console.log(data);
+    const response = await apiClient.put<APIResponse<{ data: Articles }>>(
+      `/articles/${organizationId}/${articleId}`,
+      data
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
   getArticles: async (
     organizationId: string,
     queries: { page: number; limit: number; search: string }
@@ -147,16 +165,16 @@ export const TAGS_QUERIES = {
 export const AUTHORS_QUERIES = {
   getAuthors: async (
     organizationId: string,
-    queries: { page: number; limit: number; articleId?: string }
+    articleId: string,
+    queries: { page: number; limit: number }
   ) => {
     const searchParams = new URLSearchParams({
       page: String(queries.page),
       limit: String(queries.limit),
-      ...(queries.articleId ? { articleId: queries.articleId } : {}),
     });
 
     const response = await apiClient.get<APIResponse<AuthorsResponse>>(
-      `/authors/${organizationId}?${searchParams.toString()}`
+      `/authors/${organizationId}/${articleId}?${searchParams.toString()}`
     );
 
     if (!response.data.success) {

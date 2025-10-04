@@ -247,6 +247,70 @@ authorsRoutes.get("/:organizationId/:articleId/:memberId", async (c) => {
   });
 });
 
+authorsRoutes.get("/:organizationId/:articleId", async (c) => {
+  const { organizationId, articleId } = c.req.param();
+
+  const userInOrg = await isUserInOrganization(c, organizationId);
+  if (!userInOrg) {
+    return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  const page = parseInt(c.req.query("page") || "1");
+  const limit = parseInt(c.req.query("limit") || "10");
+  const offset = (page - 1) * limit;
+
+  const [rows, total] = await Promise.all([
+    db
+      .select({
+        id: member.id,
+        userId: userTable.id,
+        name: userTable.name,
+        image: userTable.image,
+      })
+      .from(articleAuthor)
+      .where(
+        and(
+          eq(articleAuthor.organizationId, organizationId),
+          eq(articleAuthor.articleId, articleId)
+        )
+      )
+      .leftJoin(
+        member,
+        and(
+          eq(member.id, articleAuthor.memberId),
+          eq(member.organizationId, articleAuthor.organizationId)
+        )
+      )
+      .leftJoin(userTable, eq(userTable.id, member.userId))
+      .limit(limit)
+      .offset(offset),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(articleAuthor)
+      .where(
+        and(
+          eq(articleAuthor.organizationId, organizationId),
+          eq(articleAuthor.articleId, articleId)
+        )
+      ),
+  ]);
+
+  console.log(rows, total);
+
+  return c.json({
+    success: true,
+    message: "Authors fetched successfully",
+    data: {
+      data: rows,
+      pagination: {
+        total: Number(total[0]?.count) || 0,
+        page: page,
+        limit: limit,
+      },
+    },
+  });
+});
+
 authorsRoutes.put("/:organizationId/:articleId/:memberId", async (c) => {
   try {
     const { organizationId, articleId, memberId: oldMemberId } = c.req.param();

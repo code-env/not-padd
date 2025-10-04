@@ -17,15 +17,10 @@ import {
 import { UserProfile } from "@notpadd/ui/components/user-profile";
 import { cn } from "@notpadd/ui/lib/utils";
 
-import { useOrganizationContext } from "@/contexts";
+import { useArticleContext, useOrganizationContext } from "@/contexts";
 import { QUERY_KEYS } from "@/lib/constants";
 import { AUTHORS_QUERIES } from "@/lib/queries";
 import type { AuthorsListItem, UpdateArticleSchema } from "@/lib/types";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@notpadd/ui/components/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -33,8 +28,8 @@ import {
 } from "@notpadd/ui/components/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useMemo } from "react";
-import { useController, type Control } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { useController, useFormContext, type Control } from "react-hook-form";
 
 type AuthorSelectorProps = {
   control: Control<UpdateArticleSchema>;
@@ -55,65 +50,102 @@ export const AuthorSelector = ({
     defaultValue: defaultAuthors,
   });
 
+  const { article } = useArticleContext();
+  const { setValue } = useFormContext<UpdateArticleSchema>();
+
   const { data: authors } = useQuery({
     queryKey: [QUERY_KEYS.AUTHORS],
     queryFn: () =>
-      AUTHORS_QUERIES.getAuthors(activeOrganization?.id ?? "", {
-        page: 1,
-        limit: 100,
-      }),
+      AUTHORS_QUERIES.getAuthors(
+        activeOrganization?.id ?? "",
+        article?.id ?? "",
+        {
+          page: 1,
+          limit: 100,
+        }
+      ),
   });
 
-  const defaultAuthorsList = useMemo(() => {
-    return authors?.data.filter((author) =>
-      defaultAuthors.includes(author.userId ?? "")
+  useEffect(() => {
+    if (!authors?.data) return;
+    if (!Array.isArray(value) || value.length === 0) return;
+
+    const mapped = value.map((v: string) => {
+      const byMemberId = authors.data.find((a) => a.memberId === v);
+      if (byMemberId) return v;
+      const byUserId = authors.data.find((a) => a.userId === v);
+      if (byUserId) return byUserId.memberId;
+      const byName = authors.data.find((a) => a.name === v);
+      if (byName) return byName.memberId;
+      return v;
+    });
+
+    const cleaned = mapped.filter(
+      (m): m is string => typeof m === "string" && m.trim() !== ""
     );
-  }, [authors, defaultAuthors]);
+
+    const changed =
+      cleaned.length !== value.length || cleaned.some((m, i) => m !== value[i]);
+    if (!changed) return;
+
+    setValue("authors", cleaned, {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+  }, [authors?.data, value, setValue]);
+
+  const selectedAuthors = useMemo(() => {
+    if (!authors?.data || !Array.isArray(value) || value.length === 0) {
+      return [] as AuthorsListItem[];
+    }
+    return authors.data.filter((a) => value.includes(a.memberId));
+  }, [authors, value]);
 
   const addAuthor = (author: AuthorsListItem) => {
-    console.log(author);
-    if (value?.includes(author.name ?? "")) {
+    const memberId = author.memberId;
+    if (!memberId) return;
+    if (value?.includes(memberId)) {
       return;
     }
-    const newValue = [...(value || []), author.name];
+    const newValue = [...(value || []), memberId];
     onChange(newValue);
   };
-
-  const selected = value;
 
   return (
     <Popover>
       <PopoverTrigger className="w-full">
         <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-muted/50 px-3 py-1.5 text-sm">
           <ul className="-space-x-2 flex flex-wrap">
-            {defaultAuthorsList?.length === 0 && (
+            {selectedAuthors.length === 0 && (
               <li className="text-muted-foreground">Select authors</li>
             )}
-            {defaultAuthorsList?.length === 1 && (
+            {selectedAuthors.length === 1 && (
               <li className="flex items-center gap-2">
                 <UserProfile
-                  name={defaultAuthorsList[0]?.name ?? ""}
+                  name={selectedAuthors[0]?.name ?? ""}
                   size="sm"
-                  url={defaultAuthorsList[0]?.image ?? ""}
+                  url={selectedAuthors[0]?.image ?? ""}
                 />
                 <p className="max-w-64 text-sm">
-                  {defaultAuthorsList.map((author) => author.name).join(", ")}
+                  {selectedAuthors.map((author) => author.name).join(", ")}
                 </p>
               </li>
             )}
-            {selected?.length &&
-              selected?.length > 1 &&
-              selected?.map((author) => (
-                <li className="flex items-center" key={author}>
+            {selectedAuthors.length > 1 &&
+              selectedAuthors.map((author) => (
+                <li className="flex items-center" key={author.memberId}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Avatar className="size-6">
-                        <AvatarImage src={author || undefined} />
-                        <AvatarFallback>{author.charAt(0)}</AvatarFallback>
-                      </Avatar>
+                      <UserProfile
+                        name={author.name}
+                        url={author.image}
+                        size="sm"
+                        fallbackClassName="text-xs"
+                      />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-64 text-xs">{author}</p>
+                      <p className="max-w-64 text-xs">{author.name}</p>
                     </TooltipContent>
                   </Tooltip>
                 </li>
@@ -146,7 +178,7 @@ export const AuthorSelector = ({
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
-                        selected?.includes(option.name as string)
+                        value?.includes(option.memberId as string)
                           ? "opacity-100"
                           : "opacity-0"
                       )}

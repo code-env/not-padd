@@ -44,7 +44,7 @@ export default function Editor() {
   const [initialContent, setInitialContent] = useState<null | JSONContent>(
     null
   );
-  const { articleId, localArticle, article } = useArticleContext();
+  const { articleId, localArticle, article, isLoading } = useArticleContext();
   const editorRef = useRef<EditorInstance | null>(null);
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -84,6 +84,19 @@ export default function Editor() {
         "markdown",
         editor.storage.markdown.getMarkdown()
       );
+
+      form.setValue("json", JSON.stringify(json), {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      form.setValue("markdown", editor.storage.markdown.getMarkdown(), {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      form.setValue("content", highlightCodeblocks(editor.getHTML()), {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
     },
     500
   );
@@ -102,6 +115,8 @@ export default function Editor() {
   }, [article, localArticle]);
 
   if (!initialContent) return null;
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="relative w-full max-w-6xl mx-auto">

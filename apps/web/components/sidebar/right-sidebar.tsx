@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { Sidebar, SidebarFooter } from "@notpadd/ui/components/sidebar";
 import { RightSidebarLoading } from "@/components/loading-uis";
-import { useArticleContext } from "@/contexts";
+import { useArticleContext, useOrganizationContext } from "@/contexts";
 import { cn } from "@notpadd/ui/lib/utils";
 import { Input } from "@notpadd/ui/components/input";
 import {
@@ -25,13 +25,36 @@ import { Button } from "@notpadd/ui/components/button";
 import Image from "next/image";
 import type { ArticleWithRelations, UpdateArticleSchema } from "@/lib/types";
 import { useArticleForm } from "@/contexts";
+import { ARTICLES_QUERIES } from "@/lib/queries";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { LoadingButton } from "@notpadd/ui/components/loading-button";
 
 export function RightSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { article, setArticle, isLoading, isDirty } = useArticleContext();
+  const { activeOrganization } = useOrganizationContext();
+
+  const { mutate: updateArticle, isPending } = useMutation({
+    mutationFn: (data: UpdateArticleSchema) =>
+      ARTICLES_QUERIES.updateArticle(
+        activeOrganization?.id as string,
+        article?.id as string,
+        data
+      ),
+    onSuccess: (data: any) => {
+      setArticle(data);
+      toast.success("Article updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const form = useArticleForm();
+
+  console.log(form.formState.dirtyFields);
 
   const {
     register,
@@ -51,7 +74,15 @@ export function RightSidebar({
   };
 
   const onSubmit = (data: UpdateArticleSchema) => {
-    console.log(data);
+    // console.log("Submitting update with:", data);
+    updateArticle(data);
+  };
+
+  const onInvalid: import("react-hook-form").SubmitErrorHandler<
+    UpdateArticleSchema
+  > = (errors) => {
+    console.log("Validation errors:", errors);
+    toast.error("Please fix the validation errors before saving.");
   };
 
   return (
@@ -103,7 +134,13 @@ export function RightSidebar({
               className="resize-none bg-muted/50"
               rows={3}
               {...register("description")}
+              aria-invalid={!!errors?.description}
             />
+            {errors?.description?.message && (
+              <p className="text-destructive text-xs">
+                {errors.description.message as string}
+              </p>
+            )}
           </SidebarSection>
           <SidebarSection>
             <SidebarSectionTitle>
@@ -116,7 +153,7 @@ export function RightSidebar({
               placeholder="Slug"
               className="bg-muted/50"
               {...register("slug")}
-              value={article?.slug}
+              defaultValue={article?.slug}
               disabled
             />
           </SidebarSection>
@@ -155,9 +192,19 @@ export function RightSidebar({
         </div>
       </div>
       <SidebarFooter>
-        <Button className="w-full" onClick={handleSubmit(onSubmit)}>
+        <LoadingButton
+          className="w-full"
+          loading={isPending}
+          disabled={
+            !(
+              form.formState.isDirty ||
+              Object.keys(form.formState.dirtyFields || {}).length > 0
+            ) || isPending
+          }
+          onClick={handleSubmit(onSubmit, onInvalid)}
+        >
           Save
-        </Button>
+        </LoadingButton>
       </SidebarFooter>
     </Sidebar>
   );

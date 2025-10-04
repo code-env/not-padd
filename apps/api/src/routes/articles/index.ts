@@ -257,9 +257,8 @@ articlesRoutes.get("/:organizationId", async (c) => {
     },
   });
 });
-articlesRoutes.put("/:organizationId/:slug", async (c) => {
-  const { organizationId, slug } = c.req.param();
-  const { title, description } = createArticleSchema.parse(await c.req.json());
+articlesRoutes.put("/:organizationId/:articleId", async (c) => {
+  const { organizationId, articleId } = c.req.param();
   const currentUser = c.get("user");
   if (!currentUser || !currentUser.id) {
     return c.json({ error: "Unauthorized", success: false }, 401);
@@ -270,22 +269,93 @@ articlesRoutes.put("/:organizationId/:slug", async (c) => {
     return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
-  const article = await db
-    .update(articles)
-    .set({ title, description })
-    .where(
-      and(eq(articles.organizationId, organizationId), eq(articles.slug, slug))
-    );
+  const updateSchema = z
+    .object({
+      title: z.string().min(1).optional(),
+      description: z.string().min(1).optional(),
+      content: z.string().optional(),
+      markdown: z.string().optional(),
+      json: z.any().optional(),
+      slug: z.string().optional(),
+      excerpt: z.string().optional(),
+      image: z.string().nullable().optional(),
+      imageBlurhash: z.string().nullable().optional(),
+      published: z.boolean().optional(),
+      publishedAt: z.coerce.date().optional(),
+      tags: z.array(z.string()).optional(),
+      authors: z.array(z.string()).optional(),
+    })
+    .passthrough();
 
-  if (!article) {
+  const body = updateSchema.parse(await c.req.json());
+
+  const updateValues: Record<string, unknown> = {};
+  if (body.title !== undefined) {
+    updateValues.title = body.title;
+    updateValues.slug = slugify(body.title);
+  }
+  if (body.description !== undefined)
+    updateValues.description = body.description;
+  if (body.content !== undefined) updateValues.content = body.content;
+  if (body.markdown !== undefined) updateValues.markdown = body.markdown;
+  if (body.json !== undefined) updateValues.json = body.json;
+  if (body.excerpt !== undefined) updateValues.excerpt = body.excerpt;
+  if (body.image !== undefined) updateValues.image = body.image;
+  if (body.imageBlurhash !== undefined)
+    updateValues.imageBlurhash = body.imageBlurhash;
+  if (body.published !== undefined) updateValues.published = body.published;
+  if (body.publishedAt !== undefined)
+    updateValues.publishedAt = body.publishedAt;
+
+  if (Object.keys(updateValues).length === 0) {
+    return c.json(
+      { error: "No updatable fields provided", success: false },
+      400
+    );
+  }
+
+  console.log(updateValues, body);
+
+  const updated = await db
+    .update(articles)
+    .set(updateValues)
+    .where(
+      and(
+        eq(articles.organizationId, organizationId),
+        eq(articles.id, articleId)
+      )
+    )
+    .returning();
+
+  const tagValues = (body.tags ?? []).map((tag) => ({
+    articleId,
+    organizationId,
+    tagId: tag,
+  }));
+  const authorValues = (body.authors ?? []).map((author) => ({
+    articleId,
+    organizationId,
+    memberId: author,
+  }));
+
+  await Promise.all([
+    tagValues.length > 0
+      ? db.insert(articleTag).values(tagValues).onConflictDoNothing()
+      : Promise.resolve(),
+    authorValues.length > 0
+      ? db.insert(articleAuthor).values(authorValues).onConflictDoNothing()
+      : Promise.resolve(),
+  ]);
+
+  if (!updated || !updated[0]) {
     return c.json({ error: "Article not found", success: false }, 404);
   }
 
   return c.json({
     success: true,
-    message: "Article fetched successfully",
+    message: "Article updated successfully",
     data: {
-      data: article,
+      data: updated[0],
     },
   });
 });

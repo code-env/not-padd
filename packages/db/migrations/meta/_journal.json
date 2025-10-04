@@ -43,6 +43,13 @@
       "when": 1759393700905,
       "tag": "0005_square_barracuda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1759513099428,
+      "tag": "0006_secret_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }

@@ -24,8 +24,8 @@ import { TAGS_QUERIES } from "@/lib/queries";
 import type { UpdateArticleSchema } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
-import { useMemo } from "react";
-import { useController, type Control } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { useController, useFormContext, type Control } from "react-hook-form";
 
 type TagSelectorProps = {
   control: Control<UpdateArticleSchema>;
@@ -47,6 +47,7 @@ export const TagSelector = ({
   });
 
   const { activeOrganization } = useOrganizationContext();
+  const { setValue } = useFormContext<UpdateArticleSchema>();
 
   const { data: tags } = useQuery({
     queryKey: [QUERY_KEYS.TAGS, activeOrganization?.id],
@@ -59,22 +60,48 @@ export const TagSelector = ({
     enabled: !!activeOrganization?.id,
   });
 
-  const addTag = (tag: string) => {
-    if (value?.includes(tag)) {
+  const addTag = (tagId: string) => {
+    if (value?.includes(tagId)) {
       return;
     }
-    const newValue = [...(value || []), tag];
+    const newValue = [...(value || []), tagId];
     onChange(newValue);
   };
 
-  const handleRemoveTag = (tag: string) => {
-    const newValue = (value || []).filter((tag: string) => tag !== tag);
+  const handleRemoveTag = (tagId: string) => {
+    const newValue = (value || []).filter((t: string) => t !== tagId);
     onChange(newValue);
   };
+
+  useEffect(() => {
+    if (!tags || !Array.isArray(value) || value.length === 0) return;
+
+    const mapped = value.map((v: string) => {
+      const byId = tags.data.find((t) => t.id === v);
+      if (byId) return v;
+      const byName = tags.data.find((t) => t.name === v);
+      if (byName) return byName.id;
+      return v;
+    });
+
+    const cleaned = mapped.filter(
+      (m): m is string => typeof m === "string" && m.trim() !== ""
+    );
+
+    const changed =
+      cleaned.length !== value.length || cleaned.some((m, i) => m !== value[i]);
+    if (!changed) return;
+
+    setValue("tags", cleaned, {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+  }, [tags, value, setValue]);
 
   const selected = useMemo(() => {
     if (tags && tags.data.length > 0 && value && value?.length > 0) {
-      return tags.data.filter((opt) => value.includes(opt.name));
+      return tags.data.filter((opt) => value.includes(opt.id));
     }
     return [];
   }, [tags, value]);
@@ -99,11 +126,11 @@ export const TagSelector = ({
                       className="ml-1 h-auto p-0 hover:bg-transparent"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleRemoveTag(item.name);
+                        handleRemoveTag(item.id);
                       }}
                       type="button"
-                      aria-label={`Remove ${item}`}
-                      title={`Remove ${item}`}
+                      aria-label={`Remove ${item.name}`}
+                      title={`Remove ${item.name}`}
                     >
                       <X className="size-2.5 p-0" />
                     </button>
@@ -138,7 +165,7 @@ export const TagSelector = ({
                 {tags.data.map((option) => (
                   <CommandItem
                     key={option.id}
-                    onSelect={() => addTag(option.name)}
+                    onSelect={() => addTag(option.id)}
                     className="cursor-pointer hover:bg-sidebar!"
                   >
                     {option.name}
