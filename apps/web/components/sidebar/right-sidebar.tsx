@@ -29,12 +29,24 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import BlurImage from "../blur-image";
+import { removeFromStorage } from "@/lib/localstorage";
 
 export function RightSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { article, setArticle, isLoading, isDirty } = useArticleContext();
+  const { article, setArticle, isLoading, isDirty, setIsDirty, articleId } =
+    useArticleContext();
   const { activeOrganization } = useOrganizationContext();
+
+  const form = useArticleForm();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors },
+  } = form;
 
   const { mutate: updateArticle, isPending } = useMutation({
     mutationFn: (data: UpdateArticleSchema) =>
@@ -43,27 +55,20 @@ export function RightSidebar({
         article?.id as string,
         data
       ),
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       toast.success("Article updated successfully", {
         position: "bottom-center",
       });
-
-      if (isDirty) {
-        window.location.reload();
-      }
+      setIsDirty(false);
+      reset(getValues(), {
+        keepDirty: false,
+      });
+      removeFromStorage(articleId as string);
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
-
-  const form = useArticleForm();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = form;
 
   if (isLoading) return <RightSidebarLoading />;
 

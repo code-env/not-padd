@@ -106,8 +106,6 @@ export const TagSelector = ({
     return [];
   }, [tags, value]);
 
-  console.log(tags, selected, value);
-
   return (
     <Popover>
       <PopoverTrigger asChild>

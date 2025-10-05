@@ -22,21 +22,27 @@ import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
 import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
-import { Separator } from "@notpadd/ui/components/separator";
 import { TextareaAutosize } from "@notpadd/ui/components/resizable-textarea";
+import { Separator } from "@notpadd/ui/components/separator";
 
 import UploadImage from "@/components/modals/upload-image";
-import EditorMenu from "./menu";
-import SlashCommands from "./slash-commands";
-import { QUERY_KEYS } from "@/lib/constants";
-import { useArticleContext, useOrganizationContext } from "@/contexts";
-import { useArticleForm } from "@/contexts";
-import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {
+  useArticleContext,
+  useArticleForm,
+  useOrganizationContext,
+} from "@/contexts";
 import { Button } from "@notpadd/ui/components/button";
 import { SidebarTrigger } from "@notpadd/ui/components/sidebar";
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import EditorMenu from "./menu";
+import SlashCommands from "./slash-commands";
 
-import hljs from "highlight.js";
+import {
+  getLocalStorageKey,
+  getStoredContent,
+  highlightCodeblocks,
+} from "@/lib/localstorage";
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -59,19 +65,7 @@ export default function Editor() {
   const [openAI, setOpenAI] = useState(false);
   const uploadFn = useUploadFn();
 
-  const highlightCodeblocks = (content: string) => {
-    const doc = new DOMParser().parseFromString(content, "text/html");
-    doc.querySelectorAll<HTMLElement>("pre code").forEach((el) => {
-      hljs.highlightElement(el);
-    });
-    return new XMLSerializer().serializeToString(doc);
-  };
-
   const form = useArticleForm();
-
-  const getLocalStorageKey = (suffix: string) => {
-    return `${QUERY_KEYS.ARTICLE_LOCAL_KEY}${articleId}${suffix}`;
-  };
 
   const setFormValue = (
     field: "json" | "markdown" | "content",
@@ -81,11 +75,6 @@ export default function Editor() {
       shouldDirty: true,
       shouldTouch: true,
     });
-  };
-
-  const getStoredContent = (suffix: string, shouldHighlight = false) => {
-    const content = localStorage.getItem(getLocalStorageKey(suffix)) ?? "";
-    return shouldHighlight ? highlightCodeblocks(content) : content;
   };
 
   const updateFormFromEditor = (editor: EditorInstance) => {
@@ -102,8 +91,14 @@ export default function Editor() {
     const localJson = JSON.parse(localArticle ?? "{}");
 
     setFormValue("json", JSON.stringify(localJson));
-    setFormValue("markdown", getStoredContent("-markdown"));
-    setFormValue("content", getStoredContent("-html-content", true));
+    setFormValue(
+      "markdown",
+      getStoredContent("-markdown", false, articleId as string)
+    );
+    setFormValue(
+      "content",
+      getStoredContent("-html-content", true, articleId as string)
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -120,11 +115,17 @@ export default function Editor() {
       const markdown = editor.storage.markdown.getMarkdown();
 
       window.localStorage.setItem(
-        getLocalStorageKey("-html-content"),
+        getLocalStorageKey("-html-content", articleId as string),
         highlightCodeblocks(html)
       );
-      window.localStorage.setItem(getLocalStorageKey(""), JSON.stringify(json));
-      window.localStorage.setItem(getLocalStorageKey("-markdown"), markdown);
+      window.localStorage.setItem(
+        getLocalStorageKey("", articleId as string),
+        JSON.stringify(json)
+      );
+      window.localStorage.setItem(
+        getLocalStorageKey("-markdown", articleId as string),
+        markdown
+      );
 
       updateFormFromEditor(editor);
     },
@@ -188,6 +189,7 @@ export default function Editor() {
         <EditorRoot>
           <TextareaAutosize
             id="title"
+            autoFocus
             placeholder="Article Title"
             {...form.register("title")}
             className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
