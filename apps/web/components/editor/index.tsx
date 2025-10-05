@@ -154,6 +154,9 @@ export default function Editor() {
     if (JSON.stringify(localJson) === JSON.stringify(article?.json)) {
       setIsDirty(false);
       return;
+    } else if (localArticle === undefined) {
+      setIsDirty(false);
+      return;
     } else {
       setIsDirty(true);
     }
