@@ -42,7 +42,7 @@ export function ArticleTable<TData, TValue>({
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="border bg-background">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
