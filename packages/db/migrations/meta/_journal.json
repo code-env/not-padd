@@ -57,6 +57,20 @@
       "when": 1759592940490,
       "tag": "0007_empty_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1759658898883,
+      "tag": "0008_glossy_champions",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1759659197565,
+      "tag": "0009_hot_galactus",
+      "breakpoints": true
     }
   ]
 }

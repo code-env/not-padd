@@ -1,12 +1,5 @@
 "use client";
 
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
-import { motion as m } from "motion/react";
-import { useIsMobile } from "@notpadd/ui/hooks/use-mobile";
-import { cn } from "@notpadd/ui/lib/utils";
 import { Button } from "@notpadd/ui/components/button";
 import { Input } from "@notpadd/ui/components/input";
 import { Separator } from "@notpadd/ui/components/separator";
@@ -24,6 +17,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@notpadd/ui/components/tooltip";
+import { useIsMobile } from "@notpadd/ui/hooks/use-mobile";
+import { cn } from "@notpadd/ui/lib/utils";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { PanelLeftIcon } from "lucide-react";
+import * as React from "react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

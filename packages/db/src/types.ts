@@ -26,3 +26,4 @@ export type Webhook = InferSelectModel<typeof schema.webhook>;
 export type Tag = InferSelectModel<typeof schema.tag>;
 export type ArticleTag = InferSelectModel<typeof schema.articleTag>;
 export type ArticleAuthor = InferSelectModel<typeof schema.articleAuthor>;
+export type Key = InferSelectModel<typeof schema.key>;

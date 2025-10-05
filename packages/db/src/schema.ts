@@ -268,6 +268,25 @@ export const webhook = pgTable("webhook", {
     .notNull(),
 });
 
+export const key = pgTable("key", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  pk: text("pk").notNull(),
+  sk: text("sk").notNull(),
+  creatorId: text("creator_id")
+    .notNull()
+    .references(() => member.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 export const schema = {
   user,
   account,
@@ -287,6 +306,7 @@ export const schema = {
   tag,
   articleTag,
   articleAuthor,
+  key,
 };
 
 export default schema;
