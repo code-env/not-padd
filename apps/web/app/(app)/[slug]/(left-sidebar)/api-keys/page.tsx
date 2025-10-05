@@ -1,7 +1,14 @@
 import React from "react";
+import { ApiKeys } from "@/components/clients";
 
-const ApiKeys = () => {
-  return <div>ApiKeys</div>;
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Api Keys",
 };
 
-export default ApiKeys;
+const ApiKeysPage = () => {
+  return <ApiKeys />;
+};
+
+export default ApiKeysPage;

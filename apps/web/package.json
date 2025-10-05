@@ -31,6 +31,7 @@
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.62.0",
+    "react-syntax-highlighter": "^15.6.6",
     "sharp": "^0.34.4",
     "sonner": "^2.0.7",
     "uploadthing": "^7.7.4",
@@ -46,6 +47,7 @@
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "eslint": "^9.31.0",
     "typescript": "5.8.2"
   }

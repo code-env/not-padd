@@ -31,7 +31,7 @@ export const MediaSection = () => {
   });
 
   if (isLoading) {
-    return <MediaLoadingUI count={10} />;
+    return <MediaLoadingUI count={12} />;
   }
 
   if (error) {
@@ -51,7 +51,7 @@ const MediaItem = ({ media }: { media: Media }) => {
   return (
     <div className="flex flex-col border">
       <div className="p-1">
-        <div className="h-72 w-full relative">
+        <div className="h-44 w-full relative">
           <Image
             src={media.url}
             alt={media.name}
@@ -61,10 +61,8 @@ const MediaItem = ({ media }: { media: Media }) => {
         </div>
       </div>
       <div className="bg-sidebar p-2 flex items-center justify-between gap-2">
-        <div className="flex flex-col gap-2 flex-1">
-          <p className="text-sm font-medium truncate max-w-[250px]">
-            {media.name}
-          </p>
+        <div className="flex flex-col gap-2 flex-1 max-w-[80%]">
+          <p className="text-sm font-medium truncate">{media.name}</p>
           <div className="flex items-center gap-2 ">
             <p className="text-sm">{format(media.createdAt, "MMM d, yyyy")}</p>
             <div className="h-4 w-px bg-border" />

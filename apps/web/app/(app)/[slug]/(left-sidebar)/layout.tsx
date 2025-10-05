@@ -10,7 +10,7 @@ const LeftSidebarLayout = ({ children }: { children: ReactNode }) => {
       <AppSidebar />
       <SidebarInset>
         <Header />
-        <div className="max-w-6xl w-full mx-auto p-10">{children}</div>
+        <div className="max-w-4xl w-full mx-auto p-10">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

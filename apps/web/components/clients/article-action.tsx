@@ -67,18 +67,19 @@ export default function ArticleAction({ article }: ArticleActionProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          align="end"
-          className="text-muted-foreground shadow-sm"
+          align="center"
+          className="text-muted-foreground flex flex-col gap-1 shadow-sm"
         >
           <DropdownMenuItem>
             <Link
-              className="flex w-full cursor-default items-center gap-2"
+              className="flex w-full items-center gap-2 cursor-pointer"
               href={`/${activeOrganization?.slug}/articles/${article.id}`}
             >
               <Pencil size={16} /> <span>Edit</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
+            className="cursor-pointer text-red-500 bg-red-500/10 hover:bg-red-500/20! hover:text-red-500!"
             onClick={() => {
               onOpen(
                 "delete-article",
@@ -88,9 +89,8 @@ export default function ArticleAction({ article }: ArticleActionProps) {
                 handleDelete
               );
             }}
-            variant="destructive"
           >
-            <Trash size={16} /> <span>Delete</span>
+            <Trash className="size-4 text-red-500" /> <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

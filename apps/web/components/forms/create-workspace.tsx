@@ -2,6 +2,7 @@
 
 import { useOrganizationContext } from "@/contexts";
 import { replaceOrganizationWithWorkspace, REQUIRED_STRING } from "@/lib/utils";
+import { KEYS_QUERIES } from "@/lib/queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -44,10 +45,15 @@ export function CreateWorkspace() {
     try {
       setIsLoading(true);
       const { data, error } = await createOrganization({ ...values });
-
       if (error) throw error;
 
       if (data) {
+        try {
+          await KEYS_QUERIES.createKey(data.id, { name: "Default API Key" });
+        } catch (keyError: any) {
+          console.warn("Failed to create default API key:", keyError.message);
+        }
+
         toast.success(`${data.name} was created`);
         window.location.href = `/${data.slug}`;
       }

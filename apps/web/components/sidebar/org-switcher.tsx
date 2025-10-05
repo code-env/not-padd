@@ -19,10 +19,12 @@ import {
   useSidebar,
 } from "@notpadd/ui/components/sidebar";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { cn } from "@notpadd/ui/lib/utils";
 
 export function OrganizationSwitcher() {
   const { isMobile } = useSidebar();
-
+  const router = useRouter();
   const { activeOrganization, organizations, setActiveOrganization } =
     useOrganizationContext();
 
@@ -56,8 +58,14 @@ export function OrganizationSwitcher() {
             {organizations?.map((org, index) => (
               <DropdownMenuItem
                 key={org.name}
-                onClick={() => setActiveOrganization(org.id, org.slug)}
-                className="gap-2 p-2 cursor-pointer"
+                onClick={() => {
+                  window.location.href = `/${org.slug}`;
+                  setActiveOrganization(org.id, org.slug);
+                }}
+                className={cn("gap-2 p-2 cursor-pointer", {
+                  "bg-sidebar-accent text-sidebar-accent-foreground":
+                    activeOrganization?.id === org.id,
+                })}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border"></div>
                 <span className="truncate first-letter:capitalize">

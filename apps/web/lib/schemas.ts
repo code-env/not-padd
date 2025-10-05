@@ -28,6 +28,10 @@ export const createTagSchema = z.object({
   name: REQUIRED_STRING,
 });
 
+export const createKeySchema = z.object({
+  name: REQUIRED_STRING,
+});
+
 export const updateCoverImageSchema = z.object({
   url: z.string().min(1).url("Invalid URL format"),
 });

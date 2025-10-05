@@ -10,6 +10,8 @@ import type {
   AuthorsResponse,
   AuthorsListItem,
   UpdateArticleSchema,
+  KeysResponse,
+  CreateKeySchema,
 } from "./types";
 
 export const ARTICLES_QUERIES = {
@@ -247,6 +249,57 @@ export const AUTHORS_QUERIES = {
     const response = await apiClient.post<APIResponse<{ data: Articles }>>(
       `/articles/${articleId}/cover-image`,
       data
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
+};
+
+export const KEYS_QUERIES = {
+  createKey: async (organizationId: string, data: CreateKeySchema) => {
+    const response = await apiClient.post<APIResponse<{ data: any }>>(
+      `/keys/${organizationId}`,
+      data
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
+  getKeys: async (
+    organizationId: string,
+    queries: { page: number; limit: number; search: string }
+  ) => {
+    const response = await apiClient.get<APIResponse<KeysResponse>>(
+      `/keys/${organizationId}?page=${queries.page}&limit=${queries.limit}&search=${queries.search}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  getKeyById: async (organizationId: string, keyId: string) => {
+    const response = await apiClient.get<APIResponse<any>>(
+      `/keys/${organizationId}/${keyId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  deleteKey: async (organizationId: string, keyId: string) => {
+    const response = await apiClient.delete<APIResponse<{ data: any }>>(
+      `/keys/${organizationId}/${keyId}`
     );
 
     if (!response.data.success) {

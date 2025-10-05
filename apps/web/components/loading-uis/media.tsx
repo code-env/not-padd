@@ -6,7 +6,7 @@ export const MediaLoadingUI = ({ count }: { count: number }) => {
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="flex flex-col border">
           <div className="p-1">
-            <Skeleton className="h-72 w-full bg-sidebar/50 border" />
+            <Skeleton className="h-44 w-full bg-sidebar/50 border" />
           </div>
           <div className="bg-sidebar p-2 flex items-center justify-between gap-2">
             <div className="flex flex-col gap-2 w-full">
