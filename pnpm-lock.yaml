@@ -30,6 +30,9 @@ importers:
       hono:
         specifier: ^4.8.10
         version: 4.8.10
+      sharp:
+        specifier: ^0.34.4
+        version: 0.34.4
       zod:
         specifier: ^4.1.9
         version: 4.1.9

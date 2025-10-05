@@ -2,7 +2,19 @@
 
 import { useArticleContext, useOrganizationContext } from "@/contexts";
 import useUploader from "@/hooks/use-uploader";
+import { updateCoverImageSchema } from "@/lib/schemas";
+import type { UpdateCoverImageSchema } from "@/lib/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormMessage,
+  FormItem,
+} from "@notpadd/ui/components/form";
 import { Input } from "@notpadd/ui/components/input";
+import { LoadingButton } from "@notpadd/ui/components/loading-button";
+import { Progress } from "@notpadd/ui/components/progress";
 import {
   Tabs,
   TabsContent,
@@ -10,29 +22,33 @@ import {
   TabsList,
   TabsTrigger,
 } from "@notpadd/ui/components/tabs";
-import { Progress } from "@notpadd/ui/components/progress";
 import { cn } from "@notpadd/ui/lib/utils";
+import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
   generateClientDropzoneAccept,
   generatePermittedFileTypes,
 } from "uploadthing/client";
-import { useRouter } from "next/navigation";
+import { AUTHORS_QUERIES } from "@/lib/queries";
+import { useMutation } from "@tanstack/react-query";
 
 export const CoverImage = () => {
-  const {
-    routeConfig,
-    startUpload,
-    isUploading,
-    uploadProgress,
-    url,
-    imageBlurhash,
-  } = useUploader("coverImageUploader");
+  const { routeConfig, startUpload, isUploading, uploadProgress } =
+    useUploader("coverImageUploader");
   const router = useRouter();
   const { setArticle, articleId, article } = useArticleContext();
   const { activeOrganization } = useOrganizationContext();
+
+  const form = useForm<UpdateCoverImageSchema>({
+    resolver: zodResolver(updateCoverImageSchema) as any,
+    defaultValues: {
+      url: "",
+    },
+  });
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -77,6 +93,29 @@ export const CoverImage = () => {
     ),
   });
 
+  const { mutate: updateCoverImage, isPending } = useMutation({
+    mutationFn: (data: { url: string }) =>
+      AUTHORS_QUERIES.updateCoverImage(articleId as string, data),
+    onSuccess: (data: any) => {
+      if (article) {
+        setArticle({
+          ...article,
+          image: data.image,
+          imageBlurhash: data.imageBlurhash,
+        });
+      }
+      toast.success("Article cover image updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = (data: UpdateCoverImageSchema) => {
+    console.log(data);
+    updateCoverImage(data);
+  };
+
   return (
     <Tabs defaultValue="upload">
       <TabsList
@@ -116,9 +155,39 @@ export const CoverImage = () => {
         </TabsContent>
         <TabsContent
           value="url"
-          className="space-y-6 h-40 flex items-center justify-cente p-4"
+          className="space-y-6 h-full flex items-center justify-center w-full p-4"
         >
-          <Input placeholder="Enter image URL" className="w-full" />
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex items-center gap-2 w-full"
+            >
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input
+                        placeholder="Enter image URL"
+                        {...field}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <LoadingButton
+                type="submit"
+                loading={isPending}
+                disabled={isPending || !form.formState.isValid}
+                className="size-9"
+              >
+                <Check />
+              </LoadingButton>
+            </form>
+          </Form>
         </TabsContent>
       </TabsContents>
     </Tabs>

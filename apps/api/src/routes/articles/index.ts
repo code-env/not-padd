@@ -12,9 +12,38 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
+import sharp from "sharp";
 import { z } from "zod";
 
 const articlesRoutes = new Hono<{ Variables: ReqVariables }>();
+
+export async function generateBlurDataUrl(
+  buffer: Buffer,
+  width = 8,
+  height?: number
+): Promise<string> {
+  try {
+    const metadata = await sharp(buffer).metadata();
+
+    if (!height && metadata.width && metadata.height) {
+      height = Math.round((metadata.height / metadata.width) * width);
+    } else {
+      height = width;
+    }
+
+    const blurredBuffer = await sharp(buffer)
+      .resize(width, height, { fit: "inside" })
+      .toFormat("webp")
+      .webp({ quality: 20 })
+      .toBuffer();
+
+    const base64String = blurredBuffer.toString("base64");
+    return `data:image/webp;base64,${base64String}`;
+  } catch (error) {
+    console.error("Error generating blur data URL:", error);
+    return "";
+  }
+}
 
 const isUserInOrganization = async (
   c: Context<{ Variables: ReqVariables }>,
@@ -290,6 +319,20 @@ articlesRoutes.put("/:organizationId/:articleId", async (c) => {
 
   const body = updateSchema.parse(await c.req.json());
 
+  // Get the article's creatorId to preserve it when removing authors
+  const existingArticle = await db
+    .select({ creatorId: articles.creatorId })
+    .from(articles)
+    .where(
+      and(
+        eq(articles.id, articleId),
+        eq(articles.organizationId, organizationId)
+      )
+    )
+    .limit(1);
+
+  const creatorId = existingArticle[0]?.creatorId;
+
   const updateValues: Record<string, unknown> = {};
   if (body.title !== undefined) {
     updateValues.title = body.title;
@@ -333,18 +376,63 @@ articlesRoutes.put("/:organizationId/:articleId", async (c) => {
     organizationId,
     tagId: tag,
   }));
-  const authorValues = (body.authors ?? []).map((author) => ({
-    articleId,
-    organizationId,
-    memberId: author,
-  }));
+  const authorMemberIds = await Promise.all(
+    (body.authors ?? []).map(async (userId) => {
+      const memberRecord = await db
+        .select({ id: member.id })
+        .from(member)
+        .where(
+          and(
+            eq(member.userId, userId),
+            eq(member.organizationId, organizationId)
+          )
+        )
+        .limit(1);
+      return memberRecord[0]?.id;
+    })
+  );
+
+  const authorValues = authorMemberIds
+    .filter((memberId): memberId is string => !!memberId)
+    .map((memberId) => ({
+      articleId,
+      organizationId,
+      memberId,
+    }));
 
   await Promise.all([
-    tagValues.length > 0
-      ? db.insert(articleTag).values(tagValues).onConflictDoNothing()
+    body.tags !== undefined
+      ? (async () => {
+          // First delete existing tags
+          await db
+            .delete(articleTag)
+            .where(
+              and(
+                eq(articleTag.articleId, articleId),
+                eq(articleTag.organizationId, organizationId)
+              )
+            );
+
+          // Then insert new tags if any
+          if (tagValues.length > 0) {
+            await db.insert(articleTag).values(tagValues).onConflictDoNothing();
+          }
+        })()
       : Promise.resolve(),
-    authorValues.length > 0
-      ? db.insert(articleAuthor).values(authorValues).onConflictDoNothing()
+    body.authors !== undefined
+      ? body.authors.length === 0
+        ? db
+            .delete(articleAuthor)
+            .where(
+              and(
+                eq(articleAuthor.articleId, articleId),
+                eq(articleAuthor.organizationId, organizationId),
+                creatorId
+                  ? sql`${articleAuthor.memberId} != ${creatorId}`
+                  : undefined
+              )
+            )
+        : db.insert(articleAuthor).values(authorValues).onConflictDoNothing()
       : Promise.resolve(),
   ]);
 
@@ -397,6 +485,38 @@ articlesRoutes.delete("/:organizationId/:articleId", async (c) => {
     data: {
       data: article[0],
     },
+  });
+});
+
+articlesRoutes.post("/:articleId/cover-image", async (c) => {
+  const { articleId } = c.req.param();
+  const { url } = await c.req.json();
+
+  const imageResponse = await fetch(url);
+  const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+  const blurDataUrl = await generateBlurDataUrl(imageBuffer);
+
+  if (!imageBuffer || !blurDataUrl) {
+    return c.json(
+      { error: "Failed to generate blur data URL", success: false },
+      400
+    );
+  }
+
+  const updated = await db
+    .update(articles)
+    .set({ image: url, imageBlurhash: blurDataUrl })
+    .where(eq(articles.id, articleId))
+
+    .returning({
+      image: articles.image,
+      imageBlurhash: articles.imageBlurhash,
+    });
+
+  return c.json({
+    success: true,
+    message: "Article cover image updated successfully",
+    data: { data: updated[0] },
   });
 });
 

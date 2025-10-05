@@ -22,13 +22,13 @@ import {
 
 import { CircleAlert, X } from "lucide-react";
 import { Button } from "@notpadd/ui/components/button";
-import Image from "next/image";
 import type { ArticleWithRelations, UpdateArticleSchema } from "@/lib/types";
 import { useArticleForm } from "@/contexts";
 import { ARTICLES_QUERIES } from "@/lib/queries";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
+import BlurImage from "../blur-image";
 
 export function RightSidebar({
   ...props
@@ -44,8 +44,13 @@ export function RightSidebar({
         data
       ),
     onSuccess: (data: any) => {
-      setArticle(data);
-      toast.success("Article updated successfully");
+      toast.success("Article updated successfully", {
+        position: "bottom-center",
+      });
+
+      if (isDirty) {
+        window.location.reload();
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -72,7 +77,6 @@ export function RightSidebar({
   };
 
   const onSubmit = (data: UpdateArticleSchema) => {
-    // console.log("Submitting update with:", data);
     updateArticle(data);
   };
 
@@ -96,14 +100,12 @@ export function RightSidebar({
               </SidebarTooltip>
             </SidebarSectionTitle>
             {article?.image ? (
-              <div className="h-48 border relative group/image overflow-hidden">
-                <Image
-                  placeholder="blur"
+              <div className="h-[230px] border relative group/image overflow-hidden">
+                <BlurImage
                   blurDataURL={article?.imageBlurhash as string}
                   src={article?.image as string}
                   alt={article?.title as string}
                   className="object-cover"
-                  fill
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-muted/40 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200">
                   <Button

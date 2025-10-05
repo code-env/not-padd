@@ -3,6 +3,7 @@ import {
   createArticleSchema,
   createTagSchema,
   updateArticleSchema,
+  updateCoverImageSchema,
 } from "./schemas";
 import { z } from "zod";
 
@@ -44,6 +45,7 @@ export type ArticleWithRelations = Articles & {
 
 export type CreateArticleSchema = z.infer<typeof createArticleSchema>;
 export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;
+export type UpdateCoverImageSchema = z.infer<typeof updateCoverImageSchema>;
 
 export type TagsResponse = {
   data: Tag[];
@@ -52,15 +54,10 @@ export type TagsResponse = {
 
 export type CreateTagSchema = z.infer<typeof createTagSchema>;
 
-// Authors
 export type AuthorsListItem = {
-  articleId: string;
-  memberId: string;
-  organizationId: string;
-  createdAt: string | Date;
-  userId: string | null;
-  name: string | null;
-  email: string | null;
+  id: string;
+  name: string;
+  userId: string;
   image: string | null;
 };
 

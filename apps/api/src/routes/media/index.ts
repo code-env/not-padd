@@ -4,6 +4,35 @@ import { file as media } from "@notpadd/db/schema";
 import { and, ilike, sql } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import sharp from "sharp";
+
+export async function generateBlurDataUrl(
+  buffer: Buffer,
+  width = 8,
+  height?: number
+): Promise<string> {
+  try {
+    const metadata = await sharp(buffer).metadata();
+
+    if (!height && metadata.width && metadata.height) {
+      height = Math.round((metadata.height / metadata.width) * width);
+    } else {
+      height = width;
+    }
+
+    const blurredBuffer = await sharp(buffer)
+      .resize(width, height, { fit: "inside" })
+      .toFormat("webp")
+      .webp({ quality: 20 })
+      .toBuffer();
+
+    const base64String = blurredBuffer.toString("base64");
+    return `data:image/webp;base64,${base64String}`;
+  } catch (error) {
+    console.error("Error generating blur data URL:", error);
+    return "";
+  }
+}
 
 const mediaRoutes = new Hono<{ Variables: ReqVariables }>();
 

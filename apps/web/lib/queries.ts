@@ -243,4 +243,16 @@ export const AUTHORS_QUERIES = {
 
     return response.data.data.data;
   },
+  updateCoverImage: async (articleId: string, data: { url: string }) => {
+    const response = await apiClient.post<APIResponse<{ data: Articles }>>(
+      `/articles/${articleId}/cover-image`,
+      data
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
 };

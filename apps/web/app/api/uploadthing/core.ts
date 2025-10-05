@@ -121,13 +121,6 @@ export const ourFileRouter = {
         input.organizationId
       );
 
-      console.log({
-        size: input.size,
-        storageUsed: organization.storageUsed,
-        storageLimit: organization.storageLimit,
-        storageUsedPlusSize: organization.storageUsed + input.size,
-      });
-
       if (organization.storageUsed + input.size > organization.storageLimit)
         throw new UploadThingError("Organization storage limit reached");
 
