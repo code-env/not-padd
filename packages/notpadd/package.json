@@ -1,0 +1,43 @@
+{
+  "name": "notpadd",
+  "description": "Notpadd your buildtime/runtime cms with your own data",
+  "private": false,
+  "version": "2.1.0",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm,cjs --dts -d dist",
+    "typecheck": "tsc",
+    "test": "vitest --run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@notpadd/eslint-config": "workspace:^",
+    "@notpadd/typescript-config": "workspace:*",
+    "@notpadd/db": "workspace:*",
+    "@notpadd/core": "workspace:*",
+    "next": "^14.2.15",
+    "ts-node": "^10.9.2",
+    "tsdown": "^0.15.6",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "axios": "^1.7.9"
+  },
+  "peerDependencies": {
+    "next": "^12 || ^13 || ^14 || ^15"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
