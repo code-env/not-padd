@@ -1,0 +1,41 @@
+{
+  "name": "@notpadd/core",
+  "description": "Core functions for notpad db",
+  "private": false,
+  "version": "2.1.0",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm,cjs --dts -d dist",
+    "typecheck": "tsc",
+    "test": "vitest --run --coverage"
+  },
+  "devDependencies": {
+    "@notpadd/db": "workspace:*",
+    "@notpadd/eslint-config": "workspace:^",
+    "@notpadd/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "ts-node": "^10.9.2",
+    "tsdown": "^0.15.6",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "axios": "^1.7.9"
+  },
+  "peerDependencies": {
+    "next": "^12 || ^13 || ^14 || ^15"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
