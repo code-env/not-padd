@@ -62,38 +62,43 @@ export const notpadd = async () =>
   });
 `;
 
+  const items = [
+    {
+      title: "Organization ID",
+      description: "The organization ID to use in the notpadd config",
+      code: activeOrganization?.id || "",
+    },
+    {
+      title: "Secret Key",
+      description:
+        "Keep this private and secure on for usage only in your organization/workspace",
+      code: selectedKey.sk,
+    },
+    {
+      title: "Publishable Key",
+      description: "Safe to use in client-side code",
+      code: selectedKey.pk,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-5">
-        <Card>
-          <CardHeader>
-            <CardTitle>Publishable Key</CardTitle>
-            <CardDescription>Safe to use in client-side code</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 border-none">
-            <CodeBlocks
-              code={selectedKey.pk}
-              language="bash"
-              showLineNumbers={false}
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Secret Key</CardTitle>
-            <CardDescription>
-              Keep this private and secure on for usage only in your
-              organization/workspace
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 border-none">
-            <CodeBlocks
-              code={selectedKey.sk}
-              language="bash"
-              showLineNumbers={false}
-            />
-          </CardContent>
-        </Card>
+        {items.map((item) => (
+          <Card key={item.title + item.code}>
+            <CardHeader>
+              <CardTitle>{item.title}</CardTitle>
+              <CardDescription>{item.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 border-none">
+              <CodeBlocks
+                code={item.code}
+                language="bash"
+                showLineNumbers={false}
+              />
+            </CardContent>
+          </Card>
+        ))}
       </div>
       <CodeBlocks
         code={codeSnippet}

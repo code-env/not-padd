@@ -1,22 +1,27 @@
-import { NextConfig } from "next";
 import fs from "fs";
 import path from "path";
+import jiti from "jiti";
 import { defaultOptions, Options } from "@notpadd/core";
 
 export { createNotpaddConfig } from "@notpadd/core";
 
 const initaliazedState: Record<string, boolean> = {};
 
-export function createNotpaddCollection(pluginOption: Options) {
-  return async (
-    nextConfig: Partial<NextConfig> | Promise<Partial<NextConfig>> = {}
-  ): Promise<NextConfig> => {
-    const resolvedConfig = (await Promise.resolve(nextConfig)) as NextConfig;
+function createNotpaddCollection(pluginOptions: Options) {
+  return async <
+    TConfig extends Record<string, unknown> = Record<string, unknown>,
+  >(
+    nextConfig: TConfig | Promise<TConfig> = {} as TConfig
+  ): Promise<TConfig> => {
+    const resolvedConfig = await Promise.resolve(nextConfig);
     const [command] = process.argv
       .slice(2)
       .filter((arg) => !arg.startsWith("-"));
 
-    const configFilePath = path.resolve(process.cwd(), pluginOption.configPath);
+    const configFilePath = path.resolve(
+      process.cwd(),
+      pluginOptions.configPath
+    );
     const configExist = fs.existsSync(configFilePath);
 
     if (!configExist) {
@@ -30,7 +35,9 @@ export function createNotpaddCollection(pluginOption: Options) {
 
     let notpaddConfig: any;
     try {
-      notpaddConfig = (await import(configFilePath)).notpadd;
+      const load = jiti(process.cwd(), { cache: false });
+      const mod = load(configFilePath);
+      notpaddConfig = mod?.notpadd;
       if (typeof notpaddConfig !== "function") {
         throw new Error(
           "The exported value from notpadd.config.ts must be a function named 'notpadd'."
@@ -44,12 +51,12 @@ export function createNotpaddCollection(pluginOption: Options) {
     await notpaddConfig();
 
     if (command === "dev" || command === "build") {
-      if (initaliazedState[pluginOption.configPath]) {
+      if (initaliazedState[pluginOptions.configPath]) {
         return resolvedConfig;
       }
     }
 
-    initaliazedState[pluginOption.configPath] = true;
+    initaliazedState[pluginOptions.configPath] = true;
     console.log("Notpadd config initialized");
 
     return resolvedConfig;

@@ -20,6 +20,7 @@ export async function createNotpaddConfig(params: ConfigType) {
     articles = await fetchNotpaddContentFromType(
       params.publicKey,
       params.secretKey,
+      params.organizationId,
       params.type,
       "all"
     );
@@ -27,6 +28,7 @@ export async function createNotpaddConfig(params: ConfigType) {
     articles = await fetchNotpaddContentFromType(
       params.publicKey,
       params.secretKey,
+      params.organizationId,
       params.type,
       "published"
     );
@@ -34,6 +36,7 @@ export async function createNotpaddConfig(params: ConfigType) {
     articles = await fetchNotpaddContentFromType(
       params.publicKey,
       params.secretKey,
+      params.organizationId,
       params.type,
       "draft"
     );
@@ -42,7 +45,8 @@ export async function createNotpaddConfig(params: ConfigType) {
   }
 
   if (articles.length === 0) {
-    throw new Error("No articles found");
+    console.log("No articles found");
+    return;
   }
 
   generateContent(articles, params.type, params.outputDir);
@@ -77,18 +81,23 @@ const apiClient = (publicKey: string, secretKey: string): AxiosInstance =>
 const fetchNotpaddContentFromType = async (
   publicKey: string,
   secretKey: string,
+  organizationId: string,
   type: NotpaddContentType,
-  query: NotpaddArticleType
-): Promise<Articles[]> => {
-  const response = await apiClient(publicKey, secretKey).get(
-    `/articles?type=${type}&query=${query}`
-  );
-
-  if (!response.data.success) {
-    throw new Error(response.data.message);
+  query: NotpaddArticleType = "all"
+) => {
+  try {
+    const response = await apiClient(publicKey, secretKey).get(
+      `/articles?type=${type}&query=${query}&organizationId=${organizationId}`
+    );
+    if (response.data.articles.length === 0) {
+      return [];
+    }
+    return response.data.articles;
+  } catch (error: any) {
+    if (error.response.data.error) {
+      console.log(error.response.data.error);
+      throw new Error();
+    }
+    throw new Error(JSON.stringify(error));
   }
-  if (response.data.data.length === 0) {
-    return [];
-  }
-  return response.data;
 };

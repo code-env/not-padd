@@ -1,6 +1,6 @@
 import { Articles } from "@notpadd/db/types";
 import { NOTPADD_DIR, ensureDirectoryExists } from "./constants";
-import { NotpaddContentType } from "./types";
+import { NotpaddArticle, NotpaddContentType } from "./types";
 
 import fs from "fs";
 import path from "path";
@@ -12,7 +12,8 @@ export const generateContent = (
 ) => {
   switch (type) {
     case "mdx":
-      return generateMdx(articles, outputDir);
+      articles.forEach((article) => generateMdx("mdx", article, outputDir));
+      return;
     case "json":
       return generateJson(articles, outputDir);
     case "html":
@@ -20,38 +21,53 @@ export const generateContent = (
   }
 };
 
-export const generateMdx = (articles: Articles[], outputDir: string) => {
+export const generateMdx = (
+  type: NotpaddArticle["type"],
+  article: Articles,
+  outputDir: string
+) => {
   ensureDirectoryExists(NOTPADD_DIR);
-  articles.forEach((article) => {
-    const fileName = `${article.slug.toLowerCase()}.mdx`;
-    const filePath = path.join(outputDir, fileName);
-    fs.writeFileSync(
-      filePath,
-      `${returnFrontMatter(article)}\n\n${article.markdown}`,
-      "utf-8"
-    );
-  });
+  ensureDirectoryExists(outputDir);
+  if (type !== "mdx") {
+    throw new Error("Type must be mdx");
+  }
+  const fileName = `${article.slug.toLowerCase()}.mdx`;
+  const filePath = path.join(outputDir, fileName);
+  const content = `${returnFrontMatter(article)}\n\n${article.markdown}`;
+  const exists = fs.existsSync(filePath);
+  fs.writeFileSync(filePath, content, "utf-8");
+  if (!exists) {
+  } else {
+  }
 };
 
-const returnFrontMatter = (article: Articles) => {
+const returnFrontMatter = (article: NotpaddArticle["data"]) => {
   return `---
-  title: ${article.title} \n
-  description: ${article.description} \n
-  published: ${article.published} \n
-  publishedAt: ${article.publishedAt} \n
-  createdAt: ${article.createdAt} \n
-  updatedAt: ${article.updatedAt} \n
-  slug: ${article.slug} \n
-  image: ${article.image} \n
+  title: ${article.title}
+  description: ${article.description}
+  published: ${article.published}
+  publishedAt: ${article.publishedAt}
+  createdAt: ${article.createdAt}
+  updatedAt: ${article.updatedAt}
+  slug: ${article.slug}
+  image: ${article.image}
   ---`;
 };
 
-export const generateJson = (articles: Articles[], outputDir: string) => {
+export const generateJson = (
+  articles: NotpaddArticle["data"][],
+  outputDir: string
+) => {
+  ensureDirectoryExists(outputDir);
   const filePath = path.join(outputDir, "allContent.json");
   fs.writeFileSync(filePath, JSON.stringify(articles, null, 2), "utf-8");
 };
 
-export const generateHtml = (articles: Articles[], outputDir: string) => {
+export const generateHtml = (
+  articles: NotpaddArticle["data"][],
+  outputDir: string
+) => {
+  ensureDirectoryExists(outputDir);
   const filePath = path.join(outputDir, "allContent.html");
   fs.writeFileSync(filePath, JSON.stringify(articles, null, 2), "utf-8");
 };

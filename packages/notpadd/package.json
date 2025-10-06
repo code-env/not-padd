@@ -32,7 +32,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "axios": "^1.7.9"
+    "axios": "^1.7.9",
+    "jiti": "^1.21.6"
   },
   "peerDependencies": {
     "next": "^12 || ^13 || ^14 || ^15"
