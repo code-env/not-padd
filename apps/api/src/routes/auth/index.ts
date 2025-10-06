@@ -1,4 +1,4 @@
-import type { ReqVariables } from "../../";
+import type { ReqVariables } from "../../hono/index.ts";
 import { auth } from "@notpadd/auth/auth";
 import { Hono, type Context } from "hono";
 
@@ -13,4 +13,4 @@ authRouter.on(["POST", "GET"], "/*", async (c: Context) => {
   }
 });
 
-export default authRouter;
+export { authRouter };

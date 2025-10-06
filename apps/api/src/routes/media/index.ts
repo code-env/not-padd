@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../hono/index.ts";
 import { db } from "@notpadd/db";
 import { file as media } from "@notpadd/db/schema";
 import { and, ilike, sql } from "drizzle-orm";
@@ -82,4 +82,4 @@ mediaRoutes.get("/:organizationId", async (c) => {
   });
 });
 
-export default mediaRoutes;
+export { mediaRoutes };

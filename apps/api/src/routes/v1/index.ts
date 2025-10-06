@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../hono/index.ts";
 import { db } from "@notpadd/db";
 import { articles } from "@notpadd/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -63,4 +63,4 @@ v1Routes.get("/articles", async (c) => {
   });
 });
 
-export default v1Routes;
+export { v1Routes };

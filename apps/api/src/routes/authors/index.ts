@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../hono/index.ts";
 import { db } from "@notpadd/db";
 import {
   articleAuthor,
@@ -441,4 +441,4 @@ authorsRoutes.delete("/:organizationId/:articleId/:memberId", async (c) => {
   });
 });
 
-export default authorsRoutes;
+export { authorsRoutes };

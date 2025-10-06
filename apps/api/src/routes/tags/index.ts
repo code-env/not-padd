@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../hono/index.ts";
 import { db } from "@notpadd/db";
 import { member, organization, tag } from "@notpadd/db/schema";
 import { and, eq, ilike, sql } from "drizzle-orm";
@@ -243,4 +243,4 @@ tagsRoutes.delete("/:organizationId/:tagId", async (c) => {
   });
 });
 
-export default tagsRoutes;
+export { tagsRoutes };

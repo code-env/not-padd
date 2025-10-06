@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../hono/index.ts";
 import { db } from "@notpadd/db";
 import {
   key,
@@ -283,4 +283,4 @@ keysRoutes.delete("/:organizationId/:keyId", async (c) => {
   });
 });
 
-export default keysRoutes;
+export { keysRoutes };

@@ -1,4 +1,4 @@
-import type { ReqVariables } from "@/index";
+import type { ReqVariables } from "../../hono/index.ts";
 import { db } from "@notpadd/db";
 import {
   articles,
@@ -520,4 +520,4 @@ articlesRoutes.post("/:articleId/cover-image", async (c) => {
   });
 });
 
-export default articlesRoutes;
+export { articlesRoutes };

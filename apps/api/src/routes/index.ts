@@ -1,21 +1,21 @@
 import { Hono } from "hono";
-import type { ReqVariables } from "../index.ts";
-import authRouter from "./auth/index.ts";
-import articlesRouter from "./articles/index.ts";
-import mediaRouter from "./media/index.ts";
-import tagsRouter from "./tags/index.ts";
-import authorsRouter from "./authors/index.ts";
-import keysRouter from "./keys/index.ts";
-import v1Routes from "./v1/index.ts";
+import type { ReqVariables } from "../hono/index.ts";
+import { authRouter } from "./auth/index.ts";
+import { articlesRoutes } from "./articles/index.ts";
+import { mediaRoutes } from "./media/index.ts";
+import { tagsRoutes } from "./tags/index.ts";
+import { authorsRoutes } from "./authors/index.ts";
+import { keysRoutes } from "./keys/index.ts";
+import { v1Routes } from "./v1/index.ts";
 
 const routes = new Hono<{ Variables: ReqVariables }>();
 
 routes.route("/auth", authRouter);
-routes.route("/articles", articlesRouter);
-routes.route("/media", mediaRouter);
-routes.route("/tags", tagsRouter);
-routes.route("/authors", authorsRouter);
-routes.route("/keys", keysRouter);
+routes.route("/articles", articlesRoutes);
+routes.route("/media", mediaRoutes);
+routes.route("/tags", tagsRoutes);
+routes.route("/authors", authorsRoutes);
+routes.route("/keys", keysRoutes);
 routes.route("/v1", v1Routes);
 
-export default routes;
+export { routes };
