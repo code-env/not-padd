@@ -2,7 +2,7 @@
   "name": "notpadd",
   "private": true,
   "scripts": {
-    "postinstall": "turbo run build --filter=./packages/auth ./packages/db",
+    "postinstall": "turbo run build --filter=./packages/auth --filter=./packages/db",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
