@@ -1,6 +1,7 @@
 {
   "name": "@notpadd/api",
   "type": "module",
+  "private": true,
   "scripts": {
     "dev": "srvx",
     "build": "tsup src/index.ts --platform node --format esm,cjs --dts -d dist --tsconfig tsconfig.json",

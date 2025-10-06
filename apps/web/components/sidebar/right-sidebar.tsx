@@ -2,34 +2,35 @@
 
 import * as React from "react";
 
-import { Sidebar, SidebarFooter } from "@notpadd/ui/components/sidebar";
+import {
+  AuthorSelector,
+  CoverImage,
+  TagSelector,
+} from "@/components/editor/fields";
 import { RightSidebarLoading } from "@/components/loading-uis";
 import { useArticleContext, useOrganizationContext } from "@/contexts";
-import { cn } from "@notpadd/ui/lib/utils";
 import { Input } from "@notpadd/ui/components/input";
+import { Sidebar, SidebarFooter } from "@notpadd/ui/components/sidebar";
+import { Textarea } from "@notpadd/ui/components/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@notpadd/ui/components/tooltip";
-import { Textarea } from "@notpadd/ui/components/textarea";
-import {
-  AuthorSelector,
-  TagSelector,
-  CoverImage,
-} from "@/components/editor/fields";
+import { cn } from "@notpadd/ui/lib/utils";
 
-import { CircleAlert, X } from "lucide-react";
-import { Button } from "@notpadd/ui/components/button";
-import type { ArticleWithRelations, UpdateArticleSchema } from "@/lib/types";
 import { useArticleForm } from "@/contexts";
-import { ARTICLES_QUERIES } from "@/lib/queries";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { LoadingButton } from "@notpadd/ui/components/loading-button";
-import BlurImage from "../blur-image";
 import { removeFromStorage } from "@/lib/localstorage";
+import { ARTICLES_QUERIES } from "@/lib/queries";
+import type { ArticleWithRelations, UpdateArticleSchema } from "@/lib/types";
+import { Button } from "@notpadd/ui/components/button";
+import { LoadingButton } from "@notpadd/ui/components/loading-button";
+import { useMutation } from "@tanstack/react-query";
+import { CircleAlert, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import BlurImage from "../blur-image";
 
 export function RightSidebar({
   ...props
@@ -37,6 +38,7 @@ export function RightSidebar({
   const { article, setArticle, isLoading, isDirty, setIsDirty, articleId } =
     useArticleContext();
   const { activeOrganization } = useOrganizationContext();
+  const router = useRouter();
 
   const form = useArticleForm();
 
@@ -59,7 +61,10 @@ export function RightSidebar({
       toast.success("Article updated successfully", {
         position: "bottom-center",
       });
-      setIsDirty(false);
+      if (isDirty) {
+        setIsDirty(false);
+        window.location.reload();
+      }
       reset(getValues(), {
         keepDirty: false,
       });

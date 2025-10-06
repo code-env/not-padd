@@ -1,8 +1,8 @@
 {
   "name": "@notpadd/core",
   "description": "Core functions for notpad db",
-  "private": false,
-  "version": "2.1.0",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
