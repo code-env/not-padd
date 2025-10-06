@@ -2,7 +2,10 @@ import path from "path";
 import fs from "fs";
 import { Options } from "./types";
 
-const BACKEND_SERVER = "https://notpadd-web.vercel.app/api/v1/";
+const BACKEND_SERVER =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3000/api/v1/"
+    : "https://api.notpadd.com/api/v1/";
 
 const NOTPADD_DIR = path.join(process.cwd(), ".notpadd-content");
 const GENERATED_DIR = path.join(NOTPADD_DIR, "generated");

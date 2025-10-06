@@ -7,7 +7,6 @@ import { generateContent } from "./generator";
 
 export * from "./types";
 export * from "./constants";
-export * from "./generator";
 
 /**
  * @description This file contains functions to fetch data from the Notpadd server and generate the necessary files for Notpadd.
@@ -15,7 +14,6 @@ export * from "./generator";
  * @license MIT
  * @version 1.0.0
  */
-
 export async function createNotpaddConfig(params: ConfigType) {
   let articles: Articles[] = [];
   if (params.all) {
@@ -65,10 +63,7 @@ function updateGitignore() {
   }
 }
 
-export const apiClient = (
-  publicKey: string,
-  secretKey: string
-): AxiosInstance =>
+const apiClient = (publicKey: string, secretKey: string): AxiosInstance =>
   axios.create({
     baseURL: BACKEND_SERVER,
     headers: {

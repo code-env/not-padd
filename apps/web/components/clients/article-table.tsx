@@ -44,7 +44,7 @@ export function ArticleTable<TData, TValue>({
   return (
     <div className="border bg-background">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-sidebar hover:bg-sidebar/90!">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -66,7 +66,7 @@ export function ArticleTable<TData, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
-                className="cursor-pointer hover:bg-muted/50"
+                className="cursor-pointer hover:bg-sidebar/10!"
                 data-state={row.getIsSelected() && "selected"}
                 key={row.id}
                 onClick={(event) =>

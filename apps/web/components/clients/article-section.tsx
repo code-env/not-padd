@@ -89,7 +89,7 @@ const ArticleHeader = ({ disabled, onSearch }: ArticleHeaderProps) => {
     <div className="flex items-center justify-between">
       <Input
         placeholder="Search"
-        className="w-full max-w-sm bg-sidebar/50"
+        className="w-full max-w-sm bg-sidebar"
         disabled={disabled}
         onChange={(e) => onSearch(e.target.value)}
       />
