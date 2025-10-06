@@ -58,9 +58,6 @@ importers:
       srvx:
         specifier: ^0.8.7
         version: 0.8.7
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.8.3)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -348,9 +345,6 @@ importers:
 
   packages/notpadd:
     dependencies:
-      '@notpadd/db':
-        specifier: workspace:*
-        version: link:../db
       axios:
         specifier: ^1.7.9
         version: 1.11.0

@@ -3,9 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "srvx",
-    "build": "tsup src/index.ts --platform node --format esm,cjs --dts -d dist --tsconfig tsconfig.json",
-    "start": "NODE_ENV=development node dist/index.cjs"
+    "dev": "srvx"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.2",
@@ -20,7 +18,6 @@
     "@notpadd/typescript-config": "workspace:*",
     "@types/node": "^20.11.17",
     "srvx": "^0.8.7",
-    "tsup": "^8.5.0",
     "typescript": "^5.8.3"
   }
 }

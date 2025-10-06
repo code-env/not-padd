@@ -74,5 +74,3 @@ export type KeysResponse = {
 };
 
 export type CreateKeySchema = z.infer<typeof createKeySchema>;
-  name: string;
-};
