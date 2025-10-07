@@ -1,11 +1,17 @@
 {
-  "extends": "@notpadd/typescript-config/base",
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "outDir": "dist",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+      "@notpadd/db": ["../db/dist/index.d.ts"],
+      "@notpadd/db/*": ["../db/dist/*.d.ts"]
+    },
+    "declaration": true,
+    "declarationDir": "dist"
+  },
+  "include": ["src"]
 }
