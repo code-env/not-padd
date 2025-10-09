@@ -3,9 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "srvx",
-    "build": "tsc --project tsconfig.build.json",
-    "start": "node dist/index.js"
+    "dev": "srvx"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.2",
