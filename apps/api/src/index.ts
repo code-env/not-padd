@@ -51,7 +51,7 @@ app.use("*", logger());
 app.route("/api", routes);
 
 app.get("/", (c) => {
-  return c.text("Hello from the Hono API!");
+  return c.text("Hello from Notpadd API!");
 });
 
 export default app;

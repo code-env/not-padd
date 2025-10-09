@@ -1,4 +1,4 @@
-import { withNotpadd } from "notpadd";
+// import { withNotpadd } from "notpadd";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,5 +13,5 @@ const nextConfig = {
   },
 };
 
-export default withNotpadd(nextConfig);
-// export default nextConfig;
+// export default withNotpadd(nextConfig);
+export default nextConfig;
