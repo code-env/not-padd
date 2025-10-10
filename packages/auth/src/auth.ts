@@ -17,7 +17,7 @@ export const auth = betterAuth({
 
   trustedOrigins: [env.FRONTEND_URL, env.BACKEND_URL],
   appName: "Notpadd",
-  baseURL: env.FRONTEND_URL,
+  // baseURL: env.FRONTEND_URL,
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
