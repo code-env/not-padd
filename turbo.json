@@ -14,7 +14,8 @@
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "TRUSTED_ORIGINS",
-    "EMAIL_FROM"
+    "EMAIL_FROM",
+    "UPLOADTHING_TOKEN"
   ],
   "tasks": {
     "build": {
