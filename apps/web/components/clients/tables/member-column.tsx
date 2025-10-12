@@ -27,6 +27,14 @@ export const memberColumns: ColumnDef<MembersResponse>[] = [
         </div>
       );
     },
+    filterFn: (row, id, value) => {
+      const user = row.original.user;
+      const searchValue = value.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(searchValue) ||
+        (user.email?.toLowerCase().includes(searchValue) ?? false)
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -54,7 +62,7 @@ export const memberColumns: ColumnDef<MembersResponse>[] = [
 
       return (
         <div className="flex justify-end pr-10">
-          <MemberAction member={member} />
+          {member.role === "owner" ? null : <MemberAction member={member} />}
         </div>
       );
     },

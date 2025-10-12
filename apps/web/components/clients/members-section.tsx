@@ -9,10 +9,15 @@ import { MemberTable } from "./tables/member-table";
 import { memberColumns } from "./tables/member-column";
 import {
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
 import type { MembersResponse } from "@/lib/types";
+import useModal from "@/hooks/use-modal";
+import { Input } from "@notpadd/ui/components/input";
+import { Button } from "@notpadd/ui/components/button";
+import { Search } from "lucide-react";
 
 export const MembersSection = () => {
   const queries = {
@@ -36,6 +41,7 @@ export const MembersSection = () => {
     data: (data?.members || []) as MembersResponse[],
     columns: memberColumns as ColumnDef<MembersResponse>[],
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
   if (error) {
@@ -43,10 +49,48 @@ export const MembersSection = () => {
   }
 
   if (isLoading) {
-    return <MembersLoading columns={10} />;
+    return (
+      <div className="flex flex-col gap-10">
+        <MembersHeader disabled={true} onSearch={() => {}} />
+        <MembersLoading columns={10} />
+      </div>
+    );
   }
 
-  console.log(data);
+  return (
+    <div className="flex flex-col gap-10">
+      <MembersHeader
+        disabled={data?.members.length === 0 || isLoading}
+        onSearch={(search) =>
+          table.setColumnFilters([{ id: "user", value: search }])
+        }
+      />
+      <MemberTable table={table} columns={memberColumns} />
+    </div>
+  );
+};
 
-  return <MemberTable table={table} columns={memberColumns} />;
+interface MembersHeaderProps {
+  disabled: boolean;
+  onSearch: (search: string) => void;
+}
+
+const MembersHeader = ({ disabled, onSearch }: MembersHeaderProps) => {
+  const { onOpen } = useModal();
+  return (
+    <div className="flex items-center justify-between">
+      <div className="relative w-full max-w-sm">
+        <Search className="size-4 absolute top-0 bottom-0 my-auto left-4 text-muted-foreground" />
+        <Input
+          placeholder="Search team member..."
+          className="w-full bg-sidebar pl-10 text-muted-foreground"
+          disabled={disabled}
+          onChange={(e) => onSearch(e.target.value)}
+        />
+      </div>
+      <Button disabled={disabled} onClick={() => onOpen("create-article")}>
+        Create Article
+      </Button>
+    </div>
+  );
 };
