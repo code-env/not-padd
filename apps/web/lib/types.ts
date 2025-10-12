@@ -74,3 +74,17 @@ export type KeysResponse = {
 };
 
 export type CreateKeySchema = z.infer<typeof createKeySchema>;
+
+export type MembersResponse = {
+  organizationId: string;
+  userId: string;
+  role: string;
+  createdAt: Date;
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    email: string | null | undefined;
+    image: string;
+  };
+};

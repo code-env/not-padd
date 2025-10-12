@@ -18,8 +18,8 @@ import {
 import { File } from "lucide-react";
 import { useState } from "react";
 import { ArticlesLoading } from "@/components/loading-uis";
-import { columns } from "./article-column";
-import { ArticleTable } from "./article-table";
+import { columns } from "./tables/article-column";
+import { ArticleTable } from "./tables/article-table";
 
 export const ArticleSection = () => {
   const { activeOrganization } = useOrganizationContext();

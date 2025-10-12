@@ -1,37 +1,27 @@
 "use client";
 
 import React, { createContext, useContext, type ReactNode } from "react";
-import {
-  useOrganization,
-  useOrganizationActions,
-} from "@/hooks/use-organization";
+import { authClient } from "@notpadd/auth/auth-client";
 import type { Organization, Member } from "@/types";
 
 interface OrganizationContextType {
   organizations: Organization[] | null;
   organizationsLoading: boolean;
   organizationsError: Error | null;
-  refetchOrganizations: () => Promise<void>;
 
   activeOrganization: Organization | null;
   activeOrganizationLoading: boolean;
   activeOrganizationError: Error | null;
+
+  members: Member[] | null;
+  membersLoading: boolean;
+  membersError: Error | null;
+
   setActiveOrganization: (
     organizationId: string,
-    organizationSlug: string
+    organizationSlug?: string
   ) => Promise<void>;
   unsetActiveOrganization: () => Promise<void>;
-
-  activeMember: Member | null;
-  activeMemberLoading: boolean;
-  activeMemberError: Error | null;
-  refetchActiveMember: () => Promise<void>;
-
-  isOwner: boolean;
-  isAdmin: boolean;
-  isMember: boolean;
-  hasPermission: (permissions: Record<string, string[]>) => Promise<boolean>;
-
   createOrganization: (data: {
     name: string;
     slug: string;
@@ -39,15 +29,22 @@ interface OrganizationContextType {
     metadata?: Record<string, any>;
     keepCurrentActiveOrganization?: boolean;
   }) => Promise<any>;
-  updateOrganization: (data: {
-    name?: string;
-    slug?: string;
-    logo?: string;
-    metadata?: Record<string, any>;
-    organizationId: string;
-  }) => Promise<any>;
-  deleteOrganization: (organizationId: string) => Promise<any>;
   checkSlug: (slug: string) => Promise<any>;
+
+  removeMember: (data: {
+    memberIdOrEmail: string;
+    organizationId?: string;
+  }) => Promise<any>;
+  listMembers: (options?: {
+    organizationId?: string;
+    limit?: number;
+    offset?: number;
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    filterField?: string;
+    filterOperator?: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "contains";
+    filterValue?: string;
+  }) => Promise<any>;
 }
 
 const OrganizationContext = createContext<OrganizationContextType | undefined>(
@@ -61,12 +58,86 @@ interface OrganizationProviderProps {
 export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
   children,
 }) => {
-  const organizationData = useOrganization();
-  const organizationActions = useOrganizationActions();
+  const {
+    data: organizations,
+    isPending,
+    error,
+  } = authClient.useListOrganizations();
+  const activeOrganization = authClient.useActiveOrganization();
+
+  const setActiveOrganization = async (
+    organizationId: string,
+    organizationSlug?: string
+  ) => {
+    await authClient.organization.setActive({
+      organizationId,
+      organizationSlug,
+    });
+  };
+
+  const unsetActiveOrganization = async () => {
+    await authClient.organization.setActive({
+      organizationId: null,
+    });
+  };
+
+  const createOrganization = async (data: {
+    name: string;
+    slug: string;
+    logo?: string;
+    metadata?: Record<string, any>;
+    keepCurrentActiveOrganization?: boolean;
+  }) => {
+    return await authClient.organization.create(data);
+  };
+
+  const checkSlug = async (slug: string) => {
+    return await authClient.organization.checkSlug({ slug });
+  };
+
+  const removeMember = async (data: {
+    memberIdOrEmail: string;
+    organizationId?: string;
+  }) => {
+    return await authClient.organization.removeMember(data);
+  };
+
+  const listMembers = async (options?: {
+    organizationId?: string;
+    limit?: number;
+    offset?: number;
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    filterField?: string;
+    filterOperator?: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "contains";
+    filterValue?: string;
+  }) => {
+    return await authClient.organization.listMembers({
+      query: {
+        ...options,
+      },
+    });
+  };
 
   const contextValue: OrganizationContextType = {
-    ...organizationData,
-    ...organizationActions,
+    organizations,
+    organizationsLoading: isPending,
+    organizationsError: error,
+
+    activeOrganization: activeOrganization.data,
+    activeOrganizationLoading: activeOrganization.isPending,
+    activeOrganizationError: activeOrganization.error,
+
+    members: null,
+    membersLoading: false,
+    membersError: null,
+
+    setActiveOrganization,
+    unsetActiveOrganization,
+    createOrganization,
+    checkSlug,
+    removeMember,
+    listMembers,
   };
 
   return (
@@ -87,17 +158,12 @@ export const useOrganizationContext = (): OrganizationContextType => {
 };
 
 export const useOrganizations = () => {
-  const {
-    organizations,
-    organizationsLoading,
-    organizationsError,
-    refetchOrganizations,
-  } = useOrganizationContext();
+  const { organizations, organizationsLoading, organizationsError } =
+    useOrganizationContext();
   return {
     organizations,
     loading: organizationsLoading,
     error: organizationsError,
-    refetch: refetchOrganizations,
   };
 };
 
@@ -118,44 +184,22 @@ export const useActiveOrganization = () => {
   };
 };
 
-export const useActiveMember = () => {
-  const {
-    activeMember,
-    activeMemberLoading,
-    activeMemberError,
-    refetchActiveMember,
-    isOwner,
-    isAdmin,
-    isMember,
-  } = useOrganizationContext();
+export const useOrganizationMembers = () => {
+  const { members, membersLoading, membersError, removeMember, listMembers } =
+    useOrganizationContext();
   return {
-    activeMember,
-    loading: activeMemberLoading,
-    error: activeMemberError,
-    refetch: refetchActiveMember,
-    isOwner,
-    isAdmin,
-    isMember,
+    members,
+    loading: membersLoading,
+    error: membersError,
+    removeMember,
+    listMembers,
   };
 };
 
-export const useOrganizationPermissions = () => {
-  const { hasPermission, isOwner, isAdmin, isMember } =
-    useOrganizationContext();
-  return { hasPermission, isOwner, isAdmin, isMember };
-};
-
 export const useOrganizationManagement = () => {
-  const {
-    createOrganization,
-    updateOrganization,
-    deleteOrganization,
-    checkSlug,
-  } = useOrganizationContext();
+  const { createOrganization, checkSlug } = useOrganizationContext();
   return {
     createOrganization,
-    updateOrganization,
-    deleteOrganization,
     checkSlug,
   };
 };

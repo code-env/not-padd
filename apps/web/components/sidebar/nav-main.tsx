@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@notpadd/ui/components/collapsible";
+import { cn } from "@notpadd/ui/lib/utils";
 
 export function NavMain() {
   const { activeOrganization } = useOrganizationContext();
@@ -52,20 +53,21 @@ export function NavMain() {
                     {item.items && item.items.length > 0 ? (
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {item.items.map((item) => (
-                            <SidebarMenuSubItem key={item.name}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={isActive}
-                                aria-disabled={
-                                  process.env.NODE_ENV === "production" &&
-                                  !item.finished
-                                }
-                              >
-                                <Link href={item.path}>{item.name}</Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
+                          {item.items.map((i) => {
+                            const subIsActive = pathname === i.path;
+                            return (
+                              <SidebarMenuSubItem key={i.name}>
+                                <SidebarMenuSubButton
+                                  asChild
+                                  className={cn(
+                                    subIsActive && "font-bold bg-accent/10"
+                                  )}
+                                >
+                                  <Link href={i.path}>{i.name}</Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            );
+                          })}
                         </SidebarMenuSub>
                       </CollapsibleContent>
                     ) : null}

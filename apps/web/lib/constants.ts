@@ -6,4 +6,5 @@ export const QUERY_KEYS = {
   MEDIA: "media",
   AUTHORS: "authors",
   KEYS: "keys",
+  MEMBERS: "members",
 };

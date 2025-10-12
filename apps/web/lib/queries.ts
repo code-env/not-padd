@@ -13,6 +13,7 @@ import type {
   KeysResponse,
   CreateKeySchema,
 } from "./types";
+import { authClient } from "@notpadd/auth/auth-client";
 
 export const ARTICLES_QUERIES = {
   updateArticle: async (
@@ -307,5 +308,32 @@ export const KEYS_QUERIES = {
     }
 
     return response.data.data.data;
+  },
+};
+
+export const ORGANIZATION_QUERIES = {
+  getMembers: async (
+    organizationId: string,
+    queries?: {
+      limit: number;
+      offset: number;
+      sortBy: string;
+      sortDirection: "asc" | "desc";
+    }
+  ) => {
+    const { data, error } = await authClient.organization.listMembers({
+      query: {
+        organizationId,
+        limit: queries?.limit,
+        offset: queries?.offset,
+        sortBy: queries?.sortBy,
+        sortDirection: queries?.sortDirection,
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
   },
 };
