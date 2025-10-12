@@ -12,9 +12,9 @@ export const ArticlesLoading = ({ columns }: { columns: number }) => {
   return (
     <div className="flex flex-col gap-10">
       <Table className="border">
-        <TableHeader>
+        <TableHeader className="bg-sidebar hover:bg-sidebar/90!">
           <TableRow>
-            <TableHead className="min-w-md max-w-md!">Title</TableHead>
+            <TableHead className="min-w-sm max-w-md!">Title</TableHead>
             <TableHead className="w-[100px]">Status</TableHead>
             <TableHead className="w-[150px]">Published At</TableHead>
             <TableHead className="w-[150px]">Last Updated</TableHead>
