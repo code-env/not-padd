@@ -5,6 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "@notpadd/env/server";
 import { organization } from "better-auth/plugins";
 import { getActiveOrganization } from "./utils/org";
+import { ac, member, admin, owner, myCustomRole } from "./permission";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -40,7 +41,9 @@ export const auth = betterAuth({
   verification: {
     disableCleanup: true,
   },
-  plugins: [organization()],
+  plugins: [
+    organization({ ac, roles: { owner, admin, member, myCustomRole } }),
+  ],
   databaseHooks: {
     session: {
       create: {

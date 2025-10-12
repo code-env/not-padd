@@ -35,3 +35,8 @@ export const createKeySchema = z.object({
 export const updateCoverImageSchema = z.object({
   url: z.string().min(1).url("Invalid URL format"),
 });
+
+export const createInviteSchema = z.object({
+  email: z.email("Invalid email address"),
+  role: z.enum(["admin", "member"]),
+});

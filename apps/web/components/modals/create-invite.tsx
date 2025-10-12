@@ -1,9 +1,8 @@
 import { useOrganizationContext } from "@/contexts";
 import useModal from "@/hooks/use-modal";
-import { QUERY_KEYS } from "@/lib/constants";
-import { KEYS_QUERIES } from "@/lib/queries";
-import { createKeySchema } from "@/lib/schemas";
-import type { CreateKeySchema, TagsResponse } from "@/lib/types";
+import { ORGANIZATION_QUERIES } from "@/lib/queries";
+import { createInviteSchema } from "@/lib/schemas";
+import type { CreateInviteSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -22,74 +21,45 @@ import {
 } from "@notpadd/ui/components/form";
 import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@notpadd/ui/components/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowRightIcon } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-const CreateKey = () => {
+const CreateInvite = () => {
   const { onClose, type } = useModal();
   const { activeOrganization } = useOrganizationContext();
   const queryClient = useQueryClient();
-  const [slug, setSlug] = useState("");
 
-  const isCreateModalOpen = type === "create-key";
+  const isCreateModalOpen = type === "invite-member";
 
-  const form = useForm<CreateKeySchema>({
-    resolver: zodResolver(createKeySchema),
+  const form = useForm<CreateInviteSchema>({
+    resolver: zodResolver(createInviteSchema),
     defaultValues: {
-      name: "",
+      email: "",
     },
   });
 
   const { mutate: createTag, isPending } = useMutation({
-    mutationFn: (data: CreateKeySchema) =>
-      KEYS_QUERIES.createKey(activeOrganization?.id as string, data),
-    onSuccess: (createdKey) => {
-      toast.success("Tag created successfully");
+    mutationFn: (data: CreateInviteSchema) =>
+      ORGANIZATION_QUERIES.createInvite(activeOrganization?.id as string, data),
+    onSuccess: () => {
+      toast.success("Invite created successfully");
       form.reset();
       onClose();
-      queryClient.setQueryData(
-        [QUERY_KEYS.TAGS, activeOrganization?.id],
-        (old: TagsResponse | undefined) => {
-          if (!old) {
-            return {
-              data: [createdKey],
-              pagination: { total: 1, page: 1, limit: 10 },
-            } satisfies TagsResponse;
-          }
-          return {
-            ...old,
-            data: [createdKey, ...old.data],
-            pagination: {
-              ...old.pagination,
-              total: (old.pagination?.total || 0) + 1,
-            },
-          } satisfies TagsResponse;
-        }
-      );
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.TAGS, activeOrganization?.id],
-      });
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
 
-  useEffect(() => {
-    const name = form.watch("name");
-    const slug = name
-      .toLowerCase()
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    setSlug(slug);
-  }, [form.watch("name")]);
-
-  const onSubmit = (data: CreateKeySchema) => {
+  const onSubmit = (data: CreateInviteSchema) => {
     createTag(data);
   };
 
@@ -104,7 +74,7 @@ const CreateKey = () => {
     <Dialog open={isCreateModalOpen} onOpenChange={onClose}>
       <DialogContent showCloseButton>
         <DialogHeader>
-          <DialogTitle>Create Key</DialogTitle>
+          <DialogTitle>Create Invite</DialogTitle>
         </DialogHeader>
         <DialogMiniPadding>
           <DialogContentWrapper>
@@ -116,20 +86,34 @@ const CreateKey = () => {
               >
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Name" {...field} />
+                        <Input placeholder="Email" {...field} />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                      <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                        <ArrowRightIcon className="w-4 h-4" />
-                        <p className="text-xs truncate max-w-sm">
-                          {slug.length > 0 ? slug : "Slug will be generated"}
-                        </p>
-                      </div>
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Select {...field}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="member">Member</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -140,7 +124,7 @@ const CreateKey = () => {
                     loading={isPending}
                     disabled={isPending || !form.formState.isValid}
                   >
-                    Create Key
+                    Create Invite
                   </LoadingButton>
                 </div>
               </form>
@@ -152,4 +136,4 @@ const CreateKey = () => {
   );
 };
 
-export default CreateKey;
+export default CreateInvite;

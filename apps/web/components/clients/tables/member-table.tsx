@@ -48,7 +48,7 @@ export function MemberTable<TData, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
-                className="cursor-pointer hover:bg-sidebar/10!"
+                className="hover:bg-sidebar/10!"
                 data-state={row.getIsSelected() && "selected"}
                 key={row.id}
               >

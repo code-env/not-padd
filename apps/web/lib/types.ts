@@ -2,6 +2,7 @@ import type { Articles, File as Media, Tag, Key } from "@notpadd/db/types";
 import {
   createArticleSchema,
   createKeySchema,
+  createInviteSchema,
   createTagSchema,
   updateArticleSchema,
   updateCoverImageSchema,
@@ -13,7 +14,8 @@ export type ModalTypes =
   | "upload-youtube"
   | "create-article"
   | "create-tag"
-  | "create-key";
+  | "create-key"
+  | "invite-member";
 
 export type ConfirmationModalTypes = "delete-article";
 
@@ -74,6 +76,7 @@ export type KeysResponse = {
 };
 
 export type CreateKeySchema = z.infer<typeof createKeySchema>;
+export type CreateInviteSchema = z.infer<typeof createInviteSchema>;
 
 export type MembersResponse = {
   organizationId: string;

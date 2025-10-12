@@ -88,8 +88,8 @@ const MembersHeader = ({ disabled, onSearch }: MembersHeaderProps) => {
           onChange={(e) => onSearch(e.target.value)}
         />
       </div>
-      <Button disabled={disabled} onClick={() => onOpen("create-article")}>
-        Create Article
+      <Button disabled={disabled} onClick={() => onOpen("invite-member")}>
+        Invite Member
       </Button>
     </div>
   );

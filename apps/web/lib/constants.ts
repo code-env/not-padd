@@ -7,4 +7,5 @@ export const QUERY_KEYS = {
   AUTHORS: "authors",
   KEYS: "keys",
   MEMBERS: "members",
+  INVITES: "invites",
 };
