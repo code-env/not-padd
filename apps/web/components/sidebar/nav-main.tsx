@@ -98,7 +98,7 @@ export const useSidebarRoutes = (activeOrg: string) => {
             {
               name: "General",
               path: `/${activeOrg}/settings/general`,
-              finished: true,
+              finished: false,
             },
             {
               name: "Members",
