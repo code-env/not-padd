@@ -3,17 +3,15 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-const toastConfirmIds = new Map<string, boolean>();
+const activeToasts = new Map<string, string>();
 
 export function useToast() {
   const showToast = useCallback(
-    (message: string, params?: { key?: string; duration?: number }) => {
-      const toastKey = `toast-${btoa(`${params?.key ?? ""}-${message}`).slice(
-        0,
-        16
-      )}`;
+    (message: string, params?: { key?: string }) => {
+      const uniqueKey = `${params?.key ?? ""}-${message}`;
+      const toastKey = `toast-${btoa(uniqueKey).slice(0, 16)}`;
 
-      if (toastConfirmIds.has(toastKey)) {
+      if (activeToasts.has(toastKey)) {
         document
           .querySelector(`.${toastKey}`)
           ?.animate(
@@ -23,19 +21,19 @@ export function useToast() {
               { transform: "scale(1.02)" },
               { transform: "scale(1)" },
             ],
-            { duration: 1000, easing: "ease-in-out" }
+            { duration: 300, easing: "ease" }
           );
         return;
       }
 
-      toastConfirmIds.set(toastKey, true);
-      toast(message, {
+      const id = toast(message, {
         className: toastKey,
-        duration: params?.duration,
-        onDismiss: () => {
-          toastConfirmIds.delete(toastKey);
-        },
+        duration: 4000,
+        onDismiss: () => activeToasts.delete(toastKey),
+        onAutoClose: () => activeToasts.delete(toastKey),
       });
+
+      activeToasts.set(toastKey, id.toString());
     },
     []
   );

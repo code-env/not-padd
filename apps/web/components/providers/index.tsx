@@ -41,7 +41,17 @@ const Providers = ({ children }: { children: ReactNode }) => {
     <OrganizationProvider>
       <QueryClientProvider client={queryClient}>
         {children}
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            style: {
+              backgroundColor: "var(--background)",
+              color: "var(--foreground)",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "0.5rem",
+              boxShadow: "0 0 0 1px var(--border)",
+            },
+          }}
+        />
         <Modals />
       </QueryClientProvider>
     </OrganizationProvider>

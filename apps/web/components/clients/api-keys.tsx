@@ -56,6 +56,7 @@ export const notpadd = async () =>
   await createNotpaddConfig({
     publicKey: process.env.NOTPADD_PUBLIC_KEY,
     secreteKey: process.env.NOTPADD_SECRET_KEY,
+    organizationId: process.env.NOTPADD_ORGANIZATION_ID,
     outputDir: "content", // your output directory
     publishOnly: true,
     type: "mdx", || "json" || "html" // your output type if none provided, it will default to mdx
@@ -94,17 +95,36 @@ export const notpadd = async () =>
               <CodeBlocks
                 code={item.code}
                 language="bash"
+                secretKey={item.title === "Secret Key"}
                 showLineNumbers={false}
+                copyKey={item.code}
+                copyMessage={`${item.title} copied to clipboard`}
               />
             </CardContent>
           </Card>
         ))}
       </div>
-      <CodeBlocks
-        code={codeSnippet}
-        language="typescript"
-        showLineNumbers={false}
-      />
+      <Card>
+        <CardHeader>
+          <CardTitle>Config code</CardTitle>
+          <CardDescription>
+            Use this code in your{" "}
+            <code className="font-geist-mono border text-sm py-0.5 px-1">
+              notpadd.config.ts
+            </code>{" "}
+            file
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0 border-none">
+          <CodeBlocks
+            code={codeSnippet}
+            copyKey={codeSnippet}
+            copyMessage={"Config code copied to clipboard"}
+            language="typescript"
+            showLineNumbers={false}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
