@@ -4,6 +4,7 @@ import { ORGANIZATION_QUERIES } from "@/lib/queries";
 import { createInviteSchema } from "@/lib/schemas";
 import type { CreateInviteSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@notpadd/auth/auth-client";
 import {
   Dialog,
   DialogContent,
@@ -47,8 +48,13 @@ const CreateInvite = () => {
   });
 
   const { mutate: createTag, isPending } = useMutation({
-    mutationFn: (data: CreateInviteSchema) =>
-      ORGANIZATION_QUERIES.createInvite(activeOrganization?.id as string, data),
+    mutationFn: (data: CreateInviteSchema) => {
+      return authClient.organization.inviteMember({
+        email: data.email,
+        role: data.role,
+        organizationId: activeOrganization?.id as string,
+      });
+    },
     onSuccess: () => {
       toast.success("Invite created successfully");
       form.reset();
