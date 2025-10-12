@@ -36,19 +36,33 @@ export function NavMain() {
                 <Collapsible key={item.name} className="group/collapsible">
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton asChild isActive={isActive}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        aria-disabled={
+                          process.env.NODE_ENV === "production" &&
+                          !item.finished
+                        }
+                      >
                         <Link href={item.path}>
                           <span>{item.name}</span>
                         </Link>
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    {item.items?.length ? (
+                    {item.items && item.items.length > 0 ? (
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {item.items.map((item) => (
                             <SidebarMenuSubItem key={item.name}>
-                              <SidebarMenuSubButton asChild isActive={isActive}>
-                                <a href={item.path}>{item.name}</a>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive}
+                                aria-disabled={
+                                  process.env.NODE_ENV === "production" &&
+                                  !item.finished
+                                }
+                              >
+                                <Link href={item.path}>{item.name}</Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           ))}
@@ -71,20 +85,23 @@ export const useSidebarRoutes = (activeOrg: string) => {
     {
       name: "Workspaces",
       items: [
-        { name: "Overview", path: `/${activeOrg}` },
-        { name: "Articles", path: `/${activeOrg}/articles` },
-        { name: "Media", path: `/${activeOrg}/media` },
+        { name: "Overview", path: `/${activeOrg}`, finished: true },
+        { name: "Articles", path: `/${activeOrg}/articles`, finished: true },
+        { name: "Media", path: `/${activeOrg}/media`, finished: false },
         {
           name: "Settings",
+          finished: true,
           path: `/${activeOrg}/settings/general`,
           items: [
             {
               name: "General",
               path: `/${activeOrg}/settings/general`,
+              finished: true,
             },
             {
               name: "Members",
               path: `/${activeOrg}/settings/members`,
+              finished: false,
             },
           ],
         },
@@ -93,8 +110,8 @@ export const useSidebarRoutes = (activeOrg: string) => {
     {
       name: "Developers",
       items: [
-        { name: "Api keys", path: `/${activeOrg}/api-keys` },
-        { name: "Webhooks", path: `/${activeOrg}/webhooks` },
+        { name: "Api keys", path: `/${activeOrg}/api-keys`, finished: false },
+        { name: "Webhooks", path: `/${activeOrg}/webhooks`, finished: false },
       ],
     },
   ];
