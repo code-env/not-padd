@@ -112,7 +112,7 @@ export const useSidebarRoutes = (activeOrg: string) => {
     {
       name: "Developers",
       items: [
-        { name: "Api keys", path: `/${activeOrg}/api-keys`, finished: false },
+        { name: "Api keys", path: `/${activeOrg}/api-keys`, finished: true },
         { name: "Webhooks", path: `/${activeOrg}/webhooks`, finished: false },
       ],
     },
