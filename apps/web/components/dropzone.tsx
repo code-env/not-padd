@@ -9,11 +9,11 @@ import {
 
 import useModal from "@/hooks/use-modal";
 import useUploader, { type EndPoint } from "@/hooks/use-uploader";
+import { Progress } from "@notpadd/ui/components/progress";
 import { cn } from "@notpadd/ui/lib/utils";
-import { Loader, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useEditor } from "novel";
 import { toast } from "sonner";
-import { Progress } from "@notpadd/ui/components/progress";
 
 interface DropZoneProps {
   organizationId: string;
@@ -67,7 +67,7 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
         onClose();
       }
     }
-  }, [editor, url, isOpen, modalType, onClose]);
+  }, [editor, url]);
 
   return (
     <div

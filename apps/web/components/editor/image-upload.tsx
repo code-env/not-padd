@@ -10,7 +10,6 @@ export const useUploadFn = () => {
   const { startUpload } = useUploader("mediaUploader");
 
   const onUpload = (file: File) => {
-    console.log(file);
     const promise = startUpload([file], {
       organizationId: activeOrganization?.id as string,
       size: file.size,
