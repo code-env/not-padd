@@ -1,4 +1,4 @@
-import { configureLogging } from "@notpadd/integrations";
+import { configureLogging } from "notpadd-integrations";
 import { NextConfig } from "next";
 
 type Options = {
@@ -40,7 +40,7 @@ export function createNotpaddCollection(pluginOptions: Options) {
         if (!initializedState[key]) {
           initializedState[key] = true;
 
-          const { createBuilder } = await import("@notpadd/core");
+          const { createBuilder } = await import("notpadd-core");
           console.log("Starting content-collections", key);
 
           const builder = await createBuilder(key);

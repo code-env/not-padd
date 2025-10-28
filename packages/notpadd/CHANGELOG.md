@@ -1,5 +1,13 @@
 # notpadd
 
+## 2.2.4
+
+### Patch Changes
+
+- Updated dependencies
+  - notpadd-integrations@2.2.4
+  - notpadd-core@2.2.4
+
 ## 2.2.2
 
 ### Patch Changes

@@ -2,7 +2,7 @@
   "name": "notpadd",
   "description": "Notpadd your buildtime/runtime cms with your own data",
   "private": false,
-  "version": "2.2.2",
+  "version": "2.2.4",
   "type": "module",
   "main": "dist/index.cjs",
   "author": "Bossadi Zenith <hello@bossadizenith.me>",
@@ -39,10 +39,10 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@notpadd/integrations": "workspace:^"
+    "notpadd-integrations": "workspace:^"
   },
   "peerDependencies": {
-    "@notpadd/core": "workspace:^",
+    "notpadd-core": "workspace:^",
     "next": "^12 || ^13 || ^14 || ^15"
   },
   "publishConfig": {

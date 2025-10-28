@@ -1,5 +1,13 @@
 # @notpadd/integrations
 
+## 2.2.4
+
+### Patch Changes
+
+- nothing
+- Updated dependencies
+  - notpadd-core@2.2.4
+
 This is a fork of content-collections. we decided not to remove this file because all the credits goes to the creator of the lib sdorra.
 
 ## 0.3.0

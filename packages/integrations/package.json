@@ -1,7 +1,7 @@
 {
-  "name": "@notpadd/integrations",
+  "name": "notpadd-integrations",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.0.2",
   "description": "Utils for integrating Notpadd into your project",
   "author": "Bossadi Zenith <hello@bossadizenith.me>",
   "license": "MIT",
@@ -27,12 +27,12 @@
     "build": "tsdown src/index.ts --format esm,cjs --dts -d dist"
   },
   "devDependencies": {
-    "@notpadd/core": "workspace:*",
+    "notpadd-core": "workspace:*",
     "@types/node": "20",
     "tsdown": "^0.15.6",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
-    "@notpadd/core": "0.x"
+    "notpadd-core": "0.x"
   }
 }
