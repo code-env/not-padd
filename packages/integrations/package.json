@@ -1,0 +1,38 @@
+{
+  "name": "@notpadd/integrations",
+  "type": "module",
+  "version": "0.3.0",
+  "description": "Utils for integrating Notpadd into your project",
+  "author": "Bossadi Zenith <hello@bossadizenith.me>",
+  "license": "MIT",
+  "homepage": "https://notpadd.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-env/not-padd.git",
+    "directory": "packages/integrations"
+  },
+  "bugs": "https://github.com/code-env/not-padd/issues",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm,cjs --dts -d dist"
+  },
+  "devDependencies": {
+    "@notpadd/core": "workspace:*",
+    "@types/node": "20",
+    "tsdown": "^0.15.6",
+    "typescript": "^5.5.4"
+  },
+  "peerDependencies": {
+    "@notpadd/core": "0.x"
+  }
+}

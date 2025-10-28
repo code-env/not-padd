@@ -1,41 +1,63 @@
 {
   "name": "@notpadd/core",
-  "description": "Core functions for notpad db",
-  "private": true,
-  "version": "0.0.0",
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "version": "0.11.1",
+  "description": "Core of notpadd build on content-collections core",
+  "author": "Bossadi Zenith <hello@bossadizenith.me>",
+  "license": "MIT",
+  "homepage": "https://notpadd.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-env/not-padd.git",
+    "directory": "packages/core"
+  },
+  "bugs": "https://github.com/code-env/not-padd/issues",
+  "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsdown src/index.ts --format esm,cjs --dts -d dist",
+    "build": "tsdown src/index.ts --format esm --dts -d dist",
     "typecheck": "tsc",
-    "test": "vitest --run --coverage"
-  },
-  "devDependencies": {
-    "@notpadd/db": "workspace:*",
-    "@notpadd/eslint-config": "workspace:^",
-    "@notpadd/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
-    "ts-node": "^10.9.2",
-    "tsdown": "^0.15.6",
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "axios": "^1.7.9"
+    "test": "vitest --run --coverage --typecheck",
+    "prepack": "cp ../../README.md ./README.md",
+    "postpack": "rm -f ./README.md"
   },
   "peerDependencies": {
-    "next": "^12 || ^13 || ^14 || ^15"
+    "typescript": "^5.0.2"
   },
-  "publishConfig": {
-    "access": "public"
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/picomatch": "^3.0.1",
+    "@types/pluralize": "^0.0.33",
+    "@types/serialize-javascript": "^5.0.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "bundle-require": "^5.0.0",
+    "tsdown": "^0.15.6",
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@standard-schema/spec": "^1.0.0",
+    "camelcase": "^8.0.0",
+    "chokidar": "^4.0.3",
+    "esbuild": "^0.25.0",
+    "gray-matter": "^4.0.3",
+    "p-limit": "^6.1.0",
+    "picomatch": "^4.0.2",
+    "pluralize": "^8.0.0",
+    "serialize-javascript": "^6.0.2",
+    "tinyglobby": "^0.2.5",
+    "yaml": "^2.4.5",
+    "zod": "^3.24.4"
   }
 }

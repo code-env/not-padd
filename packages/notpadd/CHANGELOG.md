@@ -1,5 +1,11 @@
 # notpadd
 
+## 2.2.2
+
+### Patch Changes
+
+- some few chages
+
 ## 2.2.1
 
 ### Patch Changes

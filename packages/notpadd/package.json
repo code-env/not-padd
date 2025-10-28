@@ -2,9 +2,18 @@
   "name": "notpadd",
   "description": "Notpadd your buildtime/runtime cms with your own data",
   "private": false,
-  "version": "2.2.1",
+  "version": "2.2.2",
   "type": "module",
   "main": "dist/index.cjs",
+  "author": "Bossadi Zenith <hello@bossadizenith.me>",
+  "license": "MIT",
+  "homepage": "https://notpadd.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-env/not-padd.git",
+    "directory": "packages/notpadd"
+  },
+  "bugs": "https://github.com/code-env/not-padd/issues",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -21,20 +30,19 @@
     "test": "vitest --run --coverage"
   },
   "devDependencies": {
-    "@types/node": "^22.13.4",
     "@notpadd/eslint-config": "workspace:^",
-    "@notpadd/typescript-config": "workspace:*",
-    "@notpadd/core": "workspace:*",
-    "next": "^14.2.15",
+    "@notpadd/typescript-config": "workspace:^",
+    "@types/node": "^22.13.4",
+    "next": "^14.2.32",
     "ts-node": "^10.9.2",
     "tsdown": "^0.15.6",
     "typescript": "^5"
   },
   "dependencies": {
-    "axios": "^1.7.9",
-    "jiti": "^1.21.6"
+    "@notpadd/integrations": "workspace:^"
   },
   "peerDependencies": {
+    "@notpadd/core": "workspace:^",
     "next": "^12 || ^13 || ^14 || ^15"
   },
   "publishConfig": {
