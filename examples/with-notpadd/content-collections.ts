@@ -1,4 +1,6 @@
 import { defineCollection, defineConfig } from "@notpadd/core";
+
+import { rehypeParseCodeBlocks } from "./shiki.mjs";
 import { compileMDX } from "@content-collections/mdx";
 import { z } from "zod";
 
@@ -12,7 +14,9 @@ const posts = defineCollection({
     slug: z.string(),
   }),
   transform: async (post, ctx) => {
-    const mdx = await compileMDX(ctx, post);
+    const mdx = await compileMDX(ctx, post, {
+      rehypePlugins: [rehypeParseCodeBlocks],
+    });
     return {
       ...post,
       mdx,

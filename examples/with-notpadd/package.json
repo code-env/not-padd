@@ -15,6 +15,13 @@
     "notpadd": "workspace:*",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "rehype-pretty-code": "^0.14.1",
+    "rehype-stringify": "^10.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "tailwind-merge": "^2.5.4",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
