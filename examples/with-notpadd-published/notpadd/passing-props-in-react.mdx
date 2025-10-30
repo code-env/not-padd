@@ -1,0 +1,38 @@
+---
+title: "Passing props in react"
+slug: "passing-props-in-react"
+description: "How to pass props in react"
+published: "false"
+createdAt: "2025-10-30T18:36:20.339Z"
+updatedAt: "2025-10-30T18:36:20.339Z"
+image: ""
+---
+
+Props let you pass data from one component to another, making your UI reusable and flexible.
+
+Here’s a quick example:
+
+```jsx
+function Greeting({ name }) {
+  return <h2>Hello, {name}!</h2>;
+}
+
+export default function App() {
+  return (
+    <div style={{ textAlign: "center", marginTop: "40px" }}>
+      <Greeting name="Zenith" />
+      <Greeting name="Romaric" />
+    </div>
+  );
+}
+```
+
+### How It Works
+
+- The `Greeting` component receives a `name` prop.
+
+- Props are just arguments you pass to components.
+
+- Each instance can display different data.
+
+Props make components dynamic and help you avoid repeating code.

@@ -7,6 +7,7 @@ import { tagsRoutes } from "./tags/index.ts";
 import { authorsRoutes } from "./authors/index.ts";
 import { keysRoutes } from "./keys/index.ts";
 import { v1Routes } from "./v1/index.ts";
+import { githubAppRoutes } from "./github-app/index.ts";
 
 const routes = new Hono<{ Variables: ReqVariables }>();
 
@@ -17,5 +18,6 @@ routes.route("/tags", tagsRoutes);
 routes.route("/authors", authorsRoutes);
 routes.route("/keys", keysRoutes);
 routes.route("/v1", v1Routes);
+routes.route("/github-app", githubAppRoutes);
 
 export { routes };

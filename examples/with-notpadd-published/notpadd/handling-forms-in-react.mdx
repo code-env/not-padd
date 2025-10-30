@@ -1,0 +1,53 @@
+---
+title: "Handling forms in react"
+slug: "handling-forms-in-react"
+description: "How to handle forms in react"
+published: "false"
+createdAt: "2025-10-30T18:29:38.770Z"
+updatedAt: "2025-10-30T18:29:38.770Z"
+image: ""
+---
+
+Handling Forms in React
+
+Forms are essential for collecting user input. In React, you can control form values using **state**.
+
+Here’s a simple example:
+
+```jsx
+import { useState } from "react";
+
+export default function ContactForm() {
+  const [name, setName] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert(`Hello, ${name}!`);
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{ textAlign: "center", marginTop: "40px" }}
+    >
+      <input
+        type="text"
+        placeholder="Enter your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### How It Works
+
+- The input field’s value is tied to React state.
+
+- `onChange` updates the state whenever the user types.
+
+- On submit, the form calls `handleSubmit`.
+
+With controlled inputs, React gives you full control over form data and behavior.

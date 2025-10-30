@@ -1,0 +1,46 @@
+---
+title: "UseEffect in react"
+slug: "useeffect-in-react"
+description: "this is just useeffect in react"
+published: "false"
+createdAt: "2025-10-30T14:03:58.298Z"
+updatedAt: "2025-10-30T14:03:58.298Z"
+image: ""
+---
+
+Understanding `useEffect` in React
+
+`useEffect` lets you perform side effects in React, such as fetching data, updating the document title, or handling subscriptions.
+
+Here’s a simple example:
+
+```jsx
+import { useEffect, useState } from "react";
+
+export default function FetchUser() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Runs once after the component mounts
+    fetch("https://jsonplaceholder.typicode.com/users/1")
+      .then((res) => res.json())
+      .then((data) => setUser(data));
+  }, []); // empty array means run once
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "40px" }}>
+      {user ? <h2>{user.name}</h2> : <p>Loading user...</p>}
+    </div>
+  );
+}
+```
+
+### How It Works
+
+- `useEffect` runs after the component renders.
+
+- The empty dependency array (`[]`) means the effect runs only once.
+
+- It’s commonly used for data fetching or setting up listeners.
+
+With just a few lines, you can manage side effects cleanly in React using `useEffect`

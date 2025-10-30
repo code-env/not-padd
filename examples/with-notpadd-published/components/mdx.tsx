@@ -69,7 +69,7 @@ export default function Mdx({ code }: Props) {
           </ol>
         ),
         li: ({ children }) => (
-          <li className="space-y-6 pl-1 text-base/7">{children}</li>
+          <li className="pl-1 text-base/7 [&>p]:inline">{children}</li>
         ),
         h1: ({ children }) => {
           return (

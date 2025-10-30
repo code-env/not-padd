@@ -23,6 +23,12 @@ export const env = createEnvCore({
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
 
+    // GitHub App
+    GITHUB_APP_CLIENT_ID: z.string().optional(),
+    GITHUB_APP_CLIENT_SECRET: z.string().optional(),
+    GITHUB_APP_ID: z.string().optional(),
+    GITHUB_APP_PRIVATE_KEY: z.string().optional(),
+
     // Server Configuration
     BACKEND_URL: z.string(),
     FRONTEND_URL: z.string(),

@@ -1,0 +1,39 @@
+---
+title: "counter app in react"
+slug: "counter-app-in-react"
+description: "this is a simple counter app in react"
+published: "false"
+createdAt: "2025-10-30T13:04:16.234Z"
+updatedAt: "2025-10-30T13:04:16.234Z"
+image: ""
+---
+
+Building a Counter Component in React
+
+React makes it easy to build reusable UI components. Let’s create a simple counter app that increments and decrements a number.
+
+```jsx
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>{count}</h1>
+      <button onClick={() => setCount(count - 1)}>-</button>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </div>
+  );
+}
+```
+
+### How It Works
+
+- `useState(0)` initializes the counter at `0`.
+
+- The `setCount` function updates the state.
+
+- When you click `+` or `-`, the number changes instantly — thanks to React’s reactivity.
+
+That’s it! You’ve built a functional counter in just a few lines.

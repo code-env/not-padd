@@ -287,6 +287,26 @@ export const key = pgTable("key", {
     .notNull(),
 });
 
+export const githubAppIntegration = pgTable("github_app_integration", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  installationId: text("installation_id").notNull().unique(),
+  githubAccountName: text("github_account_name").notNull(),
+  githubAccountId: text("github_account_id").notNull(),
+  githubAccountType: text("github_account_type").notNull(),
+  accessTokensUrl: text("access_tokens_url"),
+  repositoriesUrl: text("repositories_url"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 export const schema = {
   user,
   account,
@@ -307,6 +327,7 @@ export const schema = {
   articleTag,
   articleAuthor,
   key,
+  githubAppIntegration,
 };
 
 export default schema;

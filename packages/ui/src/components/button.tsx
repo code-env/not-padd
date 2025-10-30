@@ -1,12 +1,11 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion as m, type HTMLMotionProps } from "motion/react";
 
 import { cn } from "@notpadd/ui/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive select-none",
+  "inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive select-none active:scale-[0.98]",
   {
     variants: {
       variant: {
@@ -39,41 +38,20 @@ type ButtonProps = React.ComponentProps<"button"> &
     asChild?: boolean;
   };
 
-type MotionButtonProps = HTMLMotionProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  };
-
 function Button({
   className,
   variant,
   size,
   asChild = false,
   ...props
-}: ButtonProps | MotionButtonProps) {
-  if (asChild) {
-    const { asChild: _, ...buttonProps } = props as ButtonProps;
-    return (
-      <Slot
-        data-slot="button"
-        className={cn(
-          buttonVariants({ variant, size, className }),
-          "transition-all duration-300 ease-in-out active:scale-[0.98]"
-        )}
-        {...buttonProps}
-      />
-    );
-  }
-
-  const motionProps = props as MotionButtonProps;
+}: ButtonProps) {
+  const Comp = asChild ? Slot : "button";
   return (
-    <m.button
+    <Comp
       data-slot="button"
-      whileTap={{ scale: 0.98 }}
       className={cn(buttonVariants({ variant, size, className }))}
-      {...motionProps}
+      {...props}
     />
   );
 }
-
 export { Button, buttonVariants };

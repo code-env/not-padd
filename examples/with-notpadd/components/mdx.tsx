@@ -41,7 +41,7 @@ export default function Mdx({ code }: Props) {
         },
         code: (props) => {
           return (
-            <code className="bg-gray-50 border-gray-200 font-mono! rounded border px-1.5 py-0.5">
+            <code className="bg-gray-50 inline-flex border-gray-200 font-mono! rounded border px-1.5 py-0.5">
               {props.children}
             </code>
           );
@@ -69,7 +69,9 @@ export default function Mdx({ code }: Props) {
           </ol>
         ),
         li: ({ children }) => (
-          <li className="space-y-6 pl-1 text-base/7">{children}</li>
+          <li className="pl-1 text-base/7 flex items-center gap-2">
+            {children}
+          </li>
         ),
         h1: ({ children }) => {
           return (

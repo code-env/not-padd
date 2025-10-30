@@ -12,6 +12,10 @@ import type {
   UpdateArticleSchema,
   KeysResponse,
   CreateKeySchema,
+  GithubAppIntegrationsResponse,
+  GithubAppIntegration,
+  CreateGithubAppIntegrationSchema,
+  UpdateGithubAppIntegrationSchema,
 } from "./types";
 import { authClient } from "@notpadd/auth/auth-client";
 
@@ -335,5 +339,75 @@ export const ORGANIZATION_QUERIES = {
       throw new Error(error.message);
     }
     return data;
+  },
+};
+
+export const GITHUB_APP_QUERIES = {
+  createIntegration: async (
+    organizationId: string,
+    data: CreateGithubAppIntegrationSchema
+  ) => {
+    const response = await apiClient.post<
+      APIResponse<{ data: GithubAppIntegration }>
+    >(`/github-app/${organizationId}`, data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
+  getIntegrations: async (
+    organizationId: string,
+    queries: { page: number; limit: number }
+  ) => {
+    const response = await apiClient.get<
+      APIResponse<GithubAppIntegrationsResponse>
+    >(
+      `/github-app/${organizationId}?page=${queries.page}&limit=${queries.limit}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  getIntegrationById: async (organizationId: string, integrationId: string) => {
+    const response = await apiClient.get<APIResponse<GithubAppIntegration>>(
+      `/github-app/${organizationId}/${integrationId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  updateIntegration: async (
+    organizationId: string,
+    integrationId: string,
+    data: UpdateGithubAppIntegrationSchema
+  ) => {
+    const response = await apiClient.put<
+      APIResponse<{ data: GithubAppIntegration }>
+    >(`/github-app/${organizationId}/${integrationId}`, data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
+  },
+  deleteIntegration: async (organizationId: string, integrationId: string) => {
+    const response = await apiClient.delete<
+      APIResponse<{ data: GithubAppIntegration }>
+    >(`/github-app/${organizationId}/${integrationId}`);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data.data;
   },
 };

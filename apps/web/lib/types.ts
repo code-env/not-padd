@@ -6,6 +6,8 @@ import {
   createTagSchema,
   updateArticleSchema,
   updateCoverImageSchema,
+  createGithubAppIntegrationSchema,
+  updateGithubAppIntegrationSchema,
 } from "./schemas";
 import { z } from "zod";
 
@@ -91,3 +93,29 @@ export type MembersResponse = {
     image: string;
   };
 };
+
+export type GithubAppIntegration = {
+  id: string;
+  organizationId: string;
+  installationId: string;
+  githubAccountName: string;
+  githubAccountId: string;
+  githubAccountType: string;
+  accessTokensUrl: string | null;
+  repositoriesUrl: string | null;
+  metadata: any;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type GithubAppIntegrationsResponse = {
+  data: GithubAppIntegration[];
+  pagination: Pagination;
+};
+
+export type CreateGithubAppIntegrationSchema = z.infer<
+  typeof createGithubAppIntegrationSchema
+>;
+export type UpdateGithubAppIntegrationSchema = z.infer<
+  typeof updateGithubAppIntegrationSchema
+>;

@@ -40,3 +40,23 @@ export const createInviteSchema = z.object({
   email: z.email("Invalid email address"),
   role: z.enum(["admin", "member"]),
 });
+
+export const createGithubAppIntegrationSchema = z.object({
+  installationId: REQUIRED_STRING,
+  githubAccountName: REQUIRED_STRING,
+  githubAccountId: REQUIRED_STRING,
+  githubAccountType: REQUIRED_STRING,
+  accessTokensUrl: OPTIONAL_STRING,
+  repositoriesUrl: OPTIONAL_STRING,
+  metadata: z.any().optional(),
+});
+
+export const updateGithubAppIntegrationSchema = z.object({
+  installationId: OPTIONAL_STRING,
+  githubAccountName: OPTIONAL_STRING,
+  githubAccountId: OPTIONAL_STRING,
+  githubAccountType: OPTIONAL_STRING,
+  accessTokensUrl: OPTIONAL_STRING,
+  repositoriesUrl: OPTIONAL_STRING,
+  metadata: z.any().optional(),
+});

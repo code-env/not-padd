@@ -27,8 +27,8 @@ const posts = defineCollection({
 export default defineConfig({
   collections: [posts],
   notpadd: {
-    sk: "sk_TqyuOYS84ZpUjup2ecxOf3WT",
-    pk: "pk_xdenOc15LgVopojck2UyxoHq",
-    orgID: "g0nkLQy8wBYndPGkW5IE0hzWJD6P9Ecp",
+    sk: "sk_5cK6E7pgXg8NdX9aoxPHMhuS",
+    pk: "pk_IVBO4SqHQrRAKsz72PFhvqS7",
+    orgID: "aclVCryKWOYY3P32px6gKBXmQHLeaEbe",
   },
 });
