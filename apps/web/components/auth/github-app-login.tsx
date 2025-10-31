@@ -51,7 +51,7 @@ export const GithubAppLogin = () => {
     }
 
     setIsConnecting(true);
-    const state = activeOrganization.id;
+    const state = activeOrganization.slug;
     const githubInstallUrl = `https://github.com/apps/${githubAppName}/installations/new?state=${state}`;
 
     window.location.href = githubInstallUrl;

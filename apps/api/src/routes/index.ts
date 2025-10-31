@@ -18,6 +18,6 @@ routes.route("/tags", tagsRoutes);
 routes.route("/authors", authorsRoutes);
 routes.route("/keys", keysRoutes);
 routes.route("/v1", v1Routes);
-routes.route("/github-app", githubAppRoutes);
+routes.route("/gh-app", githubAppRoutes);
 
 export { routes };

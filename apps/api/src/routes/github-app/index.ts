@@ -1,5 +1,5 @@
 import { db } from "@notpadd/db";
-import { member, organization } from "@notpadd/db/schema";
+import { githubAppIntegration, member, organization } from "@notpadd/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
@@ -70,14 +70,11 @@ const isUserOwner = async (
   return roles.includes("owner");
 };
 
-const createGithubAppSchema = z.object({
-  installationId: z.string().min(1),
-  githubAccountName: z.string().min(1),
-  githubAccountId: z.string().min(1),
-  githubAccountType: z.string().min(1),
-  accessTokensUrl: z.string().optional(),
-  repositoriesUrl: z.string().optional(),
-  metadata: z.any().optional(),
+githubAppRoutes.get("/:organizationId", async (c) => {
+  const user = c.get("user");
+  if (!user || !user.id) {
+    return c.json({ error: "Unauthorized", success: false }, 401);
+  }
 });
 
 export { githubAppRoutes };

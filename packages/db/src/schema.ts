@@ -177,6 +177,7 @@ export const articles = pgTable(
       .notNull(),
   },
   (table) => [
+    // ✅ unique per organization
     unique().on(table.organizationId, table.slug),
     unique().on(table.id, table.organizationId),
   ]
@@ -294,15 +295,6 @@ export const githubAppIntegration = pgTable("github_app_integration", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   installationId: text("installation_id").notNull().unique(),
-  githubAccountName: text("github_account_name").notNull(),
-  githubAccountId: text("github_account_id").notNull(),
-  githubAccountType: text("github_account_type").notNull(),
-  accessTokensUrl: text("access_tokens_url"),
-  repositoriesUrl: text("repositories_url"),
-  installedByUserId: text("installed_by_user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  metadata: jsonb("metadata"),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
