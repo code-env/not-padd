@@ -1,13 +1,36 @@
 import { GITHUB_APP_QUERIES } from "@/lib/queries";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Fetches GitHub installation data from GitHub API
+ * TODO: Implement actual GitHub API call using GitHub App credentials
+ * This requires GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY to generate a JWT token
+ */
+async function fetchGitHubInstallation(installationId: string) {
+  // TODO: Implement actual GitHub API call
+  // For now, return placeholder data structure
+  // When implementing, use:
+  // 1. Generate JWT token using GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY
+  // 2. Fetch installation: GET https://api.github.com/app/installations/{installation_id}
+  // 3. Extract account information from the response
+
+  return {
+    account: {
+      login: "temp-account", // Should come from GitHub API
+      id: "temp-id", // Should come from GitHub API
+      type: "User", // Should come from GitHub API (User or Organization)
+    },
+    access_tokens_url: `https://api.github.com/app/installations/${installationId}/access_tokens`,
+    repositories_url: `https://api.github.com/installation/repositories`,
+  };
+}
+
 export const GET = async (request: NextRequest) => {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const code = searchParams.get("code");
     const installationId = searchParams.get("installation_id");
     const setupAction = searchParams.get("setup_action");
-    const state = searchParams.get("state"); // This should contain organizationId
+    const state = searchParams.get("state");
 
     if (!installationId || !state) {
       return NextResponse.redirect(
@@ -15,23 +38,19 @@ export const GET = async (request: NextRequest) => {
       );
     }
 
-    // The state parameter should contain the organizationId
     const organizationId = state;
 
-    // Exchange code for installation details if needed
-    // For now, we'll create a basic integration record
-    // You'll need to enhance this with actual GitHub API calls
-
     try {
-      // Fetch installation details from GitHub API
-      // This is a placeholder - you'll need to implement actual GitHub API calls
-      const installationData = {
+      // Fetch GitHub installation data
+      const installationData = await fetchGitHubInstallation(installationId);
+
+      const integrationData = {
         installationId,
-        githubAccountName: "temp-account", // Fetch from GitHub API
-        githubAccountId: "temp-id", // Fetch from GitHub API
-        githubAccountType: "User", // or "Organization"
-        accessTokensUrl: `https://api.github.com/app/installations/${installationId}/access_tokens`,
-        repositoriesUrl: `https://api.github.com/installation/repositories`,
+        githubAccountName: installationData.account.login,
+        githubAccountId: String(installationData.account.id),
+        githubAccountType: installationData.account.type,
+        accessTokensUrl: installationData.access_tokens_url,
+        repositoriesUrl: installationData.repositories_url,
         metadata: {
           setupAction,
           installedAt: new Date().toISOString(),
@@ -40,7 +59,7 @@ export const GET = async (request: NextRequest) => {
 
       await GITHUB_APP_QUERIES.createIntegration(
         organizationId,
-        installationData
+        integrationData
       );
 
       return NextResponse.redirect(

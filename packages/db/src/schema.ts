@@ -25,6 +25,8 @@ export const organization = pgTable("organization", {
   logo: text("logo"),
   metadata: jsonb("metadata"),
   lastUsed: boolean("last_used").default(false),
+  repoUrl: text("repo_url").notNull().default(""),
+  repoPath: text("repo_path").notNull().default("/notpadd-changelogs"),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
@@ -146,7 +148,6 @@ export const tag = pgTable(
     unique().on(table.id, table.organizationId),
   ]
 );
-
 export const articles = pgTable(
   "articles",
   {
@@ -155,7 +156,7 @@ export const articles = pgTable(
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
-    slug: text("slug").notNull().unique(),
+    slug: text("slug").notNull(),
     description: text("description").notNull(),
     content: text("content").notNull().default(""),
     markdown: text("markdown").notNull().default(""),
@@ -289,15 +290,18 @@ export const key = pgTable("key", {
 
 export const githubAppIntegration = pgTable("github_app_integration", {
   id: text("id").primaryKey(),
-  organizationId: text("organization_id")
+  userId: text("user_id")
     .notNull()
-    .references(() => organization.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   installationId: text("installation_id").notNull().unique(),
   githubAccountName: text("github_account_name").notNull(),
   githubAccountId: text("github_account_id").notNull(),
   githubAccountType: text("github_account_type").notNull(),
   accessTokensUrl: text("access_tokens_url"),
   repositoriesUrl: text("repositories_url"),
+  installedByUserId: text("installed_by_user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())

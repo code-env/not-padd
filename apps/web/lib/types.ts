@@ -103,6 +103,7 @@ export type GithubAppIntegration = {
   githubAccountType: string;
   accessTokensUrl: string | null;
   repositoriesUrl: string | null;
+  installedByUserId: string;
   metadata: any;
   createdAt: Date;
   updatedAt: Date;

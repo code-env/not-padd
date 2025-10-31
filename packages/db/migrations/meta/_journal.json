@@ -5,71 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1759267488395,
-      "tag": "0000_nappy_swordsman",
+      "when": 1761933119288,
+      "tag": "0000_previous_mach_iv",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1759268651288,
-      "tag": "0001_windy_pandemic",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1759353437219,
-      "tag": "0002_yielding_mandroid",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1759393495914,
-      "tag": "0003_closed_queen_noir",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1759393607708,
-      "tag": "0004_huge_sentry",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1759393700905,
-      "tag": "0005_square_barracuda",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1759513099428,
-      "tag": "0006_secret_cassandra_nova",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1759592940490,
-      "tag": "0007_empty_magik",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1759658898883,
-      "tag": "0008_glossy_champions",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1759659197565,
-      "tag": "0009_hot_galactus",
+      "when": 1761935905798,
+      "tag": "0001_whole_boomerang",
       "breakpoints": true
     }
   ]

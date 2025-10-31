@@ -25,3 +25,7 @@ export function formatSize(size: number): string {
   }
   return `${(size / 1024 / 1024).toFixed(2)} MB`;
 }
+
+export const NOTPADD_GITHUB_PRIVATE = (value: string) => {
+  return Buffer.from(value, "base64").toString("utf-8");
+};

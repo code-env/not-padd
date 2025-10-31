@@ -161,8 +161,8 @@ articlesRoutes.post("/:organizationId", async (c) => {
         data: article,
       },
     });
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (error) {
+    console.error(error);
     return c.json({ error: "Internal server error", success: false }, 500);
   }
 });

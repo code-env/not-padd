@@ -9,7 +9,7 @@ import { env } from "@notpadd/env/client";
 import { useState } from "react";
 
 export const GithubAppLogin = () => {
-  const { activeOrganization } = useOrganization();
+  const { activeOrganization, isOwner } = useOrganization();
   const queryClient = useQueryClient();
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -67,14 +67,33 @@ export const GithubAppLogin = () => {
 
   if (isLoading) {
     return (
-      <div className="border p-4 flex items-center justify-between gap-4">
+      <div className="border p-4 flex items-center justify-between gap-4 rounded-lg">
         <div className="flex items-center gap-4">
-          <div className="size-10 border bg-sidebar flex items-center justify-center">
+          <div className="size-10 border bg-sidebar flex items-center justify-center rounded-md">
             <Icons.github className="size-5" />
           </div>
           <div>
             <h2 className="text-lg font-bold">GitHub Integration</h2>
             <p className="text-sm text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show to organization owners
+  if (!isOwner) {
+    return (
+      <div className="border p-4 flex items-center justify-between gap-4 rounded-lg">
+        <div className="flex items-center gap-4">
+          <div className="size-10 border bg-sidebar flex items-center justify-center rounded-md">
+            <Icons.github className="size-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">GitHub Integration</h2>
+            <p className="text-sm text-muted-foreground">
+              Only organization owners can connect GitHub App
+            </p>
           </div>
         </div>
       </div>
