@@ -3,7 +3,7 @@ import CreateArticle from "./create-article";
 import CreateTags from "./create-tags";
 import CreateKey from "./create-key";
 import CreateInvite from "./create-invite";
-
+import { GithubConfig } from "./github-config";
 const Modals = () => {
   return (
     <>
@@ -12,6 +12,7 @@ const Modals = () => {
       <CreateKey />
       <ConfirmationModal />
       <CreateInvite />
+      <GithubConfig />
     </>
   );
 };

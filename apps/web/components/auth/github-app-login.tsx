@@ -1,28 +1,32 @@
 "use client";
 
-import { Icons } from "@notpadd/ui/components/icons";
-import { Button } from "@notpadd/ui/components/button";
+import { ReposLoadingUI } from "@/components/loading-uis";
+import useModal from "@/hooks/use-modal";
 import { useOrganization } from "@/hooks/use-organization";
 import { GITHUB_APP_QUERIES } from "@/lib/queries";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { replaceOrganizationWithWorkspace } from "@/lib/utils";
+import { authClient } from "@notpadd/auth/auth-client";
 import { env } from "@notpadd/env/client";
-import { useState } from "react";
-import axios from "axios";
+import { Button } from "@notpadd/ui/components/button";
+import { Icons } from "@notpadd/ui/components/icons";
 import { Input } from "@notpadd/ui/components/input";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { Cog, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ReposLoadingUI } from "@/components/loading-uis";
-import { authClient } from "@notpadd/auth/auth-client";
+import { useState } from "react";
 import { toast } from "sonner";
-import { replaceOrganizationWithWorkspace } from "@/lib/utils";
+import { useDebounce } from "use-debounce";
 
 export const GithubAppLogin = () => {
   const { activeOrganization, isOwner, setActiveOrganization } =
     useOrganization();
+  const { onOpen } = useModal();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [isConnecting, setIsConnecting] = useState(false);
   const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search, 500);
   const {
     data: integration,
     isLoading: isLoadingIntegration,
@@ -36,14 +40,18 @@ export const GithubAppLogin = () => {
 
   const { data: repositoriesData, isLoading: isLoadingRepositories } = useQuery(
     {
-      queryKey: ["github-repositories", integration?.installationId, search],
+      queryKey: [
+        "github-repositories",
+        integration?.installationId,
+        debouncedSearch,
+      ],
       queryFn: async () => {
         const params = new URLSearchParams({
           installation_id: String(integration?.installationId),
           per_page: "10",
         });
-        if (search) {
-          params.append("search", search);
+        if (debouncedSearch) {
+          params.append("search", debouncedSearch);
         }
 
         const { data } = await axios.get(
@@ -69,6 +77,7 @@ export const GithubAppLogin = () => {
         const { data, error } = await authClient.organization.update({
           data: {
             repoUrl: repositoryId,
+            repoPath: "",
           },
           organizationId: activeOrganization.id,
         });
@@ -127,29 +136,36 @@ export const GithubAppLogin = () => {
             {isLoadingRepositories ? (
               <ReposLoadingUI count={10} />
             ) : repositories.length > 0 ? (
-              repositories.map((repository: any) => (
-                <div
-                  key={repository.id}
-                  className="p-2 hover:bg-sidebar cursor-pointer flex items-center justify-between"
-                >
-                  <div>
-                    <h2 className="font-medium">{repository.name}</h2>
-                    <p className="text-xs text-muted-foreground">
-                      {repository.full_name}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => connectRepository(repository.full_name)}
-                    disabled={isConnectingRepository}
+              repositories.map((repository: any) => {
+                console.log(repository.private);
+                return (
+                  <div
+                    key={repository.id}
+                    className="p-2 hover:bg-sidebar cursor-pointer flex items-center justify-between"
                   >
-                    Connect
-                  </Button>
-                </div>
-              ))
+                    <div>
+                      <h2 className="font-medium">
+                        {repository.name} {repository.private && "🔒"}
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        {repository.full_name}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => connectRepository(repository.full_name)}
+                      disabled={isConnectingRepository}
+                    >
+                      Connect
+                    </Button>
+                  </div>
+                );
+              })
             ) : (
               <div className="text-sm text-muted-foreground">
-                {search ? "No repositories found" : "No repositories available"}
+                {debouncedSearch
+                  ? "No repositories found"
+                  : "No repositories available"}
               </div>
             )}
           </div>
@@ -210,17 +226,35 @@ export const GithubAppLogin = () => {
             <Icons.github className="size-8" />
           </div>
           <div>
-            <Link href={`https://github.com/${activeOrganization?.repoUrl}`}>
-              {activeOrganization?.repoUrl}
+            <Link
+              href={`https://github.com/${activeOrganization?.repoUrl}`}
+              className="flex items-center gap-2 group"
+              target="_blank"
+            >
+              {activeOrganization?.repoUrl}{" "}
+              <ExternalLink className="size-3 group-hover:text-primary text-muted-foreground" />
             </Link>
             <p className="text-sm text-muted-foreground">
               {activeOrganization?.repoPath}
             </p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => connectRepository("")}>
-          Disconnect
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => connectRepository("")}
+          >
+            Disconnect
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => onOpen("github-config")}
+          >
+            <Cog className="size-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -209,3 +209,68 @@ export async function getInstallationRepositories(
     total: response.data.total_count || repositories.length,
   };
 }
+
+export async function getRepositoryContents(
+  installationId: number,
+  owner: string,
+  repo: string,
+  path: string = ""
+): Promise<Array<{ name: string; type: "dir" | "file"; path: string }>> {
+  const octokit = createOctokit(installationId);
+
+  console.log({
+    installationId,
+    owner,
+    repo,
+    path,
+  });
+
+  const normalizedPath = path.replace(/^\/+/, "").replace(/\/+$/, "").trim();
+
+  try {
+    const { data } = await octokit.repos.getContent({
+      owner,
+      repo,
+      path,
+    });
+
+    if (Array.isArray(data)) {
+      return data
+        .filter((item) => item.type === "dir")
+        .map((item) => ({
+          name: item.name,
+          type: item.type as "dir" | "file",
+          path: item.path,
+        }));
+    }
+
+    return [];
+  } catch (error: any) {
+    console.error("Failed to fetch repository contents:", {
+      error,
+      owner,
+      repo,
+      path: normalizedPath,
+      originalPath: path,
+      status: error.status,
+      message: error.message,
+    });
+
+    const errorMessage = error.message || "Unknown error";
+    const status = error.status;
+
+    if (status === 404) {
+      throw new Error(
+        `Path "${normalizedPath || "root"}" not found in repository ${owner}/${repo}. Please verify the path exists.`
+      );
+    }
+
+    if (status === 403) {
+      throw new Error(
+        `Access denied to repository ${owner}/${repo}. Please check installation permissions.`
+      );
+    }
+
+    throw new Error(`Failed to fetch repository contents: ${errorMessage}`);
+  }
+}
