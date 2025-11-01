@@ -120,13 +120,14 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
   };
 
   const contextValue: OrganizationContextType = {
-    organizations,
+    organizations: (organizations || null) as Organization[] | null,
     organizationsLoading: isPending,
-    organizationsError: error,
+    organizationsError: error as Error | null,
 
-    activeOrganization: activeOrganization.data,
+    activeOrganization: (activeOrganization.data ||
+      null) as Organization | null,
     activeOrganizationLoading: activeOrganization.isPending,
-    activeOrganizationError: activeOrganization.error,
+    activeOrganizationError: activeOrganization.error as Error | null,
 
     members: null,
     membersLoading: false,

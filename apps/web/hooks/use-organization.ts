@@ -4,6 +4,12 @@ import { useCallback } from "react";
 import { authClient } from "@notpadd/auth/auth-client";
 import type { Member, Organization } from "@/types";
 
+// Type for Better Auth organization return with additional fields
+type AuthOrganization = Organization & {
+  repoUrl?: string;
+  repoPath?: string;
+};
+
 export interface UseOrganizationReturn {
   organizations: Organization[] | null;
   organizationsLoading: boolean;
@@ -100,12 +106,12 @@ export const useOrganization = (): UseOrganizationReturn => {
   const isMember = activeMember?.role === "member" || isAdmin;
 
   return {
-    organizations: organizations || null,
+    organizations: (organizations || null) as Organization[] | null,
     organizationsLoading,
     organizationsError: organizationsError as Error | null,
     refetchOrganizations: refetchOrganizations as () => Promise<void>,
 
-    activeOrganization: activeOrganization || null,
+    activeOrganization: (activeOrganization || null) as Organization | null,
     activeOrganizationLoading,
     activeOrganizationError: activeOrganizationError as Error | null,
     setActiveOrganization,

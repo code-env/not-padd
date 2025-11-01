@@ -2,13 +2,13 @@
 
 import type React from "react";
 
-import { Button } from "@notpadd/ui/components/button";
+import { Button, type ButtonProps } from "@notpadd/ui/components/button";
+
 import { cn } from "@notpadd/ui/lib/utils";
 import { Loader } from "lucide-react";
 import { forwardRef } from "react";
-import type { HTMLMotionProps } from "motion/react";
 
-interface LoadingButtonProps extends HTMLMotionProps<"button"> {
+interface LoadingButtonProps extends ButtonProps {
   loading?: boolean;
 }
 
