@@ -50,18 +50,23 @@ export const GithubAppLogin = () => {
     enabled: !!integration?.installationId && isOwner,
   });
 
-  const connectMutation = useMutation({
-    mutationFn: (repositoryId: string) =>
-      GITHUB_APP_QUERIES.connectRepository(
-        activeOrganization!.id,
-        repositoryId
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["github-repositories", integration?.installationId, search],
-      });
-    },
-  });
+  const { mutate: connectRepository, isPending: isConnectingRepository } =
+    useMutation({
+      mutationFn: (repositoryId: string) =>
+        GITHUB_APP_QUERIES.connectRepository(
+          activeOrganization!.id,
+          repositoryId
+        ),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [
+            "github-repositories",
+            integration?.installationId,
+            search,
+          ],
+        });
+      },
+    });
 
   const repositories = repositoriesData?.data || [];
   // const deleteMutation = useMutation({
@@ -98,7 +103,7 @@ export const GithubAppLogin = () => {
 
   if (integration && !activeOrganization?.repoUrl) {
     return (
-      <div className="border p-4 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex gap-2 flex-col">
           <h2 className="text-lg font-bold">GitHub Integration</h2>
           <p className="text-sm text-muted-foreground">
@@ -114,26 +119,34 @@ export const GithubAppLogin = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          {repositories.length > 0 ? (
-            repositories.map((repository: any) => (
-              <div
-                key={repository.id}
-                className="p-2 border hover:bg-sidebar cursor-pointer flex items-center justify-between"
-              >
-                <div>
-                  <h2 className="font-medium">{repository.name}</h2>
-                  <p className="text-xs text-muted-foreground">
-                    {repository.full_name}
-                  </p>
+          <div className="divide-y border">
+            {repositories.length > 0 ? (
+              repositories.map((repository: any) => (
+                <div
+                  key={repository.id}
+                  className="p-2 hover:bg-sidebar cursor-pointer flex items-center justify-between"
+                >
+                  <div>
+                    <h2 className="font-medium">{repository.name}</h2>
+                    <p className="text-xs text-muted-foreground">
+                      {repository.full_name}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => connectRepository(repository.name)}
+                    disabled={isConnectingRepository}
+                  >
+                    Connect
+                  </Button>
                 </div>
-                <Button size="sm">Connect</Button>
+              ))
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                {search ? "No repositories found" : "No repositories available"}
               </div>
-            ))
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              {search ? "No repositories found" : "No repositories available"}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     );

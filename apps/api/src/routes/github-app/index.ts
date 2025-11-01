@@ -84,4 +84,47 @@ githubAppRoutes.get("/", async (c) => {
   return c.json({ success: true, data: integration });
 });
 
+githubAppRoutes.post("/connect/:organizationId/:repositoryId", async (c) => {
+  const { organizationId, repositoryId } = c.req.param();
+  const user = c.get("user");
+  if (!user || !user.id) {
+    return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  const integration = await db
+    .select()
+    .from(githubAppIntegration)
+    .where(eq(githubAppIntegration.userId, user.id));
+
+  if (!integration) {
+    return c.json({ error: "Integration not found", success: false }, 404);
+  }
+
+  const isUserOwnerResult = await isUserOwner(c, organizationId);
+  if (!isUserOwnerResult) {
+    return c.json(
+      { error: "User not owner of organization", success: false },
+      403
+    );
+  }
+
+  const [updatedOrganization] = await db
+    .update(organization)
+    .set({ repoUrl: repositoryId })
+    .where(eq(organization.id, organizationId))
+    .returning({ id: organization.id });
+
+  if (!updatedOrganization) {
+    return c.json(
+      { error: "Failed to update organization", success: false },
+      500
+    );
+  }
+
+  return c.json({
+    success: true,
+    message: "Repository connected successfully",
+    data: updatedOrganization,
+  });
+});
 export { githubAppRoutes };
