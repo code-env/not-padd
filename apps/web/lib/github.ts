@@ -3,8 +3,6 @@ import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
 import { db } from "@notpadd/db";
 import { githubAppIntegration, user } from "@notpadd/db/schema";
-import { auth } from "@notpadd/auth/auth";
-import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 
 function formatPrivateKey(key: string): string {
@@ -62,13 +60,12 @@ export function createOctokit(installationId?: number) {
   });
 }
 
-export const handleInstallation = async (installationId: number) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    throw new Error("User session not found");
+export const handleInstallation = async (
+  installationId: number,
+  userId: string
+) => {
+  if (!userId) {
+    throw new Error("User ID is required");
   }
 
   const octokit = createOctokit(installationId);
@@ -96,9 +93,111 @@ export const handleInstallation = async (installationId: number) => {
     .values({
       id: crypto.randomUUID(),
       installationId: String(installationId),
-      userId: session.user.id,
+      userId: userId,
     })
     .returning();
 
   return newIntegration;
 };
+
+export async function getInstallationRepositories(
+  installationId: number,
+  options?: { perPage?: number; search?: string }
+): Promise<{ repositories: any[]; total: number }> {
+  const octokit = createOctokit(installationId);
+  const perPage = options?.perPage || 10;
+  const search = options?.search?.trim();
+
+  if (search) {
+    try {
+      const installation = await octokit.apps.getInstallation({
+        installation_id: installationId,
+      });
+
+      const account = installation.data.account;
+      if (!account) {
+        throw new Error("Unable to determine installation account");
+      }
+
+      let accountLogin: string;
+      let accountQualifier: string;
+
+      if ("login" in account && account.login) {
+        accountLogin = account.login;
+        accountQualifier = `user:${accountLogin}`;
+      } else if ("slug" in account && account.slug) {
+        accountLogin = account.slug;
+        accountQualifier = `org:${accountLogin}`;
+      } else {
+        throw new Error("Unable to determine account login or slug");
+      }
+
+      const query = `${search} ${accountQualifier}`;
+
+      const { data } = await octokit.search.repos({
+        q: query,
+        per_page: perPage,
+        sort: "updated",
+        order: "desc",
+      });
+
+      const accessibleRepos =
+        await octokit.apps.listReposAccessibleToInstallation({
+          installation_id: installationId,
+          per_page: 100,
+        });
+
+      const accessibleRepoFullNames = new Set(
+        accessibleRepos.data.repositories.map((repo) => repo.full_name)
+      );
+
+      const filteredRepos = data.items.filter((repo) =>
+        accessibleRepoFullNames.has(repo.full_name)
+      );
+
+      filteredRepos.sort((a, b) => {
+        const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+        const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      return {
+        repositories: filteredRepos.slice(0, perPage),
+        total: filteredRepos.length,
+      };
+    } catch (error: any) {
+      console.warn(
+        "GitHub search failed, falling back to list:",
+        error.message
+      );
+    }
+  }
+
+  const response = await octokit.apps.listReposAccessibleToInstallation({
+    installation_id: installationId,
+    per_page: perPage,
+  });
+
+  let repositories = response.data.repositories;
+
+  if (search) {
+    const searchLower = search.toLowerCase();
+    repositories = repositories.filter(
+      (repo) =>
+        repo.name.toLowerCase().includes(searchLower) ||
+        repo.full_name.toLowerCase().includes(searchLower) ||
+        repo.description?.toLowerCase().includes(searchLower)
+    );
+  }
+
+  repositories.sort((a, b) => {
+    const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+    const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  return {
+    repositories,
+    total: response.data.total_count || repositories.length,
+  };
+}

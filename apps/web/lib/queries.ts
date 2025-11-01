@@ -1,23 +1,20 @@
+import { authClient } from "@notpadd/auth/auth-client";
 import type { Articles, Tag } from "@notpadd/db/types";
 import { apiClient } from "./api-client";
 import type {
   APIResponse,
   ArticlesResponse,
-  CreateArticleSchema,
-  MediaResponse,
   ArticleWithRelations,
-  TagsResponse,
-  AuthorsResponse,
   AuthorsListItem,
-  UpdateArticleSchema,
-  KeysResponse,
+  AuthorsResponse,
+  CreateArticleSchema,
   CreateKeySchema,
-  GithubAppIntegrationsResponse,
   GithubAppIntegration,
-  CreateGithubAppIntegrationSchema,
-  UpdateGithubAppIntegrationSchema,
+  KeysResponse,
+  MediaResponse,
+  TagsResponse,
+  UpdateArticleSchema,
 } from "./types";
-import { authClient } from "@notpadd/auth/auth-client";
 
 export const ARTICLES_QUERIES = {
   updateArticle: async (
@@ -343,10 +340,20 @@ export const ORGANIZATION_QUERIES = {
 };
 
 export const GITHUB_APP_QUERIES = {
-  getIntegrations: async (organizationId: string) => {
-    const response = await apiClient.get<
-      APIResponse<GithubAppIntegrationsResponse>
-    >(`/github-app/${organizationId}`);
+  getUserIntegration: async (organizationId: string) => {
+    const response =
+      await apiClient.get<APIResponse<GithubAppIntegration>>(`/gh-app`);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  connectRepository: async (organizationId: string, repositoryId: string) => {
+    const response = await apiClient.post<
+      APIResponse<{ data: GithubAppIntegration }>
+    >(`/gh-app/connect/${organizationId}/${repositoryId}`);
 
     if (!response.data.success) {
       throw new Error(response.data.error);

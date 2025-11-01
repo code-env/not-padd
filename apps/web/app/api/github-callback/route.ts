@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleInstallation } from "@/lib/github";
+import { auth } from "@notpadd/auth/auth";
+import { headers } from "next/headers";
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
@@ -11,8 +13,22 @@ export const GET = async (request: NextRequest) => {
       new URL("/error?message=Missing installation data", request.url)
     );
   }
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    return NextResponse.redirect(
+      new URL(`/${state}/settings/general?error=Unauthorized`, request.url)
+    );
+  }
+
   try {
-    const newIntegration = await handleInstallation(Number(installationId));
+    const newIntegration = await handleInstallation(
+      Number(installationId),
+      session.user.id
+    );
 
     if (!newIntegration) {
       return NextResponse.redirect(

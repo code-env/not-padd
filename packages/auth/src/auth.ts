@@ -42,7 +42,41 @@ export const auth = betterAuth({
     disableCleanup: true,
   },
   plugins: [
-    organization({ ac, roles: { owner, admin, member, myCustomRole } }),
+    organization({
+      ac,
+      roles: { owner, admin, member, myCustomRole },
+      schema: {
+        organization: {
+          additionalFields: {
+            lastUsed: {
+              type: "boolean",
+              input: true,
+              required: false,
+            },
+            repoUrl: {
+              type: "string",
+              input: true,
+              required: false,
+            },
+            repoPath: {
+              type: "string",
+              input: true,
+              required: false,
+            },
+            storageLimit: {
+              type: "number",
+              input: true,
+              required: false,
+            },
+            storageUsed: {
+              type: "number",
+              input: true,
+              required: false,
+            },
+          },
+        },
+      },
+    }),
   ],
   databaseHooks: {
     session: {

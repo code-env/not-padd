@@ -70,11 +70,18 @@ const isUserOwner = async (
   return roles.includes("owner");
 };
 
-githubAppRoutes.get("/:organizationId", async (c) => {
+githubAppRoutes.get("/", async (c) => {
   const user = c.get("user");
   if (!user || !user.id) {
     return c.json({ error: "Unauthorized", success: false }, 401);
   }
+
+  const [integration] = await db
+    .select()
+    .from(githubAppIntegration)
+    .where(eq(githubAppIntegration.userId, user.id));
+
+  return c.json({ success: true, data: integration });
 });
 
 export { githubAppRoutes };
