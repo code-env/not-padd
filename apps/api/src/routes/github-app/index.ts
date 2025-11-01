@@ -84,11 +84,23 @@ githubAppRoutes.get("/", async (c) => {
   return c.json({ success: true, data: integration });
 });
 
-githubAppRoutes.post("/connect/:organizationId/:repositoryId", async (c) => {
-  const { organizationId, repositoryId } = c.req.param();
+githubAppRoutes.post("/connect/:organizationId", async (c) => {
+  const { organizationId } = c.req.param();
+  const { repositoryId } = await c.req.json();
   const user = c.get("user");
   if (!user || !user.id) {
     return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  if (!organizationId) {
+    return c.json(
+      { error: "Organization ID is required", success: false },
+      400
+    );
+  }
+
+  if (!repositoryId) {
+    return c.json({ error: "Repository ID is required", success: false }, 400);
   }
 
   const integration = await db

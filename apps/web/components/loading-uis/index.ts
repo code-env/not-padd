@@ -3,3 +3,4 @@ export * from "./articles";
 export * from "./right-sidebar";
 export * from "./keys";
 export * from "./members";
+export * from "./repos";

@@ -5,7 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "@notpadd/env/server";
 import { organization } from "better-auth/plugins";
 import { getActiveOrganization } from "./utils/org";
-import { ac, member, admin, owner, myCustomRole } from "./permission";
+import { ac, member, admin, owner } from "./permission";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -44,7 +44,7 @@ export const auth = betterAuth({
   plugins: [
     organization({
       ac,
-      roles: { owner, admin, member, myCustomRole },
+      roles: { owner, admin, member },
       schema: {
         organization: {
           additionalFields: {

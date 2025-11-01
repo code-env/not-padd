@@ -134,41 +134,49 @@ export async function getInstallationRepositories(
 
       const query = `${search} ${accountQualifier}`;
 
+      // Use GitHub search API to find repositories
       const { data } = await octokit.search.repos({
         q: query,
-        per_page: perPage,
+        per_page: 100, // Get more results to filter from
         sort: "updated",
         order: "desc",
       });
 
-      const accessibleRepos =
-        await octokit.apps.listReposAccessibleToInstallation({
+      // Get all accessible repositories to validate against
+      const accessibleRepos = await octokit.paginate(
+        octokit.apps.listReposAccessibleToInstallation,
+        {
           installation_id: installationId,
-          per_page: 100,
-        });
-
-      const accessibleRepoFullNames = new Set(
-        accessibleRepos.data.repositories.map((repo) => repo.full_name)
+        }
       );
 
+      const accessibleRepoFullNames = new Set(
+        accessibleRepos.map((repo) => repo.full_name)
+      );
+
+      // Filter search results to only include accessible repos
       const filteredRepos = data.items.filter((repo) =>
         accessibleRepoFullNames.has(repo.full_name)
       );
 
+      // Sort by updated date
       filteredRepos.sort((a, b) => {
         const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
         const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
         return dateB - dateA;
       });
 
+      // Return limited results
       return {
         repositories: filteredRepos.slice(0, perPage),
         total: filteredRepos.length,
       };
     } catch (error: any) {
-      console.warn(
-        "GitHub search failed, falling back to list:",
-        error.message
+      // If search API fails, throw error instead of silently falling back
+      // This ensures the user knows search isn't working
+      console.error("GitHub search API error:", error);
+      throw new Error(
+        `Search failed: ${error.message || "Unable to search repositories"}`
       );
     }
   }

@@ -353,7 +353,9 @@ export const GITHUB_APP_QUERIES = {
   connectRepository: async (organizationId: string, repositoryId: string) => {
     const response = await apiClient.post<
       APIResponse<{ data: GithubAppIntegration }>
-    >(`/gh-app/connect/${organizationId}/${repositoryId}`);
+    >(`/gh-app/connect/${organizationId}`, {
+      repositoryId,
+    });
 
     if (!response.data.success) {
       throw new Error(response.data.error);

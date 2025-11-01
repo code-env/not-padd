@@ -9,9 +9,17 @@ import { env } from "@notpadd/env/client";
 import { useState } from "react";
 import axios from "axios";
 import { Input } from "@notpadd/ui/components/input";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ReposLoadingUI } from "@/components/loading-uis";
+import { authClient } from "@notpadd/auth/auth-client";
+import { toast } from "sonner";
+import { replaceOrganizationWithWorkspace } from "@/lib/utils";
 
 export const GithubAppLogin = () => {
-  const { activeOrganization, isOwner } = useOrganization();
+  const { activeOrganization, isOwner, setActiveOrganization } =
+    useOrganization();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isConnecting, setIsConnecting] = useState(false);
   const [search, setSearch] = useState("");
@@ -26,64 +34,60 @@ export const GithubAppLogin = () => {
     enabled: !!activeOrganization?.id && isOwner,
   });
 
-  const { data: repositoriesData } = useQuery({
-    queryKey: ["github-repositories", integration?.installationId, search],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        installation_id: String(integration?.installationId),
-        per_page: "10",
-      });
-      if (search) {
-        params.append("search", search);
-      }
+  const { data: repositoriesData, isLoading: isLoadingRepositories } = useQuery(
+    {
+      queryKey: ["github-repositories", integration?.installationId, search],
+      queryFn: async () => {
+        const params = new URLSearchParams({
+          installation_id: String(integration?.installationId),
+          per_page: "10",
+        });
+        if (search) {
+          params.append("search", search);
+        }
 
-      const { data } = await axios.get(
-        `/api/github/repositories?${params.toString()}`
-      );
+        const { data } = await axios.get(
+          `/api/github/repositories?${params.toString()}`
+        );
 
-      if (!data.success) {
-        throw new Error(data.error);
-      }
+        if (!data.success) {
+          throw new Error(data.error);
+        }
 
-      return data;
-    },
-    enabled: !!integration?.installationId && isOwner,
-  });
+        return data;
+      },
+      enabled: !!integration?.installationId && isOwner,
+    }
+  );
 
   const { mutate: connectRepository, isPending: isConnectingRepository } =
     useMutation({
-      mutationFn: (repositoryId: string) =>
-        GITHUB_APP_QUERIES.connectRepository(
-          activeOrganization!.id,
-          repositoryId
-        ),
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: [
-            "github-repositories",
-            integration?.installationId,
-            search,
-          ],
+      mutationFn: async (repositoryId: string) => {
+        if (!activeOrganization?.id) {
+          throw new Error("Active organization not found");
+        }
+        const { data, error } = await authClient.organization.update({
+          data: {
+            repoUrl: repositoryId,
+          },
+          organizationId: activeOrganization.id,
         });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+        return data;
+      },
+      onSuccess: (data) => {
+        setActiveOrganization(data.id, data.slug);
+        router.refresh();
+      },
+      onError: (error) => {
+        toast.error(replaceOrganizationWithWorkspace(error.message));
       },
     });
 
   const repositories = repositoriesData?.data || [];
-  // const deleteMutation = useMutation({
-  //   mutationFn: (integrationId: string) =>
-  //     GITHUB_APP_QUERIES.deleteIntegration(
-  //       activeOrganization!.id,
-  //       integrationId
-  //     ),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["github-integrations", activeOrganization?.id],
-  //     });
-  //   },
-  // });
-
-  // const hasIntegration = integrations?.data && integrations.data.length > 0;
-  // const integration = hasIntegration ? integrations.data[0] : null;
 
   const handleConnect = () => {
     if (!activeOrganization?.id) return;
@@ -120,7 +124,9 @@ export const GithubAppLogin = () => {
             />
           </div>
           <div className="divide-y border">
-            {repositories.length > 0 ? (
+            {isLoadingRepositories ? (
+              <ReposLoadingUI count={10} />
+            ) : repositories.length > 0 ? (
               repositories.map((repository: any) => (
                 <div
                   key={repository.id}
@@ -134,7 +140,7 @@ export const GithubAppLogin = () => {
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => connectRepository(repository.name)}
+                    onClick={() => connectRepository(repository.full_name)}
                     disabled={isConnectingRepository}
                   >
                     Connect
@@ -152,31 +158,7 @@ export const GithubAppLogin = () => {
     );
   }
 
-  // const handleDisconnect = () => {
-  //   if (!integration) return;
-
-  //   if (confirm("Are you sure you want to disconnect GitHub?")) {
-  //     deleteMutation.mutate(integration.id);
-  //   }
-  // };
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="border p-4 flex items-center justify-between gap-4 rounded-lg">
-  //       <div className="flex items-center gap-4">
-  //         <div className="size-10 border bg-sidebar flex items-center justify-center rounded-md">
-  //           <Icons.github className="size-5" />
-  //         </div>
-  //         <div>
-  //           <h2 className="text-lg font-bold">GitHub Integration</h2>
-  //           <p className="text-sm text-muted-foreground">Loading...</p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  if (!isOwner) {
+  if (!isOwner && activeOrganization?.repoUrl) {
     return (
       <div className="border p-4 flex items-center justify-between gap-4 rounded-lg">
         <div className="flex items-center gap-4">
@@ -194,22 +176,52 @@ export const GithubAppLogin = () => {
     );
   }
 
-  return (
-    <div className="border p-4 flex items-center justify-between gap-4 rounded-lg">
-      <div className="flex items-center gap-4">
-        <div className="size-10 border bg-sidebar flex items-center justify-center rounded-md">
-          <Icons.github className="size-5" />
+  if (isOwner && !integration)
+    return (
+      <div className="border p-4 flex items-center justify-between gap-4 rounded-lg">
+        <div className="flex items-center gap-4">
+          <div className="size-10 border bg-sidebar flex items-center justify-center rounded-md">
+            <Icons.github className="size-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">GitHub Integration</h2>
+            <p className="text-sm text-muted-foreground">
+              Connect your GitHub account to your workspace
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-lg font-bold">GitHub Integration</h2>
-          <p className="text-sm text-muted-foreground">
-            Connect your GitHub account to your workspace
-          </p>
-        </div>
+        <Button onClick={handleConnect} disabled={isConnecting}>
+          {isConnecting ? "Connecting..." : "Connect"}
+        </Button>
       </div>
-      <Button onClick={handleConnect} disabled={isConnecting}>
-        {isConnecting ? "Connecting..." : "Connect"}
-      </Button>
+    );
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex gap-2 flex-col">
+        <h2 className="text-lg font-bold">GitHub Integration</h2>
+        <p className="text-sm text-muted-foreground">
+          You are connected to a GitHub repository
+        </p>
+      </div>
+      <div className="border p-4 flex items-center gap-2 justify-between">
+        <div className="flex items-center gap-2">
+          <div className="size-10 flex item-center justify-center">
+            <Icons.github className="size-8" />
+          </div>
+          <div>
+            <Link href={`https://github.com/${activeOrganization?.repoUrl}`}>
+              {activeOrganization?.repoUrl}
+            </Link>
+            <p className="text-sm text-muted-foreground">
+              {activeOrganization?.repoPath}
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" onClick={() => connectRepository("")}>
+          Disconnect
+        </Button>
+      </div>
     </div>
   );
 };
