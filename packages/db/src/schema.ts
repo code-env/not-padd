@@ -26,7 +26,7 @@ export const organization = pgTable("organization", {
   metadata: jsonb("metadata"),
   lastUsed: boolean("last_used").default(false),
   repoUrl: text("repo_url").notNull().default(""),
-  repoPath: text("repo_path").notNull().default("/notpadd-changelogs"),
+  repoPath: text("repo_path").notNull().default(""),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),

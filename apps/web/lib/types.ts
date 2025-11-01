@@ -17,7 +17,8 @@ export type ModalTypes =
   | "create-article"
   | "create-tag"
   | "create-key"
-  | "invite-member";
+  | "invite-member"
+  | "github-config";
 
 export type ConfirmationModalTypes = "delete-article";
 

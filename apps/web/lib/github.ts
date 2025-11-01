@@ -1,8 +1,8 @@
+import { db } from "@notpadd/db";
+import { githubAppIntegration } from "@notpadd/db/schema";
 import { env } from "@notpadd/env/server";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
-import { db } from "@notpadd/db";
-import { githubAppIntegration, user } from "@notpadd/db/schema";
 import { eq } from "drizzle-orm";
 
 function formatPrivateKey(key: string): string {
@@ -132,17 +132,19 @@ export async function getInstallationRepositories(
         throw new Error("Unable to determine account login or slug");
       }
 
-      const query = `${search} ${accountQualifier}`;
+      const query = `${search} in:name ${accountQualifier} fork:true`;
 
-      // Use GitHub search API to find repositories
+      console.log({ query });
+
       const { data } = await octokit.search.repos({
         q: query,
-        per_page: 100, // Get more results to filter from
+        per_page: perPage,
         sort: "updated",
         order: "desc",
       });
 
-      // Get all accessible repositories to validate against
+      console.log({ data });
+
       const accessibleRepos = await octokit.paginate(
         octokit.apps.listReposAccessibleToInstallation,
         {
@@ -154,26 +156,21 @@ export async function getInstallationRepositories(
         accessibleRepos.map((repo) => repo.full_name)
       );
 
-      // Filter search results to only include accessible repos
       const filteredRepos = data.items.filter((repo) =>
         accessibleRepoFullNames.has(repo.full_name)
       );
 
-      // Sort by updated date
       filteredRepos.sort((a, b) => {
         const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
         const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
         return dateB - dateA;
       });
 
-      // Return limited results
       return {
         repositories: filteredRepos.slice(0, perPage),
         total: filteredRepos.length,
       };
     } catch (error: any) {
-      // If search API fails, throw error instead of silently falling back
-      // This ensures the user knows search isn't working
       console.error("GitHub search API error:", error);
       throw new Error(
         `Search failed: ${error.message || "Unable to search repositories"}`
