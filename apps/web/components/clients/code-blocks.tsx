@@ -15,6 +15,7 @@ interface CodeBlocksProps {
   copyKey?: string;
   copyMessage?: string;
   secretKey?: boolean;
+  disableCopy?: boolean;
 }
 
 const copyVariants = {
@@ -35,6 +36,7 @@ export const CodeBlocks = ({
   copyKey,
   copyMessage,
   secretKey,
+  disableCopy = false,
 }: CodeBlocksProps) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showSecretKey, setShowSecretKey] = useState(false);
@@ -87,7 +89,12 @@ export const CodeBlocks = ({
             )}
           </Button>
         )}
-        <Button variant="outline" size="icon" onClick={handleCopy}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleCopy}
+          disabled={disableCopy}
+        >
           <AnimatePresence initial={false} mode="wait">
             {isCopied ? (
               <motion.span

@@ -68,8 +68,11 @@ export default function ArticleAction({ article }: ArticleActionProps) {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Article published successfully");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ARTICLES, activeOrganization?.id],
+      });
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to publish article");

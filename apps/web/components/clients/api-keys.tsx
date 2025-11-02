@@ -41,7 +41,7 @@ export const ApiKeys = () => {
   }, [selectedKey, isLoading, data]);
 
   if (isLoading) {
-    return <Keys count={10} />;
+    return <Keys count={3} />;
   }
 
   if (isError) {
@@ -49,19 +49,6 @@ export const ApiKeys = () => {
   }
 
   if (data?.data.length === 0 || !selectedKey) return <NoKeys />;
-
-  const codeSnippet = `import { createNotpaddConfig } from "notpadd";
-
-export const notpadd = async () =>
-  await createNotpaddConfig({
-    publicKey: process.env.NOTPADD_PUBLIC_KEY,
-    secreteKey: process.env.NOTPADD_SECRET_KEY,
-    organizationId: process.env.NOTPADD_ORGANIZATION_ID,
-    outputDir: "content", // your output directory
-    publishOnly: true,
-    type: "mdx", || "json" || "html" // your output type if none provided, it will default to mdx
-  });
-`;
 
   const items = [
     {
@@ -104,27 +91,6 @@ export const notpadd = async () =>
           </Card>
         ))}
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Config code</CardTitle>
-          <CardDescription>
-            Use this code in your{" "}
-            <code className="font-geist-mono border text-sm py-0.5 px-1">
-              notpadd.config.ts
-            </code>{" "}
-            file
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0 border-none">
-          <CodeBlocks
-            code={codeSnippet}
-            copyKey={codeSnippet}
-            copyMessage={"Config code copied to clipboard"}
-            language="typescript"
-            showLineNumbers={false}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 };
