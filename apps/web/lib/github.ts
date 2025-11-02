@@ -5,6 +5,8 @@ import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
 import { eq } from "drizzle-orm";
 
+const NOTPADD_GITHUB_REBUILD_PATH = ".notpadd/rebuild.json";
+
 function formatPrivateKey(key: string): string {
   if (!key) {
     throw new Error("GITHUB_APP_PRIVATE_KEY is not set");
@@ -270,4 +272,71 @@ export async function getRepositoryContents(
 
     throw new Error(`Failed to fetch repository contents: ${errorMessage}`);
   }
+}
+
+export async function publishArticle(
+  installationId: number,
+  owner: string,
+  repo: string,
+  path: string,
+  slug: string,
+  by: string
+): Promise<boolean> {
+  const octokit = createOctokit(installationId);
+  const normalizedPath = path.replace(/^\/+/, "").replace(/\/+$/, "").trim();
+  const newPath = normalizedPath
+    ? `${normalizedPath}/${NOTPADD_GITHUB_REBUILD_PATH}`
+    : NOTPADD_GITHUB_REBUILD_PATH;
+  let sha: string | undefined;
+  let data: { slug: string; updatedAt: string }[] = [];
+
+  try {
+    const res = await octokit.repos.getContent({ owner, repo, path: newPath });
+    const file = res.data as any;
+
+    sha = file.sha;
+    const decoded = Buffer.from(file.content, "base64").toString("utf8");
+    data = JSON.parse(decoded);
+  } catch (error: any) {
+    if (error.status !== 404) throw error;
+    data = [];
+    sha = undefined;
+  }
+
+  const existingEntry = data.find(
+    (entry: { slug: string }) => entry.slug === slug
+  );
+
+  const now = new Date().toISOString();
+
+  if (existingEntry) {
+    existingEntry.updatedAt = now;
+  } else {
+    data.push({ slug, updatedAt: now });
+  }
+
+  const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
+
+  try {
+    await octokit.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: newPath,
+      message: `Update rebuild list for ${slug} on ${now} by ${by} [Notpadd]`,
+      content,
+      sha,
+    });
+  } catch (error: any) {
+    console.error("Failed to create or update file contents:", {
+      error,
+      owner,
+      repo,
+      path: newPath,
+    });
+    throw new Error(
+      `Failed to create or update file contents: ${error.message}`
+    );
+  }
+
+  return true;
 }

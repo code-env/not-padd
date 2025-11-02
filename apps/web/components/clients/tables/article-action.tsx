@@ -1,5 +1,5 @@
-import { useOrganizationContext } from "@/contexts";
 import { useConfirmationModal } from "@/hooks/use-confirmation";
+import { useOrganization } from "@/hooks/use-organization";
 import { QUERY_KEYS } from "@/lib/constants";
 import { ARTICLES_QUERIES } from "@/lib/queries";
 import type { ArticlesResponse } from "@/lib/types";
@@ -13,7 +13,8 @@ import {
 } from "@notpadd/ui/components/dropdown-menu";
 import { cn } from "@notpadd/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MoreVertical, Pencil, Trash } from "lucide-react";
+import axios from "axios";
+import { MoreVertical, Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ type ArticleActionProps = {
 
 export default function ArticleAction({ article }: ArticleActionProps) {
   const { onOpen, onClose } = useConfirmationModal();
+
   const queryClient = useQueryClient();
   const { mutate: deleteArticle } = useMutation({
     mutationFn: (articleId: string) =>
@@ -47,7 +49,32 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     },
   });
 
-  const { activeOrganization } = useOrganizationContext();
+  const { activeOrganization, isOwner } = useOrganization();
+
+  const { mutate: publishArticle, isPending: isPublishing } = useMutation({
+    mutationFn: async () => {
+      if (!activeOrganization?.id) {
+        throw new Error("Workspace not found");
+      }
+
+      const { data } = await axios.post("/api/publish/article", {
+        slug: article.slug,
+        organizationId: activeOrganization.id,
+      });
+
+      if (!data.success) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Article published successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to publish article");
+    },
+  });
 
   if (!activeOrganization) {
     return null;
@@ -55,6 +82,21 @@ export default function ArticleAction({ article }: ArticleActionProps) {
 
   const handleDelete = () => {
     deleteArticle(article.id);
+  };
+
+  const handlePublish = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!activeOrganization) {
+      return toast.error("Workspace not found");
+    }
+    const { repoUrl, repoPath } = activeOrganization;
+    if (!repoUrl || repoUrl.trim() === "") {
+      return toast.error("Repository not connected");
+    }
+    if (!repoPath || repoPath.trim() === "") {
+      return toast.error("Repository path not set");
+    }
+    publishArticle();
   };
 
   return (
@@ -77,6 +119,13 @@ export default function ArticleAction({ article }: ArticleActionProps) {
             >
               <Pencil size={16} /> <span>Edit</span>
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handlePublish}
+            disabled={!isOwner || isPublishing}
+          >
+            <Plus size={16} />{" "}
+            <span>{isPublishing ? "Publishing..." : "Publish"}</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer text-red-500 bg-red-500/10 hover:bg-red-500/20! hover:text-red-500!"
