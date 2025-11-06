@@ -1,126 +1,160 @@
-# Turborepo + Hono starter
+# Notpadd
 
-## What's inside?
+Buildtime CMS for your Next.js application.
 
-This Turborepo includes the following packages/apps:
+## Prerequisites
 
-### Apps and Packages
+Before setting up the project locally, make sure you have the following installed:
 
-- `api`: a [Hono](https://hono.dev/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@notpadd/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@notpadd/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@notpadd/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- Node.js version 18 or higher
+- pnpm version 9.0.0 or higher
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Local Setup
 
-### Utilities
+Follow these steps to set up the project on your local machine:
 
-This Turborepo has some additional tools already setup for you:
+1. Clone the repository:
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+git clone https://github.com/code-env/not-padd.git
+cd not-padd
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+2. Install dependencies:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+pnpm install
 ```
 
-### Develop
+3. Set up environment variables:
 
-To develop all apps and packages, run the following commands:
+Create environment files in the root directory and in the apps directories as needed. Refer to the documentation or ask your team for the required environment variables.
 
-```
-cd my-turborepo
-vc link --repo # Connect your repository to Vercel
+4. Set up the database:
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+Run database migrations to set up the schema:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+pnpm db:migrate
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Alternatively, you can push the schema directly:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+pnpm db:push
 ```
 
-### Remote Caching
+5. Start the development servers:
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+To start all apps and packages:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+pnpm dev
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+To start a specific app, use filters:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+pnpm dev --filter=web
+pnpm dev --filter=api
 ```
 
-## Useful Links
+The web application will be available at http://localhost:3001 and the API will run on its configured port.
 
-Learn more about the power of Turborepo:
+## Project Structure
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+This is a Turborepo monorepo containing the following:
+
+**Apps:**
+
+- `apps/api` - Hono API server
+- `apps/web` - Next.js web application
+
+**Packages:**
+
+- `packages/auth` - Authentication package
+- `packages/core` - Core functionality package
+- `packages/db` - Database package with migrations
+- `packages/env` - Environment variable configuration
+- `packages/integrations` - Integration packages
+- `packages/notpadd` - Main notpadd package
+- `packages/ui` - Shared React component library
+- `packages/eslint-config` - ESLint configurations
+- `packages/typescript-config` - TypeScript configurations
+
+**Examples:**
+
+- `examples/with-notpadd` - Example Next.js application using notpadd
+- `examples/with-notpadd-published` - Example with published content
+
+**Other:**
+
+- `docs` - Project documentation
+- `docker-compose.yml` - Docker configuration
+
+## Development
+
+All packages and apps are written in TypeScript. The project uses:
+
+- TypeScript for static type checking
+- ESLint for code linting
+- Prettier for code formatting
+
+Run linting:
+
+```bash
+pnpm lint
+```
+
+Run type checking:
+
+```bash
+pnpm check-types
+```
+
+Format code:
+
+```bash
+pnpm format
+```
+
+## Build
+
+To build all apps and packages:
+
+```bash
+pnpm build
+```
+
+To build a specific package:
+
+```bash
+pnpm build --filter=web
+pnpm build --filter=api
+```
+
+## Database Commands
+
+Generate database migrations:
+
+```bash
+pnpm db:generate
+```
+
+Run migrations:
+
+```bash
+pnpm db:migrate
+```
+
+Push schema changes:
+
+```bash
+pnpm db:push
+```
+
+Open database studio:
+
+```bash
+pnpm db:studio
+```
