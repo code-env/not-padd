@@ -1,27 +1,5 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1761933119288,
-      "tag": "0000_previous_mach_iv",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1761935905798,
-      "tag": "0001_whole_boomerang",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1761943365697,
-      "tag": "0002_kind_roxanne_simpson",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }

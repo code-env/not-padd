@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { NotpaddConfig } from "./config";
 
-const BACKEND_SERVER = "https://api.notpadd.com/api/v1/";
+const BACKEND_SERVER = "http://localhost:3000/api/v1";
 
 export interface NotpaddData {
   slug: string;
@@ -24,7 +24,7 @@ export interface NotpaddApiResponse {
 export class NotpaddError extends Error {
   constructor(
     message: string,
-    public statusCode?: number,
+    public statusCode?: number
   ) {
     super(message);
     this.name = "NotpaddError";
@@ -32,7 +32,7 @@ export class NotpaddError extends Error {
 }
 
 export async function fetchNotpaddData(
-  config: NotpaddConfig,
+  config: NotpaddConfig
 ): Promise<NotpaddData[]> {
   const { sk, pk, orgID } = config;
 
@@ -46,13 +46,13 @@ export async function fetchNotpaddData(
           "Notpadd-Public-Key": pk,
           "Notpadd-Secret-Key": sk,
         },
-      },
+      }
     );
 
     if (!response.ok) {
       throw new NotpaddError(
         `Failed to fetch data from Notpadd API: ${response.statusText}`,
-        response.status,
+        response.status
       );
     }
 
@@ -61,7 +61,7 @@ export async function fetchNotpaddData(
 
     if (!Array.isArray(data.articles)) {
       throw new NotpaddError(
-        "Invalid response from Notpadd API: articles is not an array",
+        "Invalid response from Notpadd API: articles is not an array"
       );
     }
 
@@ -76,7 +76,7 @@ export async function fetchNotpaddData(
       throw error;
     }
     throw new NotpaddError(
-      `Network error while fetching Notpadd data: ${error instanceof Error ? error.message : String(error)}`,
+      `Network error while fetching Notpadd data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -84,11 +84,45 @@ export async function fetchNotpaddData(
 export async function generateMdxFiles(
   data: NotpaddData[],
   outputDirectory: string,
-  baseDirectory: string,
+  baseDirectory: string
 ): Promise<void> {
   const notpaddDir = path.join(baseDirectory, outputDirectory);
 
   await fs.mkdir(notpaddDir, { recursive: true });
+
+  const newSlugs = new Set(
+    data.map(
+      (item) =>
+        item.slug ||
+        item.title?.toLowerCase().replace(/\s+/g, "-") ||
+        "untitled"
+    )
+  );
+
+  try {
+    const existingFiles = await fs.readdir(notpaddDir);
+    const filesToRemove: string[] = [];
+
+    for (const file of existingFiles) {
+      if (file.endsWith(".mdx")) {
+        const slug = file.replace(/\.mdx$/, "");
+        if (!newSlugs.has(slug)) {
+          filesToRemove.push(path.join(notpaddDir, file));
+        }
+      }
+    }
+
+    if (filesToRemove.length > 0) {
+      await Promise.all(filesToRemove.map((filePath) => fs.unlink(filePath)));
+      console.log(
+        `Removed ${filesToRemove.length} outdated file(s) from ${outputDirectory}/`
+      );
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      console.warn(`Could not read directory ${notpaddDir}:`, error);
+    }
+  }
 
   const mdxPromises = data.map(async (item) => {
     const fileName = `${item.slug || item.title?.toLowerCase().replace(/\s+/g, "-") || "untitled"}.mdx`;
@@ -117,19 +151,19 @@ ${item.markdown || ""}
 export function validateNotpaddConfig(config: NotpaddConfig): void {
   if (!config.sk || typeof config.sk !== "string") {
     throw new NotpaddError(
-      "Notpadd configuration requires a valid 'sk' (secret key)",
+      "Notpadd configuration requires a valid 'sk' (secret key)"
     );
   }
 
   if (!config.pk || typeof config.pk !== "string") {
     throw new NotpaddError(
-      "Notpadd configuration requires a valid 'pk' (public key)",
+      "Notpadd configuration requires a valid 'pk' (public key)"
     );
   }
 
   if (!config.orgID || typeof config.orgID !== "string") {
     throw new NotpaddError(
-      "Notpadd configuration requires a valid 'orgID' (organization ID)",
+      "Notpadd configuration requires a valid 'orgID' (organization ID)"
     );
   }
 
@@ -140,7 +174,7 @@ export function validateNotpaddConfig(config: NotpaddConfig): void {
 
 export async function processNotpaddData(
   config: NotpaddConfig,
-  baseDirectory: string,
+  baseDirectory: string
 ): Promise<void> {
   if (!config) {
     return;
@@ -161,7 +195,7 @@ export async function processNotpaddData(
     await generateMdxFiles(data, directory, baseDirectory);
 
     console.log(
-      `Successfully generated ${data.length} MDX files from Notpadd data in ${directory}/`,
+      `Successfully generated ${data.length} MDX files from Notpadd data in ${directory}/`
     );
   } catch (error) {
     console.error("Error processing Notpadd data:", error);

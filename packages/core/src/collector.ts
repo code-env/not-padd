@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import path from "node:path";
 import { glob } from "tinyglobby";
 import { Emitter } from "./events";
-import { getParser, parsers } from "./parser";
+import { getParser } from "./parser";
 import { CollectionFile, FileCollection } from "./types";
 import { isDefined, orderByPath, posixToNativePath } from "./utils";
 
@@ -42,12 +42,12 @@ export function createCollector(emitter: Emitter, baseDirectory: string = ".") {
 
   async function collectFile<T extends FileCollection>(
     collection: T,
-    filePath: string,
+    filePath: string
   ): Promise<CollectionFile | null> {
     const absolutePath = path.join(
       baseDirectory,
       collection.directory,
-      filePath,
+      filePath
     );
 
     const file = await read(absolutePath);
@@ -73,7 +73,7 @@ export function createCollector(emitter: Emitter, baseDirectory: string = ".") {
   }
 
   function createIgnorePattern<T extends FileCollection>(
-    collection: T,
+    collection: T
   ): Array<string> | undefined {
     if (collection.exclude) {
       if (Array.isArray(collection.exclude)) {
@@ -99,7 +99,7 @@ export function createCollector(emitter: Emitter, baseDirectory: string = ".") {
       ignore: createIgnorePattern(collection),
     });
     const promises = filePaths.map((filePath) =>
-      collectFile(collection, posixToNativePath(filePath)),
+      collectFile(collection, posixToNativePath(filePath))
     );
 
     const files = await Promise.all(promises);
@@ -111,10 +111,10 @@ export function createCollector(emitter: Emitter, baseDirectory: string = ".") {
   }
 
   async function collect<T extends FileCollection>(
-    unresolvedCollections: Array<T>,
+    unresolvedCollections: Array<T>
   ) {
     const promises = unresolvedCollections.map((collection) =>
-      resolveCollection(collection),
+      resolveCollection(collection)
     );
     return await Promise.all(promises);
   }

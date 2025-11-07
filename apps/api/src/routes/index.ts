@@ -8,6 +8,7 @@ import { authorsRoutes } from "./authors/index.ts";
 import { keysRoutes } from "./keys/index.ts";
 import { v1Routes } from "./v1/index.ts";
 import { githubAppRoutes } from "./github-app/index.ts";
+import { waitlistRoutes } from "./waitlist/join/route.ts";
 
 const routes = new Hono<{ Variables: ReqVariables }>();
 
@@ -19,5 +20,5 @@ routes.route("/authors", authorsRoutes);
 routes.route("/keys", keysRoutes);
 routes.route("/v1", v1Routes);
 routes.route("/gh-app", githubAppRoutes);
-
+routes.route("/waitlist", waitlistRoutes);
 export { routes };

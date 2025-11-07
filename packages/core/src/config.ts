@@ -43,13 +43,13 @@ type HasContent<TParser extends ConfiguredParser> =
   GetParser<TParser>["hasContent"];
 
 type LegacySchema<TResult extends ZodRawShape = ZodRawShape> = (
-  z: Z,
+  z: Z
 ) => TResult;
 
 type TSchemaProp = StandardSchemaV1 | LegacySchema;
 
 type GetLegacySchemaShape<LegacySchema> = LegacySchema extends (
-  z: Z,
+  z: Z
 ) => infer TObjectShape
   ? TObjectShape
   : never;
@@ -94,7 +94,7 @@ export type SkippedSignal = {
 
 export type Context<TSchema = unknown> = {
   documents<TCollection extends AnyCollection>(
-    collection: TCollection,
+    collection: TCollection
   ): Array<GetSchema<TCollection>>;
   cache: CacheFn;
   collection: {
@@ -207,7 +207,7 @@ export function defineCollection<
     TSchema,
     TTransformResult,
     TDocument
-  >,
+  >
 ): TResult {
   let typeName = collection.typeName;
   if (!typeName) {
@@ -219,7 +219,7 @@ export function defineCollection<
   } else if (!isValidParser(parser)) {
     throw new ConfigurationError(
       "Read",
-      `Parser ${parser} is not valid a parser`,
+      `Parser ${parser} is not valid a parser`
     );
   }
   let schema: any = collection.schema;
@@ -253,7 +253,12 @@ export type Configuration<TCollections extends Array<AnyCollection>> = {
 export type AnyConfiguration = Configuration<Array<AnyCollection>>;
 
 export function defineConfig<TConfig extends AnyConfiguration>(
-  config: TConfig,
+  config: TConfig
 ) {
+  if (config.notpadd && !config.notpadd.directory) {
+    const collectionDirectory = config.collections[0]?.directory || "notpadd";
+    config.notpadd.directory = collectionDirectory;
+  }
+
   return config;
 }

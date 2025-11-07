@@ -25,15 +25,13 @@ const generateFieldsErrors = (
 };
 
 v1Routes.get("/articles", async (c) => {
-  const { type, query, organizationId } = c.req.query();
+  const { query, organizationId } = c.req.query();
 
   const fields = {
-    type: { error: "Content type is required" },
     query: { error: "Article type is required" },
     organizationId: { error: "Organization ID is required" },
   };
   const errors = generateFieldsErrors(fields, {
-    type,
     query,
     organizationId,
   });

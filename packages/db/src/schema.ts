@@ -8,6 +8,7 @@ import {
   unique,
   primaryKey,
   foreignKey,
+  integer,
 } from "drizzle-orm/pg-core";
 
 import {
@@ -177,7 +178,6 @@ export const articles = pgTable(
       .notNull(),
   },
   (table) => [
-    // ✅ unique per organization
     unique().on(table.organizationId, table.slug),
     unique().on(table.id, table.organizationId),
   ]
@@ -303,6 +303,14 @@ export const githubAppIntegration = pgTable("github_app_integration", {
     .notNull(),
 });
 
+export const waitlist = pgTable("waitlist", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 export const schema = {
   user,
   account,
@@ -324,8 +332,9 @@ export const schema = {
   articleAuthor,
   key,
   githubAppIntegration,
+  waitlist,
 };
 
 export default schema;
 
-export { user } from "./auth-schema";
+export { user, rateLimitAttempts } from "./auth-schema";

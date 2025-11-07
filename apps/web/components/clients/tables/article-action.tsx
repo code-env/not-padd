@@ -51,7 +51,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
 
   const { activeOrganization, isOwner } = useOrganization();
 
-  const { mutate: publishArticle, isPending: isPublishing } = useMutation({
+  const { mutateAsync: publishArticle, isPending: isPublishing } = useMutation({
     mutationFn: async () => {
       if (!activeOrganization?.id) {
         throw new Error("Workspace not found");
@@ -87,7 +87,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     deleteArticle(article.id);
   };
 
-  const handlePublish = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handlePublish = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (!activeOrganization) {
       return toast.error("Workspace not found");
@@ -99,7 +99,24 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     if (!repoPath || repoPath.trim() === "") {
       return toast.error("Repository path not set");
     }
-    publishArticle();
+
+    try {
+      await publishArticle();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      const trigger = document.querySelector(
+        '[data-state="open"][data-slot="dropdown-menu-trigger"]'
+      );
+      if (trigger) {
+        trigger.dispatchEvent(
+          new PointerEvent("pointerdown", { bubbles: true, cancelable: true })
+        );
+        trigger.dispatchEvent(
+          new PointerEvent("pointerup", { bubbles: true, cancelable: true })
+        );
+      }
+    }
   };
 
   return (
@@ -124,7 +141,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={handlePublish}
+            onClick={(e) => handlePublish(e)}
             disabled={!isOwner || isPublishing}
           >
             <Plus size={16} />{" "}
