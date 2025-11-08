@@ -1,6 +1,6 @@
 import Providers from "@/components/providers";
 import { auth } from "@notpadd/auth/auth";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import React, { type ReactNode } from "react";
 import { SessionProvider } from "@/contexts";
@@ -11,6 +11,8 @@ const AfterAuthLayout = async ({ children }: { children: ReactNode }) => {
   });
 
   if (!session) redirect("/auth/login");
+
+  if (process.env.NODE_ENV === "production") return notFound();
 
   return (
     <SessionProvider value={session}>
