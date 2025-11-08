@@ -6,7 +6,7 @@ const publicRoutes = ["/", "/auth", "/auth/login", "/login"];
 export default async function authMiddleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
 
-  if (process.env.NODE_ENV === "development" && pathName !== "/waitlist")
+  if (process.env.NODE_ENV === "production" && pathName !== "/waitlist")
     return NextResponse.redirect(new URL("/waitlist", request.url));
 
   const session = getSessionCookie(request.headers, {});

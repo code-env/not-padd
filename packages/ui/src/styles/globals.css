@@ -150,6 +150,21 @@
   }
 }
 
+@utility screenLine {
+  @apply relative;
+  &::before {
+    content: "";
+    display: block;
+    height: 1px;
+    width: 100%;
+    background-color: blue;
+    position: absolute;
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+  }
+}
+
 pre {
   background: #0d0d0d;
   border-radius: 0.5rem;
