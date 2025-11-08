@@ -12,8 +12,6 @@ const AfterAuthLayout = async ({ children }: { children: ReactNode }) => {
 
   if (!session) redirect("/auth/login");
 
-  if (process.env.NODE_ENV === "production") return notFound();
-
   return (
     <SessionProvider value={session}>
       <Providers>{children}</Providers>
