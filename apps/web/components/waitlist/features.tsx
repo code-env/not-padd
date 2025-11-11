@@ -63,10 +63,10 @@ const FeaturesList = () => {
           content-driven project
         </p>
       </div>
-      <div className="relative z-10 grid grid-cols-6 gap-3 bg-sidebar p-4 border-t">
+      <div className="relative z-10 grid grid-cols-6 gap-3 bg-sidebar p-3 border-t">
         <Card className="relative col-span-full flex overflow-hidden lg:col-span-2 bg-background">
           <CardContent className="relative m-auto size-fit pt-6 bg-background border-0">
-            <div className="relative flex h-24 w-56 items-center">
+            <div className="relative flex justify-center h-24 w-56 items-center">
               <svg
                 className="text-muted absolsute inset-0 size-full"
                 viewBox="0 0 254 104"
@@ -78,7 +78,7 @@ const FeaturesList = () => {
                   fill="currentColor"
                 />
               </svg>
-              <span className="mx-auto block w-fit text-5xl font-semibold">
+              <span className="mx-auto block w-fit text-5xl font-semibold absolute">
                 100%
               </span>
             </div>
