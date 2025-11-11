@@ -9,6 +9,8 @@ export default async function authMiddleware(request: NextRequest) {
   if (process.env.NODE_ENV === "production" && pathName !== "/waitlist")
     return NextResponse.redirect(new URL("/waitlist", request.url));
 
+  if (process.env.NODE_ENV === "production") return NextResponse.next();
+
   const session = getSessionCookie(request.headers, {});
 
   if (!session) {
