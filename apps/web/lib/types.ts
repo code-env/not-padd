@@ -8,6 +8,7 @@ import {
   updateCoverImageSchema,
   createGithubAppIntegrationSchema,
   updateGithubAppIntegrationSchema,
+  joinWaitlistEmailSchema,
 } from "./schemas";
 import { z } from "zod";
 
@@ -121,3 +122,5 @@ export type CreateGithubAppIntegrationSchema = z.infer<
 export type UpdateGithubAppIntegrationSchema = z.infer<
   typeof updateGithubAppIntegrationSchema
 >;
+
+export type JoinWaitlistEmailSchema = z.infer<typeof joinWaitlistEmailSchema>;

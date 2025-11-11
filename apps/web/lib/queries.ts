@@ -10,6 +10,7 @@ import type {
   CreateArticleSchema,
   CreateKeySchema,
   GithubAppIntegration,
+  JoinWaitlistEmailSchema,
   KeysResponse,
   MediaResponse,
   TagsResponse,
@@ -356,6 +357,33 @@ export const GITHUB_APP_QUERIES = {
     >(`/gh-app/connect/${organizationId}`, {
       repositoryId,
     });
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+};
+
+export const WAITLIST_QUERIES = {
+  joinWaitlist: async (data: JoinWaitlistEmailSchema) => {
+    const response = await apiClient.post<APIResponse<{ data: any }>>(
+      `/waitlist/join`,
+      data
+    );
+
+    console.log(response);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
+  getWaitlistCount: async () => {
+    const response =
+      await apiClient.get<APIResponse<{ data: any }>>(`/waitlist/count`);
 
     if (!response.data.success) {
       throw new Error(response.data.error);

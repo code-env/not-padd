@@ -6,6 +6,7 @@ import Footer from "@/components/waitlist/footer";
 import Preview from "@/components/waitlist/preview";
 import Others from "@/components/waitlist/others";
 import Cta from "@/components/waitlist/cta";
+import JoinWaitlistEmail from "@/components/waitlist/email";
 
 const Waitlist = () => {
   return (
@@ -18,6 +19,7 @@ const Waitlist = () => {
         <Cta />
       </Others>
       <Footer />
+      <JoinWaitlistEmail />
     </div>
   );
 };

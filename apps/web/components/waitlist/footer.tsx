@@ -1,5 +1,6 @@
 "use client";
 
+import useWaitlistModal from "@/hooks/use-waitlist-modal";
 import { marketingLinks } from "@/lib/constants";
 import { siteConfig } from "@/lib/site";
 import { buttonVariants } from "@notpadd/ui/components/button";
@@ -8,10 +9,11 @@ import { cn } from "@notpadd/ui/lib/utils";
 import Link from "next/link";
 
 const Footer = () => {
+  const { onOpen } = useWaitlistModal();
   return (
     <footer className="border-t border-border/50 font-inter flex flex-col gap-10 relative">
       <div className=" max-w-6xl px-6 mx-auto w-full pb-20">
-        <div className="flex flex-col md:flex-row md:divide-x divide-border/30 gap-x-20 w-full">
+        <div className="flex  flex-col md:flex-row  gap-x-20 w-full">
           <div className="pt-20 md flex-1 flex flex-col gap-20 w-1/2">
             <div className="flex flex-col gap-4 md:max-w-md">
               <h1>
@@ -23,10 +25,11 @@ const Footer = () => {
             </div>
             <div className="flex gap-4">
               <Link
-                href="/sign-in"
+                href={siteConfig.links.github}
+                target="_blank"
                 className={cn(buttonVariants({ variant: "default" }), "w-fit")}
               >
-                Get Started
+                Join waitlist
               </Link>
             </div>
           </div>

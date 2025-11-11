@@ -60,3 +60,7 @@ export const updateGithubAppIntegrationSchema = z.object({
   repositoriesUrl: OPTIONAL_STRING,
   metadata: z.any().optional(),
 });
+
+export const joinWaitlistEmailSchema = z.object({
+  email: z.email("Invalid email address"),
+});
