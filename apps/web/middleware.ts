@@ -2,7 +2,7 @@ import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
 
 const publicRoutes = ["/", "/auth", "/auth/login", "/login"];
-const isProduction = process.env.NODE_ENV === "development";
+const isProduction = process.env.NODE_ENV === "production";
 
 export default async function authMiddleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
