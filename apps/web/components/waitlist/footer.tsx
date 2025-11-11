@@ -13,9 +13,9 @@ const Footer = () => {
   return (
     <footer className="border-t border-border/50 font-inter flex flex-col gap-10 relative">
       <div className=" max-w-6xl px-6 mx-auto w-full pb-20">
-        <div className="flex  flex-col md:flex-row  gap-x-20 w-full">
-          <div className="pt-20 md flex-1 flex flex-col gap-20 w-1/2">
-            <div className="flex flex-col gap-4 md:max-w-md">
+        <div className="flex flex-col md:flex-row  gap-x-20 w-full">
+          <div className="pt-20 md flex-1 flex flex-col gap-20 md:w-1/2">
+            <div className="flex flex-col gap-4 md:max-w-md w-full">
               <h1>
                 <Icons.icon className="size-10" /> Notpadd
               </h1>

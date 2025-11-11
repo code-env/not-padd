@@ -15,7 +15,7 @@ const Features = () => {
 
 const Message = () => {
   return (
-    <div className="text-muted-foreground space-y-4 text-xl *:leading-relaxed md:text-2xl  py-20 bg-background">
+    <div className="text-muted-foreground px-6 sm:px-0 space-y-4 text-xl *:leading-relaxed md:text-2xl  py-20 bg-background">
       <div className="max-w-2xl mx-auto w-full flex flex-col gap-4">
         <p>
           “I built Notpadd out of frustration. Every CMS I used tried too hard
