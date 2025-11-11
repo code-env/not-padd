@@ -1,0 +1,22 @@
+{
+  "tailwindCSS.experimental.configFile": "./packages/ui/src/styles/globals.css",
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^\"'`]*)(?:'|\"|`)"]
+  ],
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/.turbo/**"
+  ],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.rootFontSize": 16,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}

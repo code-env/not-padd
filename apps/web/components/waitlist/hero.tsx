@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@notpadd/ui/components/button";
 import notpaddImage from "@/public/not.png";
+import { Icons } from "@notpadd/ui/components/icons";
 
 const Hero = () => {
   return (
@@ -14,9 +15,15 @@ const Hero = () => {
           Notpadd is a developer-first CMS for Next.js that generates content at
           build time.
         </p>
-        <Button variant="default" className="w-fit">
-          Join the waitlist
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="default" className="w-fit">
+            Join the waitlist
+          </Button>
+          <Button variant="outline" className="w-fit">
+            <Icons.github className="size-4" />
+            View on GitHub
+          </Button>
+        </div>
       </div>
       <div className="border-t" />
     </div>

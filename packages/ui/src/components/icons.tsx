@@ -43,4 +43,92 @@ export const Icons = {
       />
     </svg>
   ),
+  icon: (props: IconProps) => (
+    <svg
+      width="798"
+      height="649"
+      viewBox="0 0 798 649"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <rect
+        x="0.152407"
+        y="1.53916"
+        width="419.077"
+        height="419.077"
+        rx="209.539"
+        transform="matrix(0.707107 0.707107 -0.5547 0.83205 234.47 0.150733)"
+        fill="white"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <rect
+        x="0.152407"
+        y="1.53916"
+        width="419.077"
+        height="419.077"
+        rx="209.539"
+        transform="matrix(0.707107 0.707107 -0.5547 0.83205 501.152 0.150733)"
+        fill="white"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <rect
+        x="1.5547"
+        y="0.83205"
+        width="419.077"
+        height="419.077"
+        rx="209.539"
+        transform="matrix(1 0 0.5547 0.83205 62.6986 147.523)"
+        fill="black"
+        stroke="white"
+        strokeWidth="2"
+      />
+    </svg>
+  ),
+  iconsDark: (props: IconProps) => (
+    <svg
+      width="798"
+      height="649"
+      viewBox="0 0 798 649"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <rect
+        x="0.152407"
+        y="1.53916"
+        width="419.077"
+        height="419.077"
+        rx="209.539"
+        transform="matrix(0.707107 0.707107 -0.5547 0.83205 234.47 0.150733)"
+        fill="black"
+        stroke="black"
+        strokeWidth="2"
+      />
+      <rect
+        x="0.152407"
+        y="1.53916"
+        width="419.077"
+        height="419.077"
+        rx="209.539"
+        transform="matrix(0.707107 0.707107 -0.5547 0.83205 501.152 0.150733)"
+        fill="black"
+        stroke="black"
+        strokeWidth="2"
+      />
+      <rect
+        x="1.5547"
+        y="0.83205"
+        width="419.077"
+        height="419.077"
+        rx="209.539"
+        transform="matrix(1 0 0.5547 0.83205 62.6986 147.523)"
+        fill="white"
+        stroke="black"
+        strokeWidth="2"
+      />
+    </svg>
+  ),
 };
