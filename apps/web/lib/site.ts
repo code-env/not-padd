@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Notpadd",
-  description: "Build-time content, runtime speed",
+  description: "Build-time content for runtime speed",
   ogImage: "https://notpadd.com/og.png",
   url: "https://notpadd.com",
   links: {

@@ -9,3 +9,18 @@ export const QUERY_KEYS = {
   MEMBERS: "members",
   INVITES: "invites",
 };
+
+export const marketingLinks = [
+  {
+    title: "Integrations",
+    url: "#integrations",
+  },
+  {
+    title: "Features",
+    url: "#features",
+  },
+  {
+    title: "Contact",
+    url: "#contact",
+  },
+];
