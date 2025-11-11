@@ -6,8 +6,8 @@ export const siteConfig = {
   links: {
     twitter: "https://twitter.com/notpadd",
     github: "https://github.com/skaleway/notpadd",
-    author: "Skaleway",
-    authorSite: "https://skaleway.com",
+    author: "Bossadi Zenith",
+    authorSite: "https://bossadizenith.me",
     tailark: "https://tailark.com",
   },
 };
