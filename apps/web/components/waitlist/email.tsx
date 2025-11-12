@@ -49,6 +49,7 @@ function useWaitlistCount() {
   const queryClient = useQueryClient();
   const [success, setSuccess] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const { onClose } = useWaitlistModal();
 
   useEffect(() => {
     setIsClient(true);
@@ -68,7 +69,7 @@ function useWaitlistCount() {
       WAITLIST_QUERIES.joinWaitlist(data),
     onSuccess: () => {
       setSuccess(true);
-
+      onClose();
       queryClient.invalidateQueries({ queryKey: ["waitlist", "count"] });
 
       const newCount = (query.data?.data?.count ?? 0) + 1;
@@ -78,12 +79,13 @@ function useWaitlistCount() {
 
       toast.success("You're on the waitlist! 🎉");
     },
-    onError: (error) => {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Please try again.";
-      toast.error(errorMessage);
+    onError: (error: any) => {
+      const errorMessage = error.response.data.error;
+      if (errorMessage) {
+        toast.error(errorMessage);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     },
   });
 

@@ -373,8 +373,6 @@ export const WAITLIST_QUERIES = {
       data
     );
 
-    console.log(response);
-
     if (!response.data.success) {
       throw new Error(response.data.error);
     }
