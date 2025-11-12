@@ -141,7 +141,7 @@ const JoinWaitlistEmail = () => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent showCloseButton>
         <DialogHeader>
-          <DialogTitle>Create Article</DialogTitle>
+          <DialogTitle>Join the waitlist</DialogTitle>
         </DialogHeader>
         <DialogMiniPadding>
           <DialogContentWrapper>
@@ -170,7 +170,7 @@ const JoinWaitlistEmail = () => {
                     loading={waitlist.isPending}
                     disabled={waitlist.isPending || !form.formState.isValid}
                   >
-                    Add to waitlist
+                    Join the waitlist
                   </LoadingButton>
                 </div>
               </form>
