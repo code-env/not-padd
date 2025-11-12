@@ -59,6 +59,7 @@ const emailSchema = z.object({
     );
     if (!allowed) return false;
 
+    //console.log(domain);
     const labels = domain.split(".");
     if (labels.length < 2 || labels.length > 3) return false;
     const tld = labels.at(-1);
