@@ -1,8 +1,8 @@
-import { Hono } from "hono";
-import { email, success, z } from "zod";
 import { db } from "@notpadd/db";
-import { waitlist, rateLimitAttempts } from "@notpadd/db/schema";
-import { count, sql, eq } from "drizzle-orm";
+import { rateLimitAttempts, waitlist } from "@notpadd/db/schema";
+import { count, eq, sql } from "drizzle-orm";
+import { Hono } from "hono";
+import { z } from "zod";
 
 const ALLOWED_DOMAINS = ["gmail.com", "outlook.com", "yahoo.com", "proton.me"];
 

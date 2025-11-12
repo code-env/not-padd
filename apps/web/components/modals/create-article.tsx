@@ -132,7 +132,7 @@ const CreateArticle = () => {
                     loading={isPending}
                     disabled={isPending || !form.formState.isValid}
                   >
-                    {isPending ? "Creating..." : "Create Article"}
+                    Create Article
                   </LoadingButton>
                 </div>
               </form>

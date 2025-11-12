@@ -22,7 +22,6 @@ import {
 } from "@notpadd/ui/components/form";
 import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
-import { Textarea } from "@notpadd/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
