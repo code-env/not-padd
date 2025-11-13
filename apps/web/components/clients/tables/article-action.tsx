@@ -57,6 +57,17 @@ export default function ArticleAction({ article }: ArticleActionProps) {
         throw new Error("Workspace not found");
       }
 
+      const check = {
+        image: article.image,
+        content: article.content,
+      };
+
+      for (let key of Object.keys(check)) {
+        if (!Boolean(check[key as keyof typeof check])) {
+          throw new Error(`${key} is required`);
+        }
+      }
+
       const { data } = await axios.post("/api/publish/article", {
         slug: article.slug,
         organizationId: activeOrganization.id,
@@ -69,13 +80,17 @@ export default function ArticleAction({ article }: ArticleActionProps) {
       return data;
     },
     onSuccess: (data) => {
-      toast.success("Article published successfully");
+      toast.success("Article published successfully", {
+        id: "publish-article-success",
+      });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ARTICLES, activeOrganization?.id],
       });
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to publish article");
+    onError: (error) => {
+      toast.error(error.message || "Failed to publish article", {
+        id: "publish-article-error",
+      });
     },
   });
 
@@ -103,7 +118,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     try {
       await publishArticle();
     } catch (error: any) {
-      toast.error(error.message);
+      console.log(error);
     } finally {
       const trigger = document.querySelector(
         '[data-state="open"][data-slot="dropdown-menu-trigger"]'
