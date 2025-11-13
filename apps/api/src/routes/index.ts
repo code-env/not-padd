@@ -1,14 +1,14 @@
 import { Hono } from "hono";
-import type { ReqVariables } from "../hono/index.js";
-import { authRouter } from "./auth/index.js";
-import { articlesRoutes } from "./articles/index.js";
-import { mediaRoutes } from "./media/index.js";
-import { tagsRoutes } from "./tags/index.js";
-import { authorsRoutes } from "./authors/index.js";
-import { keysRoutes } from "./keys/index.js";
-import { v1Routes } from "./v1/index.js";
-import { githubAppRoutes } from "./github-app/index.js";
-import { waitlistRoutes } from "./waitlist/join/route.js";
+import type { ReqVariables } from "../hono/index.ts";
+import { authRouter } from "./auth/index.ts";
+import { articlesRoutes } from "./articles/index.ts";
+import { mediaRoutes } from "./media/index.ts";
+import { tagsRoutes } from "./tags/index.ts";
+import { authorsRoutes } from "./authors/index.ts";
+import { keysRoutes } from "./keys/index.ts";
+import { v1Routes } from "./v1/index.ts";
+import { githubAppRoutes } from "./github-app/index.ts";
+import { waitlistRoutes } from "./waitlist/join/route.ts";
 
 const routes = new Hono<{ Variables: ReqVariables }>();
 

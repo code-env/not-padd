@@ -1,4 +1,4 @@
-import type { ReqVariables } from "../../hono/index.js";
+import type { ReqVariables } from "../../hono/index.ts";
 import { auth } from "@notpadd/auth/auth";
 import { Hono, type Context } from "hono";
 

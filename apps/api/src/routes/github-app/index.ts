@@ -3,7 +3,7 @@ import { githubAppIntegration, member, organization } from "@notpadd/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
-import type { ReqVariables } from "../../hono/index.js";
+import type { ReqVariables } from "../../hono/index.ts";
 
 const githubAppRoutes = new Hono<{ Variables: ReqVariables }>();
 
