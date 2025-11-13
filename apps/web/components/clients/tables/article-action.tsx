@@ -119,6 +119,8 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     }
   };
 
+  const isDisabled = !isOwner || isPublishing;
+
   return (
     <>
       <DropdownMenu>
@@ -129,10 +131,10 @@ export default function ArticleAction({ article }: ArticleActionProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          align="center"
+          align="end"
           className="text-muted-foreground flex flex-col gap-1 shadow-sm"
         >
-          <DropdownMenuItem>
+          <DropdownMenuItem disabled={isDisabled} asChild>
             <Link
               className="flex w-full items-center gap-2 cursor-pointer"
               href={`/${activeOrganization?.slug}/articles/${article.id}`}
@@ -142,7 +144,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => handlePublish(e)}
-            disabled={!isOwner || isPublishing}
+            disabled={isDisabled}
           >
             <Plus size={16} />{" "}
             <span>{isPublishing ? "Publishing..." : "Publish"}</span>
@@ -158,6 +160,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
                 handleDelete
               );
             }}
+            disabled={isDisabled}
           >
             <Trash className="size-4 text-red-500" /> <span>Delete</span>
           </DropdownMenuItem>
