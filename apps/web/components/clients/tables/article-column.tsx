@@ -16,8 +16,8 @@ export const columns: ColumnDef<Articles>[] = [
     cell: ({ row }) => {
       const title = row.original.title;
       return (
-        <div className="max-w-md min-w-[250px] overflow-x-auto">
-          <p className="truncate">{title}</p>
+        <div className="min-w-[250px] overflow-x-auto">
+          <p className="truncate max-w-60">{title}</p>
         </div>
       );
     },
