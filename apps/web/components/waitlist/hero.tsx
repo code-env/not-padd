@@ -14,7 +14,7 @@ const Hero = () => {
         <h1 className="text-4xl font-bold">
           build time content for runtime speed
         </h1>
-        <p className="text-lg">
+        <p className="text-lg text-muted-foreground">
           Notpadd is a developer-first CMS for Next.js that generates content at
           build time.
         </p>
