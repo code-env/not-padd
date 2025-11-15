@@ -3,6 +3,7 @@ import { type ReactNode } from "react";
 import { auth } from "@notpadd/auth/auth";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import Modals from "@/components/modals";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -73,7 +74,12 @@ const ActiveLayoutSlug = async ({ children, params }: SlugParams) => {
     return notFound();
   }
 
-  return <Client slug={organization.slug}>{children}</Client>;
+  return (
+    <Client slug={organization.slug}>
+      {children}
+      <Modals />
+    </Client>
+  );
 };
 
 export default ActiveLayoutSlug;

@@ -1,8 +1,9 @@
 import { useOrganizationContext } from "@/contexts";
 import useModal from "@/hooks/use-modal";
+import { QUERY_KEYS } from "@/lib/constants";
 import { ARTICLES_QUERIES } from "@/lib/queries";
 import { createArticleSchema } from "@/lib/schemas";
-import type { CreateArticleSchema } from "@/lib/types";
+import type { ArticlesResponse, CreateArticleSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -22,7 +23,7 @@ import {
 import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import { Textarea } from "@notpadd/ui/components/textarea";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -32,6 +33,7 @@ import { toast } from "sonner";
 const CreateArticle = () => {
   const { onClose, type } = useModal();
   const { activeOrganization } = useOrganizationContext();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const isCreateModalOpen = type === "create-article";
 
@@ -50,11 +52,30 @@ const CreateArticle = () => {
     onSuccess: (data: any) => {
       toast.success("Article created successfully");
       form.reset();
+      queryClient.setQueryData(
+        [QUERY_KEYS.ARTICLES, activeOrganization?.id],
+        (old: ArticlesResponse | undefined) => {
+          if (!old) {
+            return {
+              data: [data.data],
+              pagination: { total: 1, page: 1, limit: 10 },
+            } satisfies ArticlesResponse;
+          }
+          return {
+            ...old,
+            data: [data.data, ...old.data],
+            pagination: {
+              ...old.pagination,
+              total: (old.pagination?.total || 0) + 1,
+            },
+          } satisfies ArticlesResponse;
+        }
+      );
       router.push(`/${activeOrganization?.slug}/articles/${data.data.id}`);
       onClose();
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to create article");
     },
   });
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { ConfirmationModal } from "./confirmation";
 import CreateArticle from "./create-article";
 import CreateTags from "./create-tags";

@@ -52,7 +52,7 @@ const Providers = ({ children }: { children: ReactNode }) => {
             },
           }}
         />
-        <Modals />
+        {/* <Modals /> */}
       </QueryClientProvider>
     </OrganizationProvider>
   );
