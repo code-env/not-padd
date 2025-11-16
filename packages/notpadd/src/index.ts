@@ -12,12 +12,12 @@ const defaultOptions: Options = {
 const initializedState: Record<string, boolean> = {};
 
 type NextConfigInput =
-  | Partial<NextConfig>
-  | Promise<Partial<NextConfig>>
+  | NextConfig
+  | Promise<NextConfig>
   | ((
       phase: string,
       defaults: { defaultConfig: NextConfig }
-    ) => Partial<NextConfig> | Promise<Partial<NextConfig>>);
+    ) => NextConfig | Promise<NextConfig>);
 
 export function createNotpaddCollection(pluginOptions: Options) {
   const [command] = process.argv.slice(2).filter((arg) => !arg.startsWith("-"));
@@ -31,7 +31,7 @@ export function createNotpaddCollection(pluginOptions: Options) {
 
   return async function withNotpaddCollections(
     nextConfig: NextConfigInput = {}
-  ): Promise<Partial<NextConfig>> {
+  ): Promise<NextConfig> {
     if (isBuild || isDev || isTypegen) {
       const shouldInitialize = !(isDev && process.ppid === 1);
 
@@ -56,7 +56,19 @@ export function createNotpaddCollection(pluginOptions: Options) {
       }
     }
 
-    return nextConfig;
+    if (typeof nextConfig === "function") {
+      return (async (
+        phase: string,
+        defaults: { defaultConfig: NextConfig }
+      ): Promise<NextConfig> => {
+        const resolvedConfig = await Promise.resolve(
+          nextConfig(phase, defaults)
+        );
+        return resolvedConfig;
+      }) as unknown as NextConfig;
+    }
+
+    return await Promise.resolve(nextConfig);
   };
 }
 

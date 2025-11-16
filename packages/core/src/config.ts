@@ -242,6 +242,7 @@ export type NotpaddConfig = {
   pk: string;
   orgID: string;
   directory?: string;
+  query: "all" | "published" | "draft";
 };
 
 export type Configuration<TCollections extends Array<AnyCollection>> = {

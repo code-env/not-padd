@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, type ReactNode } from "react";
-import { Toaster } from "sonner";
 import { OrganizationProvider } from "@/contexts";
-import { authClient } from "@notpadd/auth/auth-client";
-import { usePathname, useRouter } from "next/navigation";
 import { useMounted } from "@/hooks/use-mouted";
-import Modals from "@/components/modals";
+import { authClient } from "@notpadd/auth/auth-client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 const Providers = ({ children }: { children: ReactNode }) => {
   const { data: activeOrganization, isPending } =
@@ -52,7 +51,6 @@ const Providers = ({ children }: { children: ReactNode }) => {
             },
           }}
         />
-        {/* <Modals /> */}
       </QueryClientProvider>
     </OrganizationProvider>
   );
