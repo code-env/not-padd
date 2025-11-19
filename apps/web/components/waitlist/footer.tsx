@@ -50,12 +50,12 @@ const Footer = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
-                Made with 🩶 by {siteConfig.links.author} with some components
-                from{" "}
+                Made with 🩶 by {siteConfig.links.author.name} with some
+                components from{" "}
                 <Link
                   href={siteConfig.links.tailark}
                   target="_blank"
-                  className="hover:text-black font-medium underline"
+                  className="hover:text-primary font-medium underline"
                 >
                   Tailark
                 </Link>{" "}
