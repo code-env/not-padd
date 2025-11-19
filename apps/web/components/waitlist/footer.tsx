@@ -1,17 +1,16 @@
 "use client";
 
-import useWaitlistModal from "@/hooks/use-waitlist-modal";
+import { buttonVariants } from "@notpadd/ui/components/button";
 import { marketingLinks } from "@/lib/constants";
 import { siteConfig } from "@/lib/site";
-import { buttonVariants } from "@notpadd/ui/components/button";
 import { Icons } from "@notpadd/ui/components/icons";
 import { cn } from "@notpadd/ui/lib/utils";
 import Link from "next/link";
+import React from "react";
 
 const Footer = () => {
-  const { onOpen } = useWaitlistModal();
   return (
-    <footer className="border-t border-border/50 font-inter flex flex-col gap-10 relative">
+    <footer className="border-t border-border/50 font-inter flex flex-col gap-10 relative bg-background">
       <div className=" max-w-6xl px-6 mx-auto w-full pb-20">
         <div className="flex flex-col md:flex-row  gap-x-20 w-full">
           <div className="pt-20 md flex-1 flex flex-col gap-20 md:w-1/2">
@@ -29,7 +28,7 @@ const Footer = () => {
                 target="_blank"
                 className={cn(buttonVariants({ variant: "default" }), "w-fit")}
               >
-                Join waitlist
+                <Icons.github className="size-4" /> View on GitHub
               </Link>
             </div>
           </div>
