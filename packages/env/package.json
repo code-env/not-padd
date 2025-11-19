@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown client.ts server.ts --format esm,cjs --dts -d dist"
+    "build": "tsdown client.ts server.ts --format esm,cjs --dts -d dist && cp dist/client-*.d.ts dist/client.d.ts 2>/dev/null || true && cp dist/server-*.d.ts dist/server.d.ts 2>/dev/null || true"
   },
   "devDependencies": {
     "@notpadd/eslint-config": "workspace:*",

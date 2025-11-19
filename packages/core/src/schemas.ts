@@ -33,6 +33,7 @@ export const notpaddSchemaOptional = z.object({
   image: z.string().optional().nullable(),
   authors: z.array(notpaddAuthorSchema).optional(),
   imageBlurhash: blurDataUrlSchema.optional().nullable(),
+  tags: z.array(z.string()).optional().nullable(),
 });
 
 export const notpaddSchemaMinimal = z.object({

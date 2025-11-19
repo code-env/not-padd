@@ -1,22 +1,30 @@
-import { defineCollection, defineConfig } from "notpadd-core";
+import {
+  defineCollection,
+  defineConfig,
+  notpaddSchemaOptional,
+} from "notpadd-core";
 
-import { rehypeParseCodeBlocks } from "./shiki.mjs";
 import { compileMDX } from "@content-collections/mdx";
-import { z } from "zod";
+import { rehypeParseCodeBlocks } from "./shiki.mjs";
 
 const posts = defineCollection({
   name: "posts",
   directory: "notpadd",
   include: "**/*.mdx",
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    slug: z.string(),
-  }),
+  schema: notpaddSchemaOptional,
   transform: async (post, ctx) => {
-    const mdx = await compileMDX(ctx, post, {
-      rehypePlugins: [rehypeParseCodeBlocks],
-    });
+    const content = post.content.replace(
+      /(!\[.*?\]\(.*?\))\s*```/g,
+      "$1\n\n```"
+    );
+
+    const mdx = await compileMDX(
+      ctx,
+      { ...post, content },
+      {
+        rehypePlugins: [rehypeParseCodeBlocks],
+      }
+    );
     return {
       ...post,
       mdx,
@@ -27,8 +35,9 @@ const posts = defineCollection({
 export default defineConfig({
   collections: [posts],
   notpadd: {
-    sk: "sk_TqyuOYS84ZpUjup2ecxOf3WT",
-    pk: "pk_xdenOc15LgVopojck2UyxoHq",
-    orgID: "g0nkLQy8wBYndPGkW5IE0hzWJD6P9Ecp",
+    sk: "sk_moPAFG7fKmMoZIz0duW43dXH",
+    pk: "pk_QpwKIDbySr1VLRNomGna2Zgy",
+    orgID: "YpJ3jpNRTK0etehQYdEu0ozlZzmtOlr0",
+    query: "published",
   },
 });

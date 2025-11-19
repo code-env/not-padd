@@ -26,7 +26,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsdown src/index.ts --format esm --dts -d dist",
+    "build": "tsdown src/index.ts --format esm --dts -d dist && cp dist/index-*.d.ts dist/index.d.ts 2>/dev/null || true",
     "typecheck": "tsc",
     "test": "vitest --run --coverage --typecheck",
     "prepack": "cp ../../README.md ./README.md",
