@@ -14,8 +14,9 @@ import {
   getSortedRowModel,
   type SortingState,
   useReactTable,
+  type PaginationState,
 } from "@tanstack/react-table";
-import { File } from "lucide-react";
+import { ChevronLeft, ChevronRight, File } from "lucide-react";
 import { useState } from "react";
 import { ArticlesLoading } from "@/components/loading-uis";
 import { columns } from "./tables/article-column";
@@ -25,13 +26,22 @@ export const ArticleSection = () => {
   const { activeOrganization } = useOrganizationContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: [QUERY_KEYS.ARTICLES, activeOrganization?.id],
+    queryKey: [
+      QUERY_KEYS.ARTICLES,
+      activeOrganization?.id,
+      pagination.pageIndex,
+      pagination.pageSize,
+    ],
     queryFn: () =>
       ARTICLES_QUERIES.getArticles(activeOrganization?.id as string, {
-        page: 1,
-        limit: 10,
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
         search: "",
       }),
   });
@@ -44,9 +54,15 @@ export const ArticleSection = () => {
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    onPaginationChange: setPagination,
+    pageCount: data?.pagination
+      ? Math.ceil(data.pagination.total / pagination.pageSize)
+      : -1,
     state: {
       sorting,
       columnFilters,
+      pagination,
     },
   });
 
@@ -63,7 +79,8 @@ export const ArticleSection = () => {
     return <div>Error</div>;
   }
 
-  if (data?.data.length === 0) return <NoArticles />;
+  if (data?.data.length === 0 && pagination.pageIndex === 0)
+    return <NoArticles />;
 
   return (
     <div className="flex flex-col gap-10">
@@ -74,6 +91,29 @@ export const ArticleSection = () => {
         }
       />
       <ArticleTable table={table} columns={columns} />
+      <div className="flex items-center justify-end gap-10">
+        <div className="text-sm text-muted-foreground">
+          Page {pagination.pageIndex + 1} of {table.getPageCount()}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
