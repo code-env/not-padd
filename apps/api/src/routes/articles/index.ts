@@ -9,7 +9,7 @@ import {
   articleAuthor,
   user as userTable,
 } from "@notpadd/db/schema";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import sharp from "sharp";
@@ -265,7 +265,12 @@ articlesRoutes.get("/:organizationId", async (c) => {
     db
       .select()
       .from(articles)
-      .where(eq(articles.organizationId, organizationId))
+      .where(
+        and(
+          eq(articles.organizationId, organizationId),
+          search ? ilike(articles.title, `%${search}%`) : undefined
+        )
+      )
       .orderBy(desc(articles.createdAt))
       .limit(limitNumber)
       .offset(offset),
