@@ -63,10 +63,11 @@ export const ArticleSection = () => {
     const params = new URLSearchParams(searchParams);
     if (term) {
       params.set("search", term);
+      params.set("page", "1"); // Reset to page 1 on search
     } else {
       params.delete("search");
+      params.set("page", "1");
     }
-    params.set("page", "1");
     replace(`${pathname}?${params.toString()}`);
   }, 300);
 

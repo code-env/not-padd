@@ -261,16 +261,16 @@ articlesRoutes.get("/:organizationId", async (c) => {
 
   const offset = (pageNumber - 1) * limitNumber;
 
+  const whereCondition = and(
+    eq(articles.organizationId, organizationId),
+    search ? ilike(articles.title, `%${search}%`) : undefined
+  );
+
   const [result, total] = await Promise.all([
     db
       .select()
       .from(articles)
-      .where(
-        and(
-          eq(articles.organizationId, organizationId),
-          search ? ilike(articles.title, `%${search}%`) : undefined
-        )
-      )
+      .where(whereCondition)
       .orderBy(desc(articles.createdAt))
       .limit(limitNumber)
       .offset(offset),
@@ -278,7 +278,7 @@ articlesRoutes.get("/:organizationId", async (c) => {
     db
       .select({ count: sql<number>`count(*)` })
       .from(articles)
-      .where(eq(articles.organizationId, organizationId)),
+      .where(whereCondition),
   ]);
 
   return c.json({
