@@ -1,5 +1,12 @@
 # @notpadd/integrations
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - notpadd-core@3.0.0
+
 ## 2.2.4
 
 ### Patch Changes

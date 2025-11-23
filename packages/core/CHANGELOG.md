@@ -1,5 +1,11 @@
 # @notpadd/core
 
+## 3.0.0
+
+### Minor Changes
+
+- modified some internals of and fixed some bugs
+
 ## 2.2.4
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # notpadd
 
+## 3.0.0
+
+### Minor Changes
+
+- modified some internals of and fixed some bugs
+
+### Patch Changes
+
+- Updated dependencies
+  - notpadd-core@3.0.0
+  - notpadd-integrations@3.0.0
+
 ## 2.2.4
 
 ### Patch Changes
