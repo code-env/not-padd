@@ -1,7 +1,7 @@
 {
   "name": "notpadd-integrations",
   "type": "module",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "description": "Utils for integrating Notpadd into your project",
   "author": "Bossadi Zenith <hello@bossadizenith.me>",
   "license": "MIT",
@@ -33,6 +33,6 @@
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
-    "notpadd-core": "3.0.1"
+    "notpadd-core": "3.0.3"
   }
 }

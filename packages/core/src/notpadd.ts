@@ -38,7 +38,7 @@ export class NotpaddError extends Error {
 export async function fetchNotpaddData(
   config: NotpaddConfig
 ): Promise<NotpaddData[]> {
-  const { sk, pk, orgID, query } = config;
+  const { sk, pk, orgID, query = "all" } = config;
 
   try {
     const response = await fetch(
