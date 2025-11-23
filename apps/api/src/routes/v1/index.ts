@@ -9,7 +9,7 @@ import {
 } from "@notpadd/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
-import type { ReqVariables } from "../../hono/index.ts";
+import type { ReqVariables } from "../../hono/index.js";
 
 const v1Routes = new Hono<{ Variables: ReqVariables }>();
 

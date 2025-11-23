@@ -124,7 +124,7 @@ export const ArticleSection = () => {
   return (
     <div className="flex flex-col gap-10">
       <ArticleHeader
-        disabled={data?.data.length === 0 || isLoading}
+        disabled={isLoading}
         defaultValue={search}
         onSearch={handleSearch}
       />

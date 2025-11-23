@@ -4,8 +4,8 @@ import { env } from "@notpadd/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { routes } from "./routes/index.ts";
-import type { ReqVariables } from "./hono/index.ts";
+import { routes } from "./routes/index.js";
+import type { ReqVariables } from "./hono/index.js";
 
 const app = new Hono<{ Variables: ReqVariables }>();
 
@@ -55,3 +55,13 @@ app.get("/", (c) => {
 });
 
 export default app;
+
+if (process.env.NODE_ENV !== "production") {
+  const { serve } = await import("@hono/node-server");
+  const port = Number(process.env.PORT) || 3000;
+  serve({
+    fetch: app.fetch,
+    port,
+  });
+  console.log(`Server running on http://localhost:${port}`);
+}

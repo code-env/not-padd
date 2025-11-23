@@ -1,4 +1,4 @@
-import type { ReqVariables } from "../../hono/index.ts";
+import type { ReqVariables } from "../../hono/index.js";
 import { db } from "@notpadd/db";
 import {
   articleAuthor,
