@@ -3,7 +3,7 @@ import path from "node:path";
 import { NotpaddConfig } from "./config";
 import type { NotpaddAuthorSchema } from "./schemas";
 
-const BACKEND_SERVER = "http://localhost:3000/api/v1";
+const BACKEND_SERVER = "https://api.notpadd.com/api/v1";
 
 export interface NotpaddData {
   slug: string;
