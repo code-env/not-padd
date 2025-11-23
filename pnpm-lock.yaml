@@ -295,11 +295,11 @@ importers:
         specifier: 16.0.0
         version: 16.0.0(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       notpadd:
-        specifier: 2.2.4
-        version: 2.2.4(next@16.0.0(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(notpadd-core@0.0.2(typescript@5.8.3))
+        specifier: 3.0.1
+        version: 3.0.1(next@16.0.0(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(notpadd-core@3.0.1(typescript@5.8.3))
       notpadd-core:
-        specifier: 0.0.2
-        version: 0.0.2(typescript@5.8.3)
+        specifier: 3.0.1
+        version: 3.0.1(typescript@5.8.3)
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -5368,21 +5368,21 @@ packages:
   node-releases@2.0.26:
     resolution: {integrity: sha512-S2M9YimhSjBSvYnlr5/+umAnPHE++ODwt5e2Ij6FoX45HA/s4vHdkDx1eax2pAPeAOqu4s9b7ppahsyEFdVqQA==}
 
-  notpadd-core@0.0.2:
-    resolution: {integrity: sha512-LzDnlBu+IA36PvfPTKpmiceI87U+jIBOGN5hvv9c3lcOQPkOeinyWzXgyEURD/WK7KioV1wPjwVJX1Vmmyxbsg==}
+  notpadd-core@3.0.1:
+    resolution: {integrity: sha512-g87RP5qDJGlZow1aHvNjLrvw7dgHN31uW+p5NplNe2SZ6B56rAhheaEiffaSskXC+g8RFYVxMO9ETt6X/vbmrA==}
     peerDependencies:
       typescript: ^5.0.2
 
-  notpadd-integrations@0.0.2:
-    resolution: {integrity: sha512-RGrUfjouJr6LKZN0Go0zWJE+eACbIxZAH4qMoiQ75IlBj3v5vXuoLayepWgYCw8KdMY3zdCq/X8ccEPDUVZfJA==}
+  notpadd-integrations@3.0.1:
+    resolution: {integrity: sha512-SsCxl7d5OCtWV/pjxkKDzEA+I8F6ZEx0/9u+fe9J7IBQE26u9fdT3u/9891v7XejFC6L+Q7hUvdfWi6iq3FEWQ==}
     peerDependencies:
-      notpadd-core: 0.x
+      notpadd-core: 3.0.1
 
-  notpadd@2.2.4:
-    resolution: {integrity: sha512-285+N7WaYGHr4bGBW/RrWgPvqSukmP31rfYE544DDj0HbZHhgGtdWK1XEWfx+gYlc4UecjSwuruXyV+nSLL+Ng==}
+  notpadd@3.0.1:
+    resolution: {integrity: sha512-P9sxVi1Nrke70FN/FVvkNyX1z6Xlb4otSVMlLom9w48/SMqqsyHDF/LeULBANVopgzuc592JQJUnGP2HijEm8g==}
     peerDependencies:
       next: ^12 || ^13 || ^14 || ^15
-      notpadd-core: ^0.0.2
+      notpadd-core: ^3.0.1
 
   novel@0.5.0:
     resolution: {integrity: sha512-Wb4fGSQ7nGxgiZDs7XPeSjC/Kr6YPb4KxzxuJp+80W+lqqG0yu265yRPGROTUvJWcZtiLpWjMSwz978I1PTOww==}
@@ -12009,7 +12009,7 @@ snapshots:
 
   node-releases@2.0.26: {}
 
-  notpadd-core@0.0.2(typescript@5.8.3):
+  notpadd-core@3.0.1(typescript@5.8.3):
     dependencies:
       '@standard-schema/spec': 1.0.0
       camelcase: 8.0.0
@@ -12025,15 +12025,15 @@ snapshots:
       yaml: 2.8.1
       zod: 3.25.76
 
-  notpadd-integrations@0.0.2(notpadd-core@0.0.2(typescript@5.8.3)):
+  notpadd-integrations@3.0.1(notpadd-core@3.0.1(typescript@5.8.3)):
     dependencies:
-      notpadd-core: 0.0.2(typescript@5.8.3)
+      notpadd-core: 3.0.1(typescript@5.8.3)
 
-  notpadd@2.2.4(next@16.0.0(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(notpadd-core@0.0.2(typescript@5.8.3)):
+  notpadd@3.0.1(next@16.0.0(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(notpadd-core@3.0.1(typescript@5.8.3)):
     dependencies:
       next: 16.0.0(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      notpadd-core: 0.0.2(typescript@5.8.3)
-      notpadd-integrations: 0.0.2(notpadd-core@0.0.2(typescript@5.8.3))
+      notpadd-core: 3.0.1(typescript@5.8.3)
+      notpadd-integrations: 3.0.1(notpadd-core@3.0.1(typescript@5.8.3))
 
   novel@0.5.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@tiptap/extension-code-block@2.26.1(@tiptap/core@2.26.1(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1))(@types/react@19.1.0)(highlight.js@11.11.1)(lowlight@3.3.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:

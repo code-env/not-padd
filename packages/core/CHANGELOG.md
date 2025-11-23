@@ -1,5 +1,11 @@
 # @notpadd/core
 
+## 3.0.1
+
+### Patch Changes
+
+- nothing some deployment error
+
 ## 3.0.0
 
 ### Minor Changes

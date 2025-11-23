@@ -1,5 +1,14 @@
 # notpadd
 
+## 3.0.1
+
+### Patch Changes
+
+- nothing some deployment error
+- Updated dependencies
+  - notpadd-core@3.0.1
+  - notpadd-integrations@3.0.1
+
 ## 3.0.0
 
 ### Minor Changes
