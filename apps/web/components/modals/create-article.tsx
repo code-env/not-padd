@@ -24,7 +24,7 @@ import {
 import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import { Textarea } from "@notpadd/ui/components/textarea";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -92,6 +92,48 @@ const CreateArticle = () => {
   }, [form.watch("title")]);
 
   const slug = form.watch("slug");
+  const [debouncedSlug] = useDebounce(slug, 500);
+
+  const {
+    data: slugData,
+    error: slugError,
+    isPending: isCheckingSlug,
+  } = useQuery({
+    queryKey: ["checkArticleSlug", activeOrganization?.id, debouncedSlug],
+    queryFn: async () => {
+      if (
+        !debouncedSlug ||
+        debouncedSlug.length === 0 ||
+        !activeOrganization?.id
+      ) {
+        return null;
+      }
+      return await ARTICLES_QUERIES.checkSlug(
+        activeOrganization.id,
+        debouncedSlug
+      );
+    },
+    enabled:
+      !!debouncedSlug &&
+      debouncedSlug.length > 0 &&
+      !!activeOrganization?.id &&
+      isCreateModalOpen,
+    retry: false,
+  });
+
+  const isSlugTaken = Boolean(
+    slugError || (slugData && slugData.slug === false)
+  );
+
+  useEffect(() => {
+    if (isSlugTaken && debouncedSlug.length > 0) {
+      form.setError("title", {
+        message: `Article with slug "${debouncedSlug}" already exists`,
+      });
+    } else if (debouncedSlug && !isCheckingSlug && slugData?.slug === true) {
+      form.clearErrors("title");
+    }
+  }, [isSlugTaken, debouncedSlug, isCheckingSlug, slugData, form]);
 
   const onSubmit = (data: CreateArticleSchema) => {
     createArticle(data);
@@ -127,13 +169,14 @@ const CreateArticle = () => {
                         <Input placeholder="Title" {...field} />
                       </FormControl>
                       <FormMessage />
-
-                      <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                        <ArrowRightIcon className="w-4 h-4" />
-                        <p className="text-xs truncate max-w-sm">
-                          {slug.length > 0 ? slug : "Slug will be generated"}
-                        </p>
-                      </div>
+                      {!isSlugTaken && (
+                        <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                          <ArrowRightIcon className="w-4 h-4" />
+                          <p className="text-xs truncate max-w-sm">
+                            {slug.length > 0 ? slug : "Slug will be generated"}
+                          </p>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -153,7 +196,12 @@ const CreateArticle = () => {
                   <LoadingButton
                     type="submit"
                     loading={isPending}
-                    disabled={isPending || !form.formState.isValid}
+                    disabled={
+                      isPending ||
+                      !form.formState.isValid ||
+                      isSlugTaken ||
+                      isCheckingSlug
+                    }
                   >
                     Create Article
                   </LoadingButton>

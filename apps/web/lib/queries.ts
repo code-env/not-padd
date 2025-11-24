@@ -82,6 +82,18 @@ export const ARTICLES_QUERIES = {
 
     return response.data.data;
   },
+  checkSlug: async (organizationId: string, slug: string) => {
+    const response = await apiClient.post<APIResponse<{ slug: boolean }>>(
+      `/articles/${organizationId}/check-slug`,
+      { slug }
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.data;
+  },
 };
 
 export const MEDIA_QUERIES = {

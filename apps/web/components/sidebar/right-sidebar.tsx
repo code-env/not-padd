@@ -38,8 +38,6 @@ export function RightSidebar({
   const { article, setArticle, isLoading, isDirty, setIsDirty, articleId } =
     useArticleContext();
   const { activeOrganization } = useOrganizationContext();
-  const router = useRouter();
-
   const form = useArticleForm();
 
   const {

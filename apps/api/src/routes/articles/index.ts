@@ -554,4 +554,34 @@ articlesRoutes.post("/:articleId/cover-image", async (c) => {
   });
 });
 
+articlesRoutes.post("/:organizationId/check-slug", async (c) => {
+  const { organizationId } = c.req.param();
+  const { slug } = await c.req.json();
+
+  const article = await db
+    .select()
+    .from(articles)
+    .where(
+      and(eq(articles.slug, slug), eq(articles.organizationId, organizationId))
+    )
+    .limit(1);
+
+  if (article && article[0]) {
+    return c.json(
+      {
+        success: false,
+        message: "Slug already exists",
+        data: { slug: false },
+      },
+      400
+    );
+  }
+
+  return c.json({
+    success: true,
+    message: "Slug is available",
+    data: { slug: true },
+  });
+});
+
 export { articlesRoutes };
