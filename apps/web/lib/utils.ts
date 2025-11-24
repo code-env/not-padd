@@ -29,3 +29,17 @@ export function formatSize(size: number): string {
 export const NOTPADD_GITHUB_PRIVATE = (value: string) => {
   return Buffer.from(value, "base64").toString("utf-8");
 };
+
+/**
+ * Generates a DiceBear avatar URL for organizations
+ * @param seed - The seed value (organization name or slug) to generate a unique avatar
+ * @param size - The size of the avatar in pixels (default: 128)
+ * @returns The DiceBear avatar URL
+ */
+export const generateOrganizationAvatar = (
+  seed: string,
+  size: number = 128
+): string => {
+  const encodedSeed = encodeURIComponent(seed);
+  return `https://api.dicebear.com/9.x/glass/svg?seed=${encodedSeed}&size=${size}`;
+};

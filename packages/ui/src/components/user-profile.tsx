@@ -49,7 +49,7 @@ const UserProfile = ({
     <Avatar className={cn(iconvVariants({ size, className }))}>
       <AvatarImage src={url as string} />
       <AvatarFallback
-        className={cn("text-sm font-semibold capitalize", fallbackClassName)}
+        className={cn("text-sm font-semibold uppercase", fallbackClassName)}
       >
         {twoLettersName}
       </AvatarFallback>

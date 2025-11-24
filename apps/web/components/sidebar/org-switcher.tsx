@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronsUpDown, Plus } from "lucide-react";
-import * as React from "react";
 
 import { useOrganizationContext } from "@/contexts";
 import {
@@ -18,15 +17,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@notpadd/ui/components/sidebar";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { UserProfile } from "@notpadd/ui/components/user-profile";
 import { cn } from "@notpadd/ui/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function OrganizationSwitcher() {
   const { isMobile } = useSidebar();
-  const router = useRouter();
   const { activeOrganization, organizations, setActiveOrganization } =
     useOrganizationContext();
+
+  const pathname = usePathname();
+  const pathWithoutCurrentSlug = pathname.split("/").slice(2).join("/");
+
+  console.log(pathWithoutCurrentSlug);
 
   return (
     <SidebarMenu>
@@ -37,7 +41,12 @@ export function OrganizationSwitcher() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"></div>
+              <UserProfile
+                url={activeOrganization?.logo as string}
+                name={activeOrganization?.name as string}
+                size="lg"
+              />
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
                   {activeOrganization?.name}
@@ -59,7 +68,7 @@ export function OrganizationSwitcher() {
               <DropdownMenuItem
                 key={org.name}
                 onClick={() => {
-                  window.location.href = `/${org.slug}`;
+                  window.location.href = `/${org.slug}/${pathWithoutCurrentSlug}`;
                   setActiveOrganization(org.id, org.slug);
                 }}
                 className={cn("gap-2 p-2 cursor-pointer", {
@@ -67,7 +76,7 @@ export function OrganizationSwitcher() {
                     activeOrganization?.id === org.id,
                 })}
               >
-                <div className="flex size-6 items-center justify-center rounded-md border"></div>
+                <UserProfile url={org.logo} name={org.name} size="sm" />
                 <span className="truncate first-letter:capitalize">
                   {org.name}
                 </span>

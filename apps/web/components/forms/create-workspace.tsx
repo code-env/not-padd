@@ -1,7 +1,11 @@
 "use client";
 
 import { useOrganizationContext } from "@/contexts";
-import { replaceOrganizationWithWorkspace, REQUIRED_STRING } from "@/lib/utils";
+import {
+  generateOrganizationAvatar,
+  replaceOrganizationWithWorkspace,
+  REQUIRED_STRING,
+} from "@/lib/utils";
 import { KEYS_QUERIES } from "@/lib/queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@notpadd/auth/auth-client";
@@ -97,7 +101,11 @@ export function CreateWorkspace() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      const { data, error } = await createOrganization({ ...values });
+      const logo = generateOrganizationAvatar(values.slug);
+      const { data, error } = await createOrganization({
+        ...values,
+        logo,
+      });
       if (error) throw error;
 
       if (data) {
