@@ -1,8 +1,7 @@
 "use client";
 
-import { CircleQuestionMark, LogOut, User } from "lucide-react";
-
 import { useSession } from "@/contexts";
+import { useMounted } from "@/hooks/use-mouted";
 import { authClient } from "@notpadd/auth/auth-client";
 import {
   DropdownMenu,
@@ -20,8 +19,34 @@ import {
   useSidebar,
 } from "@notpadd/ui/components/sidebar";
 import { UserProfile } from "@notpadd/ui/components/user-profile";
+import { cn } from "@notpadd/ui/lib/utils";
+import { Laptop, LogOut, Moon, Sun, User } from "lucide-react";
+import { motion } from "motion/react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+type Theme = "light" | "dark" | "system";
+
+type ThemeType = {
+  name: Theme;
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+};
+
+const themes: ThemeType[] = [
+  {
+    name: "light",
+    icon: Sun,
+  },
+  {
+    name: "dark",
+    icon: Moon,
+  },
+  {
+    name: "system",
+    icon: Laptop,
+  },
+];
 
 export function NavFooter() {
   const { isMobile } = useSidebar();
@@ -84,27 +109,40 @@ export function NavFooter() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="sm"
-              className="data-[state=open]:bg-sidebar-accent size-fit rounded-full data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <CircleQuestionMark className="size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              Reach out
-            </DropdownMenuLabel>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ModeToggle />
       </SidebarMenuItem>
     </SidebarMenu>
   );
 }
+
+const ModeToggle = () => {
+  const { setTheme, theme: justTheme } = useTheme();
+  const mounted = useMounted();
+
+  if (!mounted) return null;
+
+  return (
+    <div className="flex border bottom-0 left-0 p-0.5 bg-muted/50 rounded-full items-center">
+      {themes.map((theme, index) => {
+        return (
+          <button
+            key={index + theme.name}
+            className={cn(
+              "size-6 flex items-center justify-center relative outline-none ring-0 z-0"
+            )}
+            onClick={() => setTheme(theme.name)}
+          >
+            <span className="sr-only">{theme.name}</span>
+            <theme.icon className="size-3" />
+            {justTheme === theme.name && (
+              <motion.div
+                layoutId="selected-theme"
+                className="absolute size-full bg-background  rounded-full -z-10 border"
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
