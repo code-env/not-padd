@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@notpadd/ui/components/sidebar";
+import { SidebarInset, SidebarProvider } from "@notpadd/ui/components/sidebar";
 import { DocsSidebar } from "./docs-sidebar";
 import { TableOfContents } from "./toc";
 
@@ -24,12 +20,9 @@ export function DocsLayout({ children, headings = [] }: DocsLayoutProps) {
     <SidebarProvider>
       <DocsSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border bg-background px-4">
-          <SidebarTrigger className="-ml-1" />
-          <div className="flex-1" />
-        </header>
-        <div className="flex flex-1 gap-6 p-6">
-          <main className="flex-1 min-w-0 w-full">
+        <div className="flex flex-1 gap-6 py-20">
+          <div className="fixed top-0 left-0 w-full h-96 pointer-events-none bg-gradient-to-b from-sidebar to-transparent blur-3xl" />
+          <main className="flex-1 min-w-0 w-full relative">
             <div className="prose prose-neutral dark:prose-invert max-w-4xl mx-auto">
               {children}
             </div>

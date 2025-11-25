@@ -109,7 +109,7 @@ export function DocsSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="none">
       <SidebarHeader className=" border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-1.5">
           <BookOpen className="size-5" />
@@ -147,7 +147,7 @@ export function DocsSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter className="flex items-center flex-row! justify-between">
+      <SidebarFooter className="flex items-center flex-row justify-between">
         <SidebarMenuButton asChild className="w-fit">
           <Link href="https://notpadd.com/github">
             <Icons.github className="size-4" />
