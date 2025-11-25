@@ -1,7 +1,7 @@
 "use client";
 
 import useWaitlistModal from "@/hooks/use-waitlist-modal";
-import { siteConfig } from "@/lib/site";
+import { siteConfig } from "@notpadd/ui/lib/utils";
 import { Button } from "@notpadd/ui/components/button";
 import { Icons } from "@notpadd/ui/components/icons";
 import Link from "next/link";

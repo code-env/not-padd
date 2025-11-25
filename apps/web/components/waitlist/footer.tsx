@@ -2,7 +2,7 @@
 
 import { buttonVariants } from "@notpadd/ui/components/button";
 import { marketingLinks } from "@/lib/constants";
-import { siteConfig } from "@/lib/site";
+import { siteConfig } from "@notpadd/ui/lib/utils";
 import { Icons } from "@notpadd/ui/components/icons";
 import { cn } from "@notpadd/ui/lib/utils";
 import Link from "next/link";
