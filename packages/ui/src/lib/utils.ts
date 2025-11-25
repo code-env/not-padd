@@ -4,3 +4,31 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const siteConfig = {
+  name: "Notpadd",
+  description: "Build-time content for runtime speed",
+  ogImage: "https://notpadd.com/og.png",
+  url: "https://notpadd.com",
+  links: {
+    twitter: "https://twitter.com/notpadd",
+    github: "https://github.com/code-env/not-padd",
+    author: {
+      name: "Bossadi Zenith",
+      username: "bossadizenith",
+    },
+    authorSite: "https://bossadizenith.me",
+    tailark: "https://tailark.com",
+  },
+  keywords: [
+    "Notpadd",
+    "Content",
+    "Speed",
+    "Build-time",
+    "Runtime",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "CMS",
+  ],
+};
