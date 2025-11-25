@@ -12,101 +12,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@notpadd/ui/components/sidebar";
-import {
-  BookOpen,
-  Code,
-  FileText,
-  Laptop,
-  Moon,
-  Settings,
-  Sun,
-} from "lucide-react";
+import { BookOpen, Laptop, Moon, Sun } from "lucide-react";
 import Link from "next/link";
-import { allDocs } from "content-collections";
 import { usePathname } from "next/navigation";
 import { Icons } from "@notpadd/ui/components/icons";
 import { useTheme } from "next-themes";
 import { cn } from "@notpadd/ui/lib/utils";
 import { useMounted } from "@notpadd/ui/hooks/use-mounted";
 import { motion } from "motion/react";
-
-const getIconForTitle = (title: string): typeof BookOpen => {
-  const lowerTitle = title.toLowerCase();
-  if (lowerTitle.includes("overview") || lowerTitle.includes("introduction")) {
-    return BookOpen;
-  }
-  if (lowerTitle.includes("configuration") || lowerTitle.includes("config")) {
-    return Settings;
-  }
-  if (
-    lowerTitle.includes("api") ||
-    lowerTitle.includes("reference") ||
-    lowerTitle.includes("parser") ||
-    lowerTitle.includes("transformer") ||
-    lowerTitle.includes("builder")
-  ) {
-    return Code;
-  }
-  return FileText;
-};
-
-const groupNavigation = () => {
-  const grouped = new Map<string, typeof allDocs>();
-
-  allDocs.forEach((doc) => {
-    const path = doc._meta.path.replace(/^content\//, "");
-    const parts = path.split("/");
-    const groupKey = parts.length > 1 ? parts[0] : "index";
-
-    if (!grouped.has(groupKey)) {
-      grouped.set(groupKey, []);
-    }
-    grouped.get(groupKey)!.push(doc);
-  });
-
-  const navigation = Array.from(grouped.entries())
-    .map(([groupKey, docs]) => {
-      // Capitalize group name
-      const groupTitle =
-        groupKey === "index"
-          ? "Getting Started"
-          : groupKey.charAt(0).toUpperCase() + groupKey.slice(1);
-
-      const sortedDocs = [...docs].sort((a, b) => {
-        const pathA = a._meta.path.replace(/^content\//, "");
-        const pathB = b._meta.path.replace(/^content\//, "");
-        return pathA.localeCompare(pathB);
-      });
-
-      const items = sortedDocs.map((doc) => {
-        const path = doc._meta.path.replace(/^content\//, "");
-        const url = `/docs/${path}`;
-
-        return {
-          title: doc.title,
-          url,
-          icon: getIconForTitle(doc.title),
-        };
-      });
-
-      return {
-        title: groupTitle,
-        items,
-      };
-    })
-    .sort((a, b) => {
-      if (a.title === "Getting Started") return -1;
-      if (b.title === "Getting Started") return 1;
-      return a.title.localeCompare(b.title);
-    });
-
-  return navigation;
-};
-
-const navigation = groupNavigation();
+import { useDocs } from "@/hooks/use-docs";
 
 export function DocsSidebar() {
   const pathname = usePathname();
+  const { navigation } = useDocs();
 
   return (
     <Sidebar collapsible="none">
