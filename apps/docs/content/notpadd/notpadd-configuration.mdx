@@ -1,0 +1,361 @@
+---
+title: Configuration
+description: Configure Notpadd plugin and content collections for your Next.js application
+---
+
+# Configuration
+
+Configure Notpadd to work with your Next.js project.
+
+## Plugin Configuration
+
+The `withNotpadd` function accepts configuration options:
+
+```typescript
+import { withNotpadd } from "notpadd";
+
+export default withNotpadd({
+  configPath: "content-collections.ts", // Path to your config file
+})({
+  // Your Next.js config
+});
+```
+
+### Options
+
+#### `configPath` (optional)
+
+Path to your content collections configuration file.
+
+**Default:** `"content-collections.ts"`
+
+**Example:**
+```typescript
+withNotpadd({
+  configPath: "config/content.ts",
+})
+```
+
+## Content Collections Configuration
+
+Your `content-collections.ts` file configures both Notpadd Core and the Notpadd API integration.
+
+### Basic Configuration
+
+```typescript
+import { defineConfig, defineCollection } from "notpadd-core";
+import { notpaddSchema } from "notpadd-core";
+
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "notpadd",
+      directory: "notpadd",
+      schema: notpaddSchema,
+    }),
+  ],
+  notpadd: {
+    sk: process.env.NOTPADD_SK!,
+    pk: process.env.NOTPADD_PK!,
+    orgID: process.env.NOTPADD_ORG_ID!,
+  },
+});
+```
+
+### Notpadd Configuration Options
+
+#### `sk` (required)
+
+Your Notpadd secret key. Keep this secure and never commit it to version control.
+
+**Example:**
+```typescript
+notpadd: {
+  sk: process.env.NOTPADD_SK!,
+  // ...
+}
+```
+
+#### `pk` (required)
+
+Your Notpadd public key.
+
+**Example:**
+```typescript
+notpadd: {
+  pk: process.env.NOTPADD_PK!,
+  // ...
+}
+```
+
+#### `orgID` (required)
+
+Your Notpadd organization ID.
+
+**Example:**
+```typescript
+notpadd: {
+  orgID: process.env.NOTPADD_ORG_ID!,
+  // ...
+}
+```
+
+#### `directory` (optional)
+
+The directory where MDX files fetched from Notpadd will be stored.
+
+**Default:** `"notpadd"` or the first collection's directory
+
+**Example:**
+```typescript
+notpadd: {
+  // ...
+  directory: "content/articles",
+}
+```
+
+#### `query` (optional)
+
+Controls which articles to fetch from Notpadd.
+
+**Options:**
+- `"all"`: Fetch all articles (default)
+- `"published"`: Fetch only published articles
+- `"draft"`: Fetch only draft articles
+
+**Example:**
+```typescript
+notpadd: {
+  // ...
+  query: "published",
+}
+```
+
+## Environment Variables
+
+Store your Notpadd credentials in environment variables:
+
+### `.env.local`
+
+```env
+NOTPADD_SK=your-secret-key-here
+NOTPADD_PK=your-public-key-here
+NOTPADD_ORG_ID=your-organization-id-here
+```
+
+### `.env.example`
+
+Create an example file for your team:
+
+```env
+NOTPADD_SK=
+NOTPADD_PK=
+NOTPADD_ORG_ID=
+```
+
+## Multiple Collections
+
+You can define multiple collections:
+
+```typescript
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "blog",
+      directory: "content/blog",
+      schema: notpaddSchema,
+    }),
+    defineCollection({
+      name: "docs",
+      directory: "content/docs",
+      schema: notpaddSchema,
+    }),
+  ],
+  notpadd: {
+    sk: process.env.NOTPADD_SK!,
+    pk: process.env.NOTPADD_PK!,
+    orgID: process.env.NOTPADD_ORG_ID!,
+    directory: "content", // Base directory for all collections
+  },
+});
+```
+
+## Custom Schemas
+
+Use custom schemas to match your content structure:
+
+```typescript
+import { createNotpaddSchema } from "notpadd-core";
+import { z } from "zod";
+
+const customSchema = createNotpaddSchema({
+  category: z.string(),
+  featured: z.boolean(),
+  readingTime: z.number(),
+});
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: customSchema,
+});
+```
+
+## Advanced Configuration
+
+### Custom Parser
+
+```typescript
+import { defineParser } from "notpadd-core";
+
+const customParser = defineParser({
+  hasContent: true,
+  parse: (content) => {
+    // Custom parsing logic
+    return parseContent(content);
+  },
+});
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  parser: customParser,
+  schema: notpaddSchema,
+});
+```
+
+### Transform Functions
+
+```typescript
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchema,
+  transform: async (doc, { cache }) => {
+    // Transform documents
+    const html = await cache(
+      "markdown-to-html",
+      doc.markdown,
+      async () => {
+        return await processMarkdown(doc.markdown);
+      }
+    );
+
+    return {
+      ...doc,
+      html,
+    };
+  },
+});
+```
+
+### Filtering Content
+
+```typescript
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchema,
+  transform: async (doc, { skip }) => {
+    // Skip certain documents
+    if (doc.tags?.includes("archived")) {
+      return skip("Archived content");
+    }
+
+    // Only include published content
+    if (!doc.published) {
+      return skip("Not published");
+    }
+
+    return doc;
+  },
+});
+```
+
+## Configuration Validation
+
+Notpadd validates your configuration at build time. Common errors:
+
+### Missing Required Fields
+
+```
+Error: Notpadd configuration requires a valid 'sk' (secret key)
+```
+
+**Solution:** Ensure all required fields (`sk`, `pk`, `orgID`) are provided.
+
+### Invalid Directory
+
+```
+Error: Notpadd 'directory' must be a string if provided
+```
+
+**Solution:** Ensure `directory` is a string or omit it to use the default.
+
+### API Errors
+
+```
+Error: Failed to fetch data from Notpadd API: Unauthorized
+```
+
+**Solution:** Check your credentials are correct and have the right permissions.
+
+## Best Practices
+
+1. **Use Environment Variables**: Never hardcode credentials
+2. **Match Directories**: Ensure `notpadd.directory` matches your collection directory
+3. **Use TypeScript**: Get full type safety with TypeScript
+4. **Validate Early**: Check your configuration before deploying
+5. **Use Appropriate Query**: Use `"published"` for production builds
+
+## Example: Complete Configuration
+
+```typescript
+// content-collections.ts
+import { defineConfig, defineCollection } from "notpadd-core";
+import { notpaddSchemaPublished } from "notpadd-core";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "blog",
+      directory: "content/blog",
+      schema: notpaddSchemaPublished,
+      transform: async (doc, { cache, skip }) => {
+        // Skip archived posts
+        if (doc.tags?.includes("archived")) {
+          return skip("Archived post");
+        }
+
+        // Convert markdown to HTML
+        const html = await cache(
+          "markdown-to-html",
+          doc.markdown,
+          async () => {
+            const result = await remark()
+              .use(remarkHtml)
+              .process(doc.markdown);
+            return result.toString();
+          }
+        );
+
+        return {
+          ...doc,
+          html,
+          readingTime: Math.ceil(doc.markdown.split(/\s+/).length / 200),
+        };
+      },
+    }),
+  ],
+  cache: "file",
+  notpadd: {
+    sk: process.env.NOTPADD_SK!,
+    pk: process.env.NOTPADD_PK!,
+    orgID: process.env.NOTPADD_ORG_ID!,
+    directory: "content/blog",
+    query: "published",
+  },
+});
+```

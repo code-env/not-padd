@@ -1,0 +1,273 @@
+---
+title: Getting Started
+description: Step-by-step guide to set up Notpadd in your Next.js project
+---
+
+# Getting Started
+
+Get started with Notpadd in your Next.js project in minutes.
+
+## Prerequisites
+
+- Next.js 12, 13, 14, or 15
+- Node.js 18 or later
+- A Notpadd account and organization
+
+## Step 1: Install Dependencies
+
+```bash
+npm install notpadd notpadd-core
+```
+
+## Step 2: Get Your Notpadd Credentials
+
+1. Log in to your Notpadd account
+2. Navigate to your organization settings
+3. Copy your:
+   - Secret Key (`sk`)
+   - Public Key (`pk`)
+   - Organization ID (`orgID`)
+
+## Step 3: Set Environment Variables
+
+Create a `.env.local` file:
+
+```env
+NOTPADD_SK=your-secret-key
+NOTPADD_PK=your-public-key
+NOTPADD_ORG_ID=your-organization-id
+```
+
+## Step 4: Configure Next.js
+
+Update your `next.config.ts`:
+
+```typescript
+import { withNotpadd } from "notpadd";
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Your existing Next.js config
+};
+
+export default withNotpadd({
+  configPath: "content-collections.ts",
+})(nextConfig);
+```
+
+## Step 5: Create Content Collections Config
+
+Create `content-collections.ts` in your project root:
+
+```typescript
+import { defineConfig, defineCollection } from "notpadd-core";
+import { notpaddSchema } from "notpadd-core";
+
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "notpadd",
+      directory: "notpadd",
+      schema: notpaddSchema,
+    }),
+  ],
+  notpadd: {
+    sk: process.env.NOTPADD_SK!,
+    pk: process.env.NOTPADD_PK!,
+    orgID: process.env.NOTPADD_ORG_ID!,
+    query: "published", // or "all" | "draft"
+  },
+});
+```
+
+## Step 6: Use Content in Your App
+
+### In a Page Component
+
+```typescript
+// app/blog/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+
+export default function BlogPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Blog</h1>
+      <div className="grid gap-6">
+        {allNotpadd.map((post) => (
+          <article key={post.slug} className="border p-6 rounded-lg">
+            <h2 className="text-2xl font-semibold mb-2">{post.title}</h2>
+            <p className="text-gray-600 mb-4">{post.description}</p>
+            <a
+              href={`/blog/${post.slug}`}
+              className="text-blue-600 hover:underline"
+            >
+              Read more →
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+### In a Dynamic Route
+
+```typescript
+// app/blog/[slug]/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+import { notFound } from "next/navigation";
+
+export async function generateStaticParams() {
+  return allNotpadd.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export default function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = allNotpadd.find((p) => p.slug === params.slug);
+
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <article className="container mx-auto py-8 max-w-3xl">
+      <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+      <p className="text-xl text-gray-600 mb-8">{post.description}</p>
+      <div className="prose">
+        {/* Render markdown content */}
+        {post.markdown}
+      </div>
+    </article>
+  );
+}
+```
+
+## Step 7: Run Your Development Server
+
+```bash
+npm run dev
+```
+
+The first time you run this, Notpadd will:
+1. Fetch content from the Notpadd API
+2. Generate MDX files in the `notpadd/` directory
+3. Process collections
+4. Generate TypeScript types
+
+## Step 8: Build for Production
+
+```bash
+npm run build
+```
+
+This will fetch the latest content and generate static pages.
+
+## Customizing Your Setup
+
+### Using a Custom Directory
+
+```typescript
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "articles",
+      directory: "content/articles", // Custom directory
+      schema: notpaddSchema,
+    }),
+  ],
+  notpadd: {
+    // ...
+    directory: "content/articles", // Match collection directory
+  },
+});
+```
+
+### Filtering Content
+
+```typescript
+import { notpaddSchemaPublished } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchemaPublished, // Only published articles
+  transform: async (doc, { skip }) => {
+    // Additional filtering
+    if (doc.tags?.includes("archived")) {
+      return skip("Archived post");
+    }
+    return doc;
+  },
+});
+```
+
+### Transforming Content
+
+```typescript
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchema,
+  transform: async (doc, { cache }) => {
+    const html = await cache(
+      "markdown-to-html",
+      doc.markdown,
+      async () => {
+        const result = await remark()
+          .use(remarkHtml)
+          .process(doc.markdown);
+        return result.toString();
+      }
+    );
+
+    return {
+      ...doc,
+      html,
+    };
+  },
+});
+```
+
+## Troubleshooting
+
+### Content Not Appearing
+
+1. Check your environment variables are set correctly
+2. Verify your Notpadd credentials are valid
+3. Ensure you have articles in your Notpadd organization
+4. Check the `query` option matches your content status
+
+### Type Errors
+
+Run the type generation:
+
+```bash
+npx next build
+```
+
+Or use the typegen command if available:
+
+```bash
+npm run typegen
+```
+
+### Build Errors
+
+1. Ensure `notpadd-core` is installed
+2. Check your `content-collections.ts` syntax
+3. Verify your schema matches your content structure
+
+## Next Steps
+
+- Learn about [Configuration Options](/docs/notpadd-configuration)
+- Explore [Next.js Integration](/docs/notpadd-nextjs)
+- See [Advanced Usage](/docs/notpadd-advanced)

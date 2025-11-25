@@ -206,3 +206,11 @@ span[style] > strong {
 mark[style] > strong {
   color: inherit;
 }
+
+figure {
+  margin: 0 !important;
+}
+
+figure pre {
+  border-radius: 0 !important;
+}

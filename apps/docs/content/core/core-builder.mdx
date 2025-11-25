@@ -1,0 +1,235 @@
+---
+title: Builder
+description: Programmatic API for building and watching content collections with event system
+---
+
+# Builder
+
+The Builder API provides programmatic access to build and watch your content collections.
+
+## Creating a Builder
+
+Create a builder instance from your configuration file:
+
+```typescript
+import { createBuilder } from "notpadd-core";
+
+const builder = await createBuilder("./content-collections.ts");
+```
+
+## Building
+
+Build all collections:
+
+```typescript
+await builder.build();
+```
+
+This will:
+1. Process Notpadd configuration (if provided)
+2. Collect all files from collections
+3. Parse and validate documents
+4. Transform documents
+5. Generate output files
+6. Emit build events
+
+## Watching
+
+Watch for file changes and rebuild automatically:
+
+```typescript
+const watcher = await builder.watch();
+
+// Later, stop watching
+await watcher.unsubscribe();
+```
+
+During watch mode:
+- File changes trigger automatic rebuilds
+- Configuration changes reload the builder
+- Events are emitted for all changes
+
+## Events
+
+Listen to builder events:
+
+```typescript
+builder.on("builder:created", ({ configurationPath, outputDirectory }) => {
+  console.log(`Builder created for ${configurationPath}`);
+});
+
+builder.on("build:start", () => {
+  console.log("Build started");
+});
+
+builder.on("build:end", ({ stats }) => {
+  console.log(`Build completed: ${stats.collections} collections, ${stats.documents} documents`);
+});
+
+builder.on("watcher:file-changed", ({ filePath, modification }) => {
+  console.log(`File ${modification}: ${filePath}`);
+});
+```
+
+### Available Events
+
+#### Builder Events
+
+- `builder:created`: Emitted when builder is created
+  - `createdAt`: Timestamp
+  - `configurationPath`: Path to config file
+  - `outputDirectory`: Output directory path
+
+#### Build Events
+
+- `build:start`: Build process started
+- `build:end`: Build process completed
+  - `stats`: Build statistics
+    - `collections`: Number of collections
+    - `documents`: Number of documents
+
+#### Watcher Events
+
+- `watcher:file-changed`: A content file changed
+  - `filePath`: Path to changed file
+  - `modification`: `"create"` | `"update"` | `"delete"`
+- `watcher:config-changed`: Configuration file changed
+  - `filePath`: Path to config file
+  - `modification`: `"create"` | `"update"` | `"delete"`
+- `watcher:config-reload-error`: Error reloading configuration
+  - `error`: Error object
+  - `configurationPath`: Path to config file
+- `watcher:subscribed`: Watcher started watching
+  - `paths`: Array of watched paths
+- `watcher:unsubscribed`: Watcher stopped watching
+  - `paths`: Array of watched paths
+
+#### Collector Events
+
+- `collector:read-error`: Error reading a file
+  - `filePath`: Path to file
+  - `error`: CollectError
+- `collector:parse-error`: Error parsing a file
+  - `filePath`: Path to file
+  - `error`: CollectError
+
+#### Transformer Events
+
+- `transformer:validation-error`: Schema validation failed
+  - `collection`: Collection object
+  - `file`: File object
+  - `error`: TransformError
+- `transformer:result-error`: Transform result validation failed
+  - `collection`: Collection object
+  - `document`: Document object
+  - `error`: TransformError
+- `transformer:error`: Error during transformation
+  - `collection`: Collection object
+  - `error`: TransformError
+- `transformer:document-skipped`: Document was skipped
+  - `collection`: Collection object
+  - `filePath`: Path to file
+  - `reason`: Optional skip reason
+
+## Manual Sync
+
+Manually sync a file change:
+
+```typescript
+await builder.sync("create", "./content/posts/new-post.mdx");
+await builder.sync("update", "./content/posts/existing-post.mdx");
+await builder.sync("delete", "./content/posts/old-post.mdx");
+```
+
+## Options
+
+### Output Directory
+
+Specify a custom output directory:
+
+```typescript
+const builder = await createBuilder("./content-collections.ts", {
+  outputDir: "./.custom-output",
+});
+```
+
+Default: `./.content-collections/generated`
+
+### Configuration Name
+
+Specify a custom config file name:
+
+```typescript
+const builder = await createBuilder("./content-collections.ts", {
+  configName: "content.config.ts",
+});
+```
+
+Default: `content-collections.ts`
+
+## Example: CLI Tool
+
+```typescript
+import { createBuilder } from "notpadd-core";
+
+async function main() {
+  const builder = await createBuilder("./content-collections.ts");
+
+  // Set up event listeners
+  builder.on("build:start", () => {
+    console.log("Building collections...");
+  });
+
+  builder.on("build:end", ({ stats }) => {
+    console.log(`✓ Built ${stats.collections} collections with ${stats.documents} documents`);
+  });
+
+  builder.on("watcher:file-changed", ({ filePath, modification }) => {
+    console.log(`File ${modification}: ${filePath}`);
+  });
+
+  // Build once
+  await builder.build();
+
+  // Watch for changes
+  if (process.argv.includes("--watch")) {
+    const watcher = await builder.watch();
+    console.log("Watching for changes...");
+
+    // Graceful shutdown
+    process.on("SIGINT", async () => {
+      await watcher.unsubscribe();
+      process.exit(0);
+    });
+  }
+}
+
+main().catch(console.error);
+```
+
+## Error Handling
+
+Builder methods can throw errors:
+
+```typescript
+try {
+  const builder = await createBuilder("./content-collections.ts");
+  await builder.build();
+} catch (error) {
+  if (error instanceof ConfigurationError) {
+    console.error("Configuration error:", error.message);
+  } else if (error instanceof NotpaddError) {
+    console.error("Notpadd error:", error.message);
+  } else {
+    console.error("Unknown error:", error);
+  }
+}
+```
+
+## Best Practices
+
+1. **Handle errors**: Wrap builder operations in try-catch
+2. **Listen to events**: Use events for logging and monitoring
+3. **Clean up watchers**: Always unsubscribe from watchers when done
+4. **Use output directory**: Specify a custom output directory if needed
+5. **Build before watch**: Build once before starting watch mode

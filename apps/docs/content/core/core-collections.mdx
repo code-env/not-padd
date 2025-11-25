@@ -1,0 +1,211 @@
+---
+title: Collections
+description: Define and manage content collections with schemas, parsers, and transforms
+---
+
+# Collections
+
+Collections are groups of content files that share a common schema and configuration.
+
+## Defining Collections
+
+Use `defineCollection()` to create a collection:
+
+```typescript
+import { defineCollection } from "notpadd-core";
+import { z } from "zod";
+
+const posts = defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+  }),
+});
+```
+
+## Collection Options
+
+### `name` (required)
+
+A unique name for the collection. This is used for:
+
+- Type generation
+- Accessing collections in transform functions
+- Generated file paths
+
+### `directory` (required)
+
+The directory path relative to your project root where content files are located.
+
+### `schema` (required)
+
+A Zod schema that defines the structure of your content metadata. The schema validates:
+
+- Frontmatter data (for frontmatter parser)
+- File data (for JSON/YAML parsers)
+- The final document structure
+
+### `parser` (optional)
+
+The parser to use for reading files:
+
+- `"frontmatter"`: Parse YAML frontmatter with content (default)
+- `"frontmatter-only"`: Parse only frontmatter, no content
+- `"json"`: Parse JSON files
+- `"yaml"`: Parse YAML files
+- Custom parser: Define your own
+
+```typescript
+defineCollection({
+  name: "data",
+  directory: "content/data",
+  parser: "json",
+  schema: z.object({
+    // ...
+  }),
+});
+```
+
+### `include` (required)
+
+Glob patterns for files to include in the collection:
+
+```typescript
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  include: "**/*.mdx", // Single pattern
+  // or
+  include: ["**/*.mdx", "**/*.md"], // Multiple patterns
+  schema: z.object({
+    // ...
+  }),
+});
+```
+
+### `exclude` (optional)
+
+Glob patterns for files to exclude:
+
+```typescript
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  include: "**/*.mdx",
+  exclude: ["**/drafts/**", "**/*.draft.mdx"],
+  schema: z.object({
+    // ...
+  }),
+});
+```
+
+### `transform` (optional)
+
+A function to transform documents after parsing:
+
+```typescript
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  schema: z.object({
+    title: z.string(),
+    authorId: z.string(),
+  }),
+  transform: async (doc, { documents, cache }) => {
+    // Access other collections
+    const authors = documents("authors");
+    const author = authors.find((a) => a.id === doc.authorId);
+
+    // Use cache for expensive operations
+    const processedContent = await cache(
+      "process-content",
+      doc.content,
+      async () => {
+        return expensiveProcessing(doc.content);
+      }
+    );
+
+    return {
+      ...doc,
+      author,
+      processedContent,
+    };
+  },
+});
+```
+
+### `onSuccess` (optional)
+
+A callback function called after all documents are successfully processed:
+
+```typescript
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  schema: z.object({
+    // ...
+  }),
+  onSuccess: async (documents) => {
+    console.log(`Processed ${documents.length} posts`);
+  },
+});
+```
+
+## Document Structure
+
+Each document in a collection includes:
+
+- All fields from your schema
+- `content`: The file content (if parser has `hasContent: true`)
+- `_meta`: Metadata about the file:
+  - `filePath`: Full path to the file
+  - `fileName`: Just the filename
+  - `directory`: Directory containing the file
+  - `path`: URL-friendly path (without extension)
+  - `extension`: File extension
+
+## Accessing Collections
+
+In transform functions, you can access other collections:
+
+```typescript
+transform: async (doc, { documents }) => {
+  // Get all documents from another collection
+  const authors = documents("authors");
+
+  // Find a specific author
+  const author = authors.find((a) => a.id === doc.authorId);
+
+  return {
+    ...doc,
+    author,
+  };
+},
+```
+
+## Skipping Documents
+
+You can conditionally skip documents in transform functions:
+
+```typescript
+transform: async (doc, { skip }) => {
+  if (!doc.published) {
+    return skip("Document is not published");
+  }
+
+  return doc;
+},
+```
+
+## Type Generation
+
+Collections automatically generate TypeScript types. Access them using `GetTypeByName`:
+
+```typescript
+import type { GetTypeByName } from "notpadd-core";
+import config from "./content-collections";
+
+type Post = GetTypeByName<typeof config, "posts">;
+```

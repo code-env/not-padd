@@ -1,0 +1,380 @@
+---
+title: Next.js Integration
+description: Learn how Notpadd integrates with Next.js App Router and Pages Router
+---
+
+# Next.js Integration
+
+Learn how Notpadd integrates with Next.js and how to use it in your application.
+
+## Plugin Setup
+
+The `withNotpadd` plugin wraps your **Next**.js configuration:
+
+```typescript
+// next.config.ts
+import { withNotpadd } from "notpadd";
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Your Next.js configuration
+};
+
+export default withNotpadd({
+  configPath: "content-collections.ts",
+})(nextConfig);
+```
+
+## How It Works
+
+### Build Time
+
+During `next build`:
+
+1. Notpadd fetches content from the API
+2. Generates MDX files in your project
+3. Processes collections using Notpadd Core
+4. Generates TypeScript types
+5. Next.js builds your application with the content
+
+### Development Mode
+
+During `next dev`:
+
+1. Initial build happens as above
+2. File watcher starts monitoring content files
+3. Changes trigger automatic rebuilds
+4. Next.js hot reloads with updated content
+
+### Type Generation
+
+Types are automatically generated when you run:
+
+- `next build`
+- `next dev` (first run)
+- `npm run typegen` (if configured)
+
+## Using Content in Pages
+
+### Static Pages
+
+```typescript
+// app/blog/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+
+export default function BlogPage() {
+  return (
+    <div>
+      <h1>Blog</h1>
+      {allNotpadd.map((post) => (
+        <article key={post.slug}>
+          <h2>{post.title}</h2>
+          <p>{post.description}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+### Dynamic Routes
+
+```typescript
+// app/blog/[slug]/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+import { notFound } from "next/navigation";
+
+export async function generateStaticParams() {
+  return allNotpadd.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export default function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = allNotpadd.find((p) => p.slug === params.slug);
+
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <p>{post.description}</p>
+      <div>{post.markdown}</div>
+    </article>
+  );
+}
+```
+
+### Server Components
+
+```typescript
+// app/blog/[slug]/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = allNotpadd.find((p) => p.slug === params.slug);
+
+  if (!post) {
+    return <div>Post not found</div>;
+  }
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <div>{post.markdown}</div>
+    </article>
+  );
+}
+```
+
+## Type Safety
+
+Notpadd generates TypeScript types for your collections:
+
+```typescript
+import type { GetTypeByName } from "notpadd-core";
+import config from "@/content-collections";
+
+type BlogPost = GetTypeByName<typeof config, "notpadd">;
+```
+
+## Generated Files
+
+Notpadd generates files in `.content-collections/generated/`:
+
+### Collection Files
+
+Each collection gets a generated file:
+
+```typescript
+// .content-collections/generated/notpadd.ts
+export const allNotpadd: Array<BlogPost> = [
+  // Your documents
+];
+
+export function getNotpadd(slug: string): BlogPost | undefined {
+  return allNotpadd.find((post) => post.slug === slug);
+}
+```
+
+### Type Definitions
+
+Type definitions are included in the generated files for full TypeScript support.
+
+## App Router
+
+### Using in App Router
+
+```typescript
+// app/blog/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+
+export default function BlogPage() {
+  return (
+    <div>
+      {allNotpadd.map((post) => (
+        <article key={post.slug}>
+          <h2>{post.title}</h2>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+### Metadata
+
+```typescript
+// app/blog/[slug]/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const post = allNotpadd.find((p) => p.slug === params.slug);
+
+  if (!post) {
+    return {};
+  }
+
+  return {
+    title: post.title,
+    description: post.description,
+    openGraph: {
+      images: post.image ? [post.image] : [],
+    },
+  };
+}
+```
+
+## Pages Router
+
+### Using in Pages Router
+
+```typescript
+// pages/blog/index.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+
+export default function BlogPage() {
+  return (
+    <div>
+      {allNotpadd.map((post) => (
+        <article key={post.slug}>
+          <h2>{post.title}</h2>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+### getStaticProps
+
+```typescript
+// pages/blog/[slug].tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+import { GetStaticPaths, GetStaticProps } from "next";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: allNotpadd.map((post) => ({
+      params: { slug: post.slug },
+    })),
+    fallback: false,
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const post = allNotpadd.find((p) => p.slug === params?.slug);
+
+  if (!post) {
+    return { notFound: true };
+  }
+
+  return {
+    props: { post },
+  };
+};
+```
+
+## Markdown Rendering
+
+### Using MDX
+
+Install MDX support:
+
+```bash
+npm install @next/mdx @mdx-js/loader @mdx-js/react
+```
+
+Configure Next.js:
+
+```typescript
+// next.config.ts
+import createMDX from "@next/mdx";
+
+const nextConfig = {
+  pageExtensions: ["ts", "tsx", "mdx"],
+};
+
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [],
+  },
+});
+
+export default withNotpadd({
+  configPath: "content-collections.ts",
+})(withMDX(nextConfig));
+```
+
+### Using a Markdown Library
+
+```typescript
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchema,
+  transform: async (doc, { cache }) => {
+    const html = await cache("markdown-to-html", doc.markdown, async () => {
+      const result = await remark().use(remarkHtml).process(doc.markdown);
+      return result.toString();
+    });
+
+    return {
+      ...doc,
+      html,
+    };
+  },
+});
+```
+
+Then use in your component:
+
+```typescript
+<div dangerouslySetInnerHTML={{ __html: post.html }} />
+```
+
+## Performance
+
+### Static Generation
+
+Notpadd works best with static generation:
+
+```typescript
+export async function generateStaticParams() {
+  return allNotpadd.map((post) => ({
+    slug: post.slug,
+  }));
+}
+```
+
+### Incremental Static Regeneration
+
+For ISR, you can combine with Next.js revalidation:
+
+```typescript
+export const revalidate = 3600; // Revalidate every hour
+```
+
+## Troubleshooting
+
+### Types Not Found
+
+Ensure you've run a build at least once:
+
+```bash
+npm run build
+```
+
+### Content Not Updating
+
+1. Check your Notpadd configuration
+2. Verify environment variables
+3. Ensure the build process completes
+4. Check for errors in the console
+
+### Build Errors
+
+Check that:
+
+1. `notpadd-core` is installed
+2. Your configuration file is valid
+3. Your schema matches your content structure

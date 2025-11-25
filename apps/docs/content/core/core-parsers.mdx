@@ -1,0 +1,271 @@
+---
+title: Parsers
+description: Extract data from content files using built-in parsers or define custom parsers for your needs
+---
+
+# Parsers
+
+Parsers extract data from content files. Notpadd Core supports multiple built-in parsers and allows you to define custom parsers.
+
+## Built-in Parsers
+
+### `frontmatter` (default)
+
+Parses YAML frontmatter and extracts both metadata and content:
+
+```typescript
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  parser: "frontmatter",
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+```
+
+**Input file:**
+```markdown
+---
+title: My Post
+---
+
+This is the content.
+```
+
+**Result:**
+```typescript
+{
+  title: "My Post",
+  content: "This is the content.",
+  _meta: { ... }
+}
+```
+
+### `frontmatter-only`
+
+Parses only the frontmatter, ignoring content:
+
+```typescript
+defineCollection({
+  name: "config",
+  directory: "content/config",
+  parser: "frontmatter-only",
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+```
+
+**Input file:**
+```markdown
+---
+title: Config
+---
+
+This content is ignored.
+```
+
+**Result:**
+```typescript
+{
+  title: "Config",
+  _meta: { ... }
+}
+```
+
+### `json`
+
+Parses JSON files:
+
+```typescript
+defineCollection({
+  name: "data",
+  directory: "content/data",
+  parser: "json",
+  schema: z.object({
+    name: z.string(),
+    value: z.number(),
+  }),
+});
+```
+
+**Input file (`data.json`):**
+```json
+{
+  "name": "Example",
+  "value": 42
+}
+```
+
+**Result:**
+```typescript
+{
+  name: "Example",
+  value: 42,
+  _meta: { ... }
+}
+```
+
+### `yaml`
+
+Parses YAML files:
+
+```typescript
+defineCollection({
+  name: "settings",
+  directory: "content/settings",
+  parser: "yaml",
+  schema: z.object({
+    theme: z.string(),
+    language: z.string(),
+  }),
+});
+```
+
+**Input file (`settings.yaml`):**
+```yaml
+theme: dark
+language: en
+```
+
+**Result:**
+```typescript
+{
+  theme: "dark",
+  language: "en",
+  _meta: { ... }
+}
+```
+
+## Custom Parsers
+
+Define your own parser using `defineParser()`:
+
+```typescript
+import { defineParser, defineCollection } from "notpadd-core";
+
+const markdownParser = defineParser({
+  hasContent: true,
+  parse: async (content: string) => {
+    // Custom parsing logic
+    const lines = content.split("\n");
+    const title = lines[0].replace("#", "").trim();
+    const body = lines.slice(1).join("\n");
+
+    return {
+      title,
+      content: body,
+    };
+  },
+});
+
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  parser: markdownParser,
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+```
+
+### Parser Function
+
+You can also define a parser as a simple function (equivalent to `hasContent: false`):
+
+```typescript
+import { defineParser } from "notpadd-core";
+
+const csvParser = defineParser((content: string) => {
+  const lines = content.split("\n");
+  const headers = lines[0].split(",");
+  const data = lines.slice(1).map((line) => {
+    const values = line.split(",");
+    return headers.reduce((acc, header, i) => {
+      acc[header] = values[i];
+      return acc;
+    }, {} as Record<string, string>);
+  });
+
+  return { rows: data };
+});
+```
+
+## Parser Properties
+
+### `hasContent`
+
+Determines whether the parser extracts content:
+
+- `true`: The parsed result includes a `content` property
+- `false`: Only metadata is extracted
+
+### `parse`
+
+The parsing function that receives the file content and returns parsed data:
+
+```typescript
+type ParseFn = (
+  content: string,
+) => Record<string, unknown> | Promise<Record<string, unknown>>;
+```
+
+## Parser Selection
+
+The parser is selected based on:
+
+1. Explicit `parser` option in collection definition
+2. Default: `"frontmatter"` if not specified
+
+## Content Property
+
+When `hasContent: true`, the parser's result must include a `content` property that is a string. This content is:
+- Validated to be a string
+- Included in the final document
+- Available in transform functions
+
+## Examples
+
+### Markdown with Custom Frontmatter
+
+```typescript
+const customFrontmatterParser = defineParser({
+  hasContent: true,
+  parse: (content: string) => {
+    const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    if (!match) {
+      throw new Error("Invalid frontmatter format");
+    }
+
+    const frontmatter = yaml.parse(match[1]);
+    const body = match[2];
+
+    return {
+      ...frontmatter,
+      content: body,
+    };
+  },
+});
+```
+
+### TOML Parser
+
+```typescript
+import { parse as parseToml } from "@iarna/toml";
+
+const tomlParser = defineParser({
+  hasContent: false,
+  parse: (content: string) => {
+    return parseToml(content);
+  },
+});
+```
+
+## Best Practices
+
+1. **Use built-in parsers when possible**: They're optimized and well-tested
+2. **Handle errors gracefully**: Custom parsers should throw descriptive errors
+3. **Return consistent structures**: Always return objects with the same shape
+4. **Consider async parsing**: Use async functions for expensive parsing operations
+5. **Validate parsed data**: Ensure your schema matches what the parser returns
