@@ -9,7 +9,7 @@ import {
   articleAuthor,
   user as userTable,
 } from "@notpadd/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import sharp from "sharp";
@@ -87,6 +87,7 @@ const slugify = (text: string) => {
   return text
     .toLowerCase()
     .trim()
+    .replace(/[^\w\s-]/g, " ")
     .replace(/\s+/g, "-")
     .replace(/^-+|-+$/g, "");
 };
@@ -261,17 +262,24 @@ articlesRoutes.get("/:organizationId", async (c) => {
 
   const offset = (pageNumber - 1) * limitNumber;
 
+  const whereCondition = and(
+    eq(articles.organizationId, organizationId),
+    search ? ilike(articles.title, `%${search}%`) : undefined
+  );
+
   const [result, total] = await Promise.all([
     db
       .select()
       .from(articles)
-      .where(eq(articles.organizationId, organizationId))
+      .where(whereCondition)
+      .orderBy(desc(articles.createdAt))
       .limit(limitNumber)
       .offset(offset),
+
     db
       .select({ count: sql<number>`count(*)` })
       .from(articles)
-      .where(eq(articles.organizationId, organizationId)),
+      .where(whereCondition),
   ]);
 
   return c.json({
@@ -464,20 +472,46 @@ articlesRoutes.delete("/:organizationId/:articleId", async (c) => {
   const article = await db
     .select()
     .from(articles)
-    .where(eq(articles.id, articleId));
+    .where(
+      and(
+        eq(articles.id, articleId),
+        eq(articles.organizationId, organizationId)
+      )
+    )
+    .limit(1);
 
   if (!article || !article[0]) {
     return c.json({ error: "Article not found", success: false }, 404);
   }
 
-  await db
-    .delete(articles)
-    .where(
-      and(
-        eq(articles.organizationId, organizationId),
-        eq(articles.id, articleId)
-      )
-    );
+  await db.transaction(async (trx) => {
+    await trx
+      .delete(articleAuthor)
+      .where(
+        and(
+          eq(articleAuthor.articleId, articleId),
+          eq(articleAuthor.organizationId, organizationId)
+        )
+      );
+
+    await trx
+      .delete(articleTag)
+      .where(
+        and(
+          eq(articleTag.articleId, articleId),
+          eq(articleTag.organizationId, organizationId)
+        )
+      );
+
+    await trx
+      .delete(articles)
+      .where(
+        and(
+          eq(articles.organizationId, organizationId),
+          eq(articles.id, articleId)
+        )
+      );
+  });
 
   return c.json({
     success: true,
@@ -517,6 +551,36 @@ articlesRoutes.post("/:articleId/cover-image", async (c) => {
     success: true,
     message: "Article cover image updated successfully",
     data: { data: updated[0] },
+  });
+});
+
+articlesRoutes.post("/:organizationId/check-slug", async (c) => {
+  const { organizationId } = c.req.param();
+  const { slug } = await c.req.json();
+
+  const article = await db
+    .select()
+    .from(articles)
+    .where(
+      and(eq(articles.slug, slug), eq(articles.organizationId, organizationId))
+    )
+    .limit(1);
+
+  if (article && article[0]) {
+    return c.json(
+      {
+        success: false,
+        message: "Slug already exists",
+        data: { slug: false },
+      },
+      400
+    );
+  }
+
+  return c.json({
+    success: true,
+    message: "Slug is available",
+    data: { slug: true },
   });
 });
 

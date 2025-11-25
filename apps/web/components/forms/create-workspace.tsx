@@ -1,9 +1,14 @@
 "use client";
 
 import { useOrganizationContext } from "@/contexts";
-import { replaceOrganizationWithWorkspace, REQUIRED_STRING } from "@/lib/utils";
+import {
+  generateOrganizationAvatar,
+  replaceOrganizationWithWorkspace,
+  REQUIRED_STRING,
+} from "@/lib/utils";
 import { KEYS_QUERIES } from "@/lib/queries";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@notpadd/auth/auth-client";
 import {
   Form,
   FormControl,
@@ -13,13 +18,19 @@ import {
 } from "@notpadd/ui/components/form";
 import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
 import { z } from "zod";
 
 const formSchema = z.object({
-  name: REQUIRED_STRING,
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .regex(/^[A-Za-z\s]+$/, "Only letters and spaces are allowed")
+    .trim(),
   slug: REQUIRED_STRING,
 });
 
@@ -34,17 +45,67 @@ export function CreateWorkspace() {
   });
 
   const name = form.watch("name");
-
-  const slug = name.toLocaleLowerCase().split(" ").join("-");
+  const formSlug = form.watch("slug");
 
   useEffect(() => {
-    if (name.length >= 5) form.setValue("slug", slug);
+    if (name.length >= 5) {
+      const slug = name
+        .toLocaleLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      form.setValue("slug", slug);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
+
+  const [debouncedSlug] = useDebounce(formSlug, 500);
+
+  const {
+    data: slugData,
+    error: slugError,
+    isPending: isCheckingSlug,
+  } = useQuery({
+    queryKey: ["checkSlug", debouncedSlug],
+    queryFn: async () => {
+      if (!debouncedSlug || debouncedSlug.length === 0) {
+        return null;
+      }
+      const { data, error } = await authClient.organization.checkSlug({
+        slug: debouncedSlug,
+      });
+      if (error) {
+        throw error;
+      }
+      return data;
+    },
+    enabled: !!debouncedSlug && debouncedSlug.length > 0,
+    retry: false,
+  });
+
+  const isSlugTaken = Boolean(
+    slugError || (slugData && slugData.status === false)
+  );
+
+  useEffect(() => {
+    if (isSlugTaken && debouncedSlug.length > 0) {
+      form.setError("name", {
+        message: "-> Org with name '" + debouncedSlug + "' already taken",
+      });
+    } else {
+      form.clearErrors("name");
+    }
+  }, [isSlugTaken, debouncedSlug]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      const { data, error } = await createOrganization({ ...values });
+      const logo = generateOrganizationAvatar(values.slug);
+      const { data, error } = await createOrganization({
+        ...values,
+        logo,
+      });
       if (error) throw error;
 
       if (data) {
@@ -80,8 +141,13 @@ export function CreateWorkspace() {
             </FormItem>
           )}
         />
-        <LoadingButton type="submit" className="w-full" loading={isLoading}>
-          Submit
+        <LoadingButton
+          type="submit"
+          className="w-full"
+          loading={isLoading}
+          disabled={isLoading || isSlugTaken || isCheckingSlug}
+        >
+          Create Workspace
         </LoadingButton>
       </form>
     </Form>

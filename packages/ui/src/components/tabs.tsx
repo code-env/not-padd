@@ -135,7 +135,7 @@ function TabsList({
   return (
     <MotionHighlight
       controlledItems
-      className={cn("rounded-sm bg-background shadow-sm", activeClassName)}
+      className={cn("rounded-sm bg-muted!", activeClassName)}
       value={activeValue}
       transition={transition}
     >

@@ -1,0 +1,211 @@
+---
+title: Schemas
+description: Define content structure and validation rules using Zod schemas, including pre-built Notpadd schemas
+---
+
+# Schemas
+
+Schemas define the structure and validation rules for your content using Zod.
+
+## Basic Schema
+
+Use Zod to define your schema:
+
+```typescript
+import { defineCollection } from "notpadd-core";
+import { z } from "zod";
+
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    published: z.boolean(),
+    date: z.string(),
+    tags: z.array(z.string()),
+  }),
+});
+```
+
+## Schema Validation
+
+Schemas validate:
+- Frontmatter data (for frontmatter parser)
+- File data (for JSON/YAML parsers)
+- The structure matches your defined types
+
+Invalid documents are skipped and errors are emitted via the event system.
+
+## Notpadd Schemas
+
+Notpadd Core provides pre-built schemas for Notpadd content:
+
+### `notpaddSchema`
+
+Full schema with all Notpadd fields:
+
+```typescript
+import { notpaddSchema } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchema,
+});
+```
+
+Includes: `slug`, `title`, `description`, `published`, `markdown`, `createdAt`, `updatedAt`, `image`, `imageBlurhash`, `authors`, `tags`
+
+### `notpaddSchemaOptional`
+
+Schema with optional fields:
+
+```typescript
+import { notpaddSchemaOptional } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchemaOptional,
+});
+```
+
+### `notpaddSchemaMinimal`
+
+Minimal schema with only required fields:
+
+```typescript
+import { notpaddSchemaMinimal } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchemaMinimal,
+});
+```
+
+Includes: `slug`, `title`
+
+### `notpaddSchemaExtended`
+
+Extended schema with additional fields:
+
+```typescript
+import { notpaddSchemaExtended } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchemaExtended,
+});
+```
+
+Includes: `slug`, `title`, `description`, `published`, `createdAt`, `updatedAt`, `image`, `tags`, `category`, `authors`
+
+### `notpaddSchemaPublished`
+
+Schema that only accepts published articles:
+
+```typescript
+import { notpaddSchemaPublished } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchemaPublished,
+});
+```
+
+## Customizing Notpadd Schemas
+
+### `createNotpaddSchema`
+
+Extend the base Notpadd schema with additional fields:
+
+```typescript
+import { createNotpaddSchema } from "notpadd-core";
+import { z } from "zod";
+
+const customSchema = createNotpaddSchema({
+  category: z.string(),
+  featured: z.boolean(),
+  readingTime: z.number(),
+});
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: customSchema,
+});
+```
+
+### `createNotpaddSchemaPick`
+
+Pick specific fields from the Notpadd schema:
+
+```typescript
+import { createNotpaddSchemaPick } from "notpadd-core";
+
+const minimalSchema = createNotpaddSchemaPick(["slug", "title", "description"]);
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: minimalSchema,
+});
+```
+
+### `createNotpaddSchemaOmit`
+
+Omit specific fields from the Notpadd schema:
+
+```typescript
+import { createNotpaddSchemaOmit } from "notpadd-core";
+
+const schemaWithoutMarkdown = createNotpaddSchemaOmit(["markdown"]);
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: schemaWithoutMarkdown,
+});
+```
+
+## Author Schema
+
+The `notpaddAuthorSchema` defines author information:
+
+```typescript
+import { notpaddAuthorSchema } from "notpadd-core";
+
+// Used within notpaddSchema
+z.object({
+  authors: z.array(notpaddAuthorSchema),
+});
+```
+
+Author fields:
+- `name`: Author name (string)
+- `email`: Author email (string)
+- `image`: Author image URL (string | null)
+
+## Type Inference
+
+Schemas automatically generate TypeScript types:
+
+```typescript
+import type { GetTypeByName } from "notpadd-core";
+import config from "./content-collections";
+
+type Post = GetTypeByName<typeof config, "posts">;
+// Post includes all schema fields + _meta + content (if parser has content)
+```
+
+## Best Practices
+
+1. **Use specific types**: Prefer `z.string()` over `z.any()` for better type safety
+2. **Make fields optional when appropriate**: Use `.optional()` for fields that may not exist
+3. **Validate dates**: Use `z.string().datetime()` or transform to Date objects
+4. **Use enums for fixed values**: `z.enum(["draft", "published"])` instead of `z.string()`
+5. **Leverage Notpadd schemas**: Use pre-built schemas when working with Notpadd content

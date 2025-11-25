@@ -1,15 +1,14 @@
 "use client";
 
-import { ChevronsUpDown, Plus } from "lucide-react";
-import * as React from "react";
+import { ChevronsUpDown } from "lucide-react";
 
 import { useOrganizationContext } from "@/contexts";
+import type { Organization } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@notpadd/ui/components/dropdown-menu";
 import {
@@ -18,15 +17,30 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@notpadd/ui/components/sidebar";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { UserProfile } from "@notpadd/ui/components/user-profile";
 import { cn } from "@notpadd/ui/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const TO_SHOW = 5;
 
 export function OrganizationSwitcher() {
   const { isMobile } = useSidebar();
-  const router = useRouter();
   const { activeOrganization, organizations, setActiveOrganization } =
     useOrganizationContext();
+
+  const pathname = usePathname();
+  const pathWithoutCurrentSlug = pathname.split("/").slice(2).join("/");
+
+  let organizationsToShow = organizations?.slice(0, TO_SHOW) ?? [];
+  const remainingOrganizations = organizations?.slice(TO_SHOW) ?? [];
+
+  if (remainingOrganizations?.length && remainingOrganizations.length === 1) {
+    organizationsToShow = [
+      ...organizationsToShow,
+      remainingOrganizations[0] as Organization,
+    ];
+  }
 
   return (
     <SidebarMenu>
@@ -37,7 +51,12 @@ export function OrganizationSwitcher() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"></div>
+              <UserProfile
+                url={activeOrganization?.logo as string}
+                name={activeOrganization?.name as string}
+                size="lg"
+              />
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
                   {activeOrganization?.name}
@@ -52,14 +71,20 @@ export function OrganizationSwitcher() {
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Workspaces
+            <DropdownMenuLabel className="flex items-center justify-between">
+              <span className="font-medium text-xs">Workspaces</span>
+              <Link
+                href="/new"
+                className="size-6 border flex items-center justify-center"
+              >
+                +
+              </Link>
             </DropdownMenuLabel>
-            {organizations?.map((org, index) => (
+            {organizationsToShow?.map((org, index) => (
               <DropdownMenuItem
                 key={org.name}
                 onClick={() => {
-                  window.location.href = `/${org.slug}`;
+                  window.location.href = `/${org.slug}/${pathWithoutCurrentSlug}`;
                   setActiveOrganization(org.id, org.slug);
                 }}
                 className={cn("gap-2 p-2 cursor-pointer", {
@@ -67,23 +92,33 @@ export function OrganizationSwitcher() {
                     activeOrganization?.id === org.id,
                 })}
               >
-                <div className="flex size-6 items-center justify-center rounded-md border"></div>
+                <UserProfile url={org.logo} name={org.name} size="sm" />
                 <span className="truncate first-letter:capitalize">
                   {org.name}
                 </span>
               </DropdownMenuItem>
             ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2" asChild>
-              <Link href="/new">
-                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                  <Plus className="size-4" />
-                </div>
-                <div className="text-muted-foreground font-medium">
-                  Add team
-                </div>
-              </Link>
-            </DropdownMenuItem>
+            {remainingOrganizations?.length &&
+              remainingOrganizations.length > 1 && (
+                <DropdownMenuItem className="gap-2 p-2" asChild>
+                  <Link href="/workspaces" className="flex items-center gap-2">
+                    {remainingOrganizations.slice(0, 3).map((org) => (
+                      <UserProfile
+                        key={org.id}
+                        url={org.logo}
+                        name={org.name}
+                        size="xs"
+                      />
+                    ))}
+
+                    {remainingOrganizations.length > 3 && (
+                      <span className="text-muted-foreground font-medium ">
+                        +{remainingOrganizations.length - 3} more
+                      </span>
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+              )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

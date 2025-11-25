@@ -242,6 +242,7 @@ export type NotpaddConfig = {
   pk: string;
   orgID: string;
   directory?: string;
+  query?: "all" | "published" | "draft";
 };
 
 export type Configuration<TCollections extends Array<AnyCollection>> = {
@@ -255,9 +256,14 @@ export type AnyConfiguration = Configuration<Array<AnyCollection>>;
 export function defineConfig<TConfig extends AnyConfiguration>(
   config: TConfig
 ) {
-  if (config.notpadd && !config.notpadd.directory) {
-    const collectionDirectory = config.collections[0]?.directory || "notpadd";
-    config.notpadd.directory = collectionDirectory;
+  if (config.notpadd) {
+    if (!config.notpadd.directory) {
+      const collectionDirectory = config.collections[0]?.directory || "notpadd";
+      config.notpadd.directory = collectionDirectory;
+    }
+    if (!config.notpadd.query) {
+      config.notpadd.query = "all";
+    }
   }
 
   return config;

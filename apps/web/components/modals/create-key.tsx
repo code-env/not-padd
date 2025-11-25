@@ -3,7 +3,7 @@ import useModal from "@/hooks/use-modal";
 import { QUERY_KEYS } from "@/lib/constants";
 import { KEYS_QUERIES } from "@/lib/queries";
 import { createKeySchema } from "@/lib/schemas";
-import type { CreateKeySchema, TagsResponse } from "@/lib/types";
+import type { CreateKeySchema, KeysResponse } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -43,21 +43,21 @@ const CreateKey = () => {
     },
   });
 
-  const { mutate: createTag, isPending } = useMutation({
+  const { mutate: createKey, isPending } = useMutation({
     mutationFn: (data: CreateKeySchema) =>
       KEYS_QUERIES.createKey(activeOrganization?.id as string, data),
     onSuccess: (createdKey) => {
-      toast.success("Tag created successfully");
+      toast.success("Key created successfully");
       form.reset();
       onClose();
       queryClient.setQueryData(
-        [QUERY_KEYS.TAGS, activeOrganization?.id],
-        (old: TagsResponse | undefined) => {
+        [QUERY_KEYS.KEYS, activeOrganization?.id],
+        (old: KeysResponse | undefined) => {
           if (!old) {
             return {
               data: [createdKey],
               pagination: { total: 1, page: 1, limit: 10 },
-            } satisfies TagsResponse;
+            } satisfies KeysResponse;
           }
           return {
             ...old,
@@ -66,11 +66,11 @@ const CreateKey = () => {
               ...old.pagination,
               total: (old.pagination?.total || 0) + 1,
             },
-          } satisfies TagsResponse;
+          } satisfies KeysResponse;
         }
       );
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.TAGS, activeOrganization?.id],
+        queryKey: [QUERY_KEYS.KEYS, activeOrganization?.id],
       });
     },
     onError: (error) => {
@@ -90,7 +90,7 @@ const CreateKey = () => {
   }, [form.watch("name")]);
 
   const onSubmit = (data: CreateKeySchema) => {
-    createTag(data);
+    createKey(data);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

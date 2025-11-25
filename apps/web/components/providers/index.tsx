@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, type ReactNode } from "react";
-import { Toaster } from "sonner";
 import { OrganizationProvider } from "@/contexts";
-import { authClient } from "@notpadd/auth/auth-client";
-import { usePathname, useRouter } from "next/navigation";
 import { useMounted } from "@/hooks/use-mouted";
-import Modals from "@/components/modals";
+import { authClient } from "@notpadd/auth/auth-client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "next-themes";
 
 const Providers = ({ children }: { children: ReactNode }) => {
   const { data: activeOrganization, isPending } =
@@ -38,23 +38,24 @@ const Providers = ({ children }: { children: ReactNode }) => {
 
   if (!mounted || isPending || isUserPending) return null;
   return (
-    <OrganizationProvider>
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <Toaster
-          toastOptions={{
-            style: {
-              backgroundColor: "var(--background)",
-              color: "var(--foreground)",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "0.5rem",
-              boxShadow: "0 0 0 1px var(--border)",
-            },
-          }}
-        />
-        <Modals />
-      </QueryClientProvider>
-    </OrganizationProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <OrganizationProvider>
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <Toaster
+            toastOptions={{
+              style: {
+                backgroundColor: "var(--background)",
+                color: "var(--foreground)",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "0.5rem",
+                boxShadow: "0 0 0 1px var(--border)",
+              },
+            }}
+          />
+        </QueryClientProvider>
+      </OrganizationProvider>
+    </ThemeProvider>
   );
 };
 

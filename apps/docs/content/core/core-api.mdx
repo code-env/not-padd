@@ -1,0 +1,471 @@
+---
+title: API Reference
+description: Complete API reference for notpadd-core including all functions, types, and utilities
+---
+
+# API Reference
+
+Complete API reference for Notpadd Core.
+
+## Configuration
+
+### `defineConfig(config)`
+
+Defines the configuration for your content collections.
+
+**Parameters:**
+
+- `config`: Configuration object
+  - `collections`: Array of collection definitions
+  - `cache?`: `"memory"` | `"file"` | `"none"` (default: `"file"`)
+  - `notpadd?`: Notpadd configuration object
+
+**Returns:** Typed configuration object
+
+**Example:**
+
+```typescript
+import { defineConfig } from "notpadd-core";
+
+export default defineConfig({
+  collections: [
+    /* ... */
+  ],
+  cache: "file",
+});
+```
+
+### `defineCollection(collection)`
+
+Defines a content collection.
+
+**Parameters:**
+
+- `collection`: Collection definition object
+  - `name`: Collection name (string)
+  - `directory`: Directory path (string)
+  - `schema`: Zod schema
+  - `parser?`: Parser name or custom parser
+  - `include`: Glob pattern(s) for files to include
+  - `exclude?`: Glob pattern(s) for files to exclude
+  - `transform?`: Transform function
+  - `onSuccess?`: Success callback
+
+**Returns:** Typed collection object
+
+**Example:**
+
+```typescript
+import { defineCollection } from "notpadd-core";
+import { z } from "zod";
+
+const posts = defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+```
+
+## Builder
+
+### `createBuilder(configPath, options?)`
+
+Creates a builder instance.
+
+**Parameters:**
+
+- `configPath`: Path to configuration file (string)
+- `options?`: Builder options
+  - `outputDir?`: Output directory path (string)
+  - `configName?`: Configuration file name (string, default: `"content-collections.ts"`)
+
+**Returns:** Promise resolving to Builder instance
+
+**Example:**
+
+```typescript
+import { createBuilder } from "notpadd-core";
+
+const builder = await createBuilder("./content-collections.ts");
+```
+
+### `Builder.build()`
+
+Builds all collections.
+
+**Returns:** `Promise<void>`
+
+**Example:**
+
+```typescript
+await builder.build();
+```
+
+### `Builder.watch()`
+
+Starts watching for file changes.
+
+**Returns:** Promise resolving to Watcher object with `unsubscribe()` method
+
+**Example:**
+
+```typescript
+const watcher = await builder.watch();
+// Later...
+await watcher.unsubscribe();
+```
+
+### `Builder.sync(modification, filePath)`
+
+Manually sync a file change.
+
+**Parameters:**
+
+- `modification`: `"create"` | `"update"` | `"delete"`
+- `filePath`: Path to file (string)
+
+**Returns:** `Promise<boolean>`
+
+**Example:**
+
+```typescript
+await builder.sync("update", "./content/posts/post.mdx");
+```
+
+### `Builder.on(event, handler)`
+
+Subscribe to builder events.
+
+**Parameters:**
+
+- `event`: Event name (string)
+- `handler`: Event handler function
+
+**Returns:** Unsubscribe function
+
+**Example:**
+
+```typescript
+builder.on("build:end", ({ stats }) => {
+  console.log(`Built ${stats.documents} documents`);
+});
+```
+
+## Parsers
+
+### `defineParser(parser)`
+
+Defines a custom parser.
+
+**Parameters:**
+
+- `parser`: Parser object or parse function
+  - If object: `{ hasContent: boolean, parse: ParseFn }`
+  - If function: Treated as parse function with `hasContent: false`
+
+**Returns:** Parser object
+
+**Example:**
+
+```typescript
+import { defineParser } from "notpadd-core";
+
+const customParser = defineParser({
+  hasContent: true,
+  parse: (content) => {
+    return { data: parseContent(content), content: getBody(content) };
+  },
+});
+```
+
+## Schemas
+
+### `notpaddSchema`
+
+Full Notpadd schema with all fields.
+
+**Type:** `ZodObject`
+
+**Example:**
+
+```typescript
+import { notpaddSchema } from "notpadd-core";
+
+defineCollection({
+  name: "notpadd",
+  directory: "notpadd",
+  schema: notpaddSchema,
+});
+```
+
+### `notpaddSchemaOptional`
+
+Notpadd schema with optional fields.
+
+**Type:** `ZodObject`
+
+### `notpaddSchemaMinimal`
+
+Minimal Notpadd schema (slug, title only).
+
+**Type:** `ZodObject`
+
+### `notpaddSchemaExtended`
+
+Extended Notpadd schema with additional fields.
+
+**Type:** `ZodObject`
+
+### `notpaddSchemaPublished`
+
+Notpadd schema that only accepts published articles.
+
+**Type:** `ZodObject`
+
+### `createNotpaddSchema(additionalFields)`
+
+Creates a Notpadd schema extended with additional fields.
+
+**Parameters:**
+
+- `additionalFields`: Zod object shape with additional fields
+
+**Returns:** Extended Zod schema
+
+**Example:**
+
+```typescript
+import { createNotpaddSchema } from "notpadd-core";
+import { z } from "zod";
+
+const schema = createNotpaddSchema({
+  category: z.string(),
+  featured: z.boolean(),
+});
+```
+
+### `createNotpaddSchemaPick(fields)`
+
+Creates a Notpadd schema with only selected fields.
+
+**Parameters:**
+
+- `fields`: Array of field names to pick
+
+**Returns:** Zod schema with picked fields
+
+**Example:**
+
+```typescript
+import { createNotpaddSchemaPick } from "notpadd-core";
+
+const schema = createNotpaddSchemaPick(["slug", "title", "description"]);
+```
+
+### `createNotpaddSchemaOmit(fields)`
+
+Creates a Notpadd schema with specified fields omitted.
+
+**Parameters:**
+
+- `fields`: Array of field names to omit
+
+**Returns:** Zod schema with omitted fields
+
+**Example:**
+
+```typescript
+import { createNotpaddSchemaOmit } from "notpadd-core";
+
+const schema = createNotpaddSchemaOmit(["markdown"]);
+```
+
+## Notpadd API
+
+### `processNotpaddData(config, baseDirectory)`
+
+Processes Notpadd data and generates MDX files.
+
+**Parameters:**
+
+- `config`: Notpadd configuration object
+- `baseDirectory`: Base directory path (string)
+
+**Returns:** `Promise<void>`
+
+**Example:**
+
+```typescript
+import { processNotpaddData } from "notpadd-core";
+
+await processNotpaddData(
+  {
+    sk: "secret-key",
+    pk: "public-key",
+    orgID: "org-id",
+    directory: "notpadd",
+    query: "all",
+  },
+  process.cwd()
+);
+```
+
+### `validateNotpaddConfig(config)`
+
+Validates Notpadd configuration.
+
+**Parameters:**
+
+- `config`: Notpadd configuration object
+
+**Throws:** `NotpaddError` if configuration is invalid
+
+**Example:**
+
+```typescript
+import { validateNotpaddConfig } from "notpadd-core";
+
+try {
+  validateNotpaddConfig(config);
+} catch (error) {
+  console.error("Invalid config:", error.message);
+}
+```
+
+## Imports
+
+### `createDefaultImport(path)`
+
+Creates a default import reference.
+
+**Parameters:**
+
+- `path`: Import path (string)
+
+**Returns:** Import object
+
+**Example:**
+
+```typescript
+import { createDefaultImport } from "notpadd-core";
+
+return {
+  component: createDefaultImport("./components/Post.tsx"),
+};
+```
+
+### `createNamedImport(name, path)`
+
+Creates a named import reference.
+
+**Parameters:**
+
+- `name`: Export name (string)
+- `path`: Import path (string)
+
+**Returns:** Import object
+
+**Example:**
+
+```typescript
+import { createNamedImport } from "notpadd-core";
+
+return {
+  formatDate: createNamedImport("formatDate", "./utils.ts"),
+};
+```
+
+## Types
+
+### `GetTypeByName<Config, Name>`
+
+Gets the document type for a collection by name.
+
+**Type Parameters:**
+
+- `Config`: Configuration type
+- `Name`: Collection name (string literal)
+
+**Example:**
+
+```typescript
+import type { GetTypeByName } from "notpadd-core";
+import config from "./content-collections";
+
+type Post = GetTypeByName<typeof config, "posts">;
+```
+
+### `Document`
+
+Base document type with `_meta` property.
+
+### `Meta`
+
+Metadata type for documents:
+
+- `filePath`: Full file path
+- `fileName`: File name
+- `directory`: Directory path
+- `path`: URL-friendly path
+- `extension`: File extension
+
+### `Modification`
+
+File modification type: `"create"` | `"update"` | `"delete"`
+
+## Errors
+
+### `NotpaddError`
+
+Error class for Notpadd-related errors.
+
+**Properties:**
+
+- `message`: Error message
+- `statusCode?`: HTTP status code (if applicable)
+
+**Example:**
+
+```typescript
+import { NotpaddError } from "notpadd-core";
+
+throw new NotpaddError("Failed to fetch data", 500);
+```
+
+### `ConfigurationError`
+
+Error class for configuration errors.
+
+### `CollectError`
+
+Error class for collection errors.
+
+**Properties:**
+
+- `type`: `"Parse"` | `"Read"`
+- `message`: Error message
+
+### `TransformError`
+
+Error class for transform errors.
+
+**Properties:**
+
+- `type`: `"Validation"` | `"Configuration"` | `"Transform"` | `"Result"`
+- `message`: Error message
+
+## Utilities
+
+### `suppressDeprecatedWarnings()`
+
+Suppresses deprecation warnings.
+
+**Example:**
+
+```typescript
+import { suppressDeprecatedWarnings } from "notpadd-core";
+
+suppressDeprecatedWarnings();
+```

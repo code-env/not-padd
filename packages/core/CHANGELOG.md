@@ -1,5 +1,30 @@
 # @notpadd/core
 
+## 3.0.3
+
+### Patch Changes
+
+- Fix missing query field default value - query now defaults to "all" when not provided
+- Fix TypeScript import extensions and improve build compatibility
+
+## 3.0.2
+
+### Patch Changes
+
+- Fix TypeScript import extensions and improve build compatibility
+
+## 3.0.1
+
+### Patch Changes
+
+- nothing some deployment error
+
+## 3.0.0
+
+### Minor Changes
+
+- modified some internals of and fixed some bugs
+
 ## 2.2.4
 
 ### Patch Changes

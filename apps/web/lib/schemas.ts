@@ -8,7 +8,10 @@ const OPTIONAL_STRING = z.preprocess(
 );
 
 export const createArticleSchema = z.object({
-  title: REQUIRED_STRING,
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .regex(/^[A-Za-z\s]+$/, "Only letters and spaces are allowed"),
   description: REQUIRED_STRING,
   slug: REQUIRED_STRING,
 });

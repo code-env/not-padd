@@ -57,6 +57,17 @@ export default function ArticleAction({ article }: ArticleActionProps) {
         throw new Error("Workspace not found");
       }
 
+      const check = {
+        image: article.image,
+        content: article.content,
+      };
+
+      for (let key of Object.keys(check)) {
+        if (!Boolean(check[key as keyof typeof check])) {
+          throw new Error(`${key} is required`);
+        }
+      }
+
       const { data } = await axios.post("/api/publish/article", {
         slug: article.slug,
         organizationId: activeOrganization.id,
@@ -69,13 +80,17 @@ export default function ArticleAction({ article }: ArticleActionProps) {
       return data;
     },
     onSuccess: (data) => {
-      toast.success("Article published successfully");
+      toast.success("Article published successfully", {
+        id: "publish-article-success",
+      });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ARTICLES, activeOrganization?.id],
       });
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to publish article");
+    onError: (error) => {
+      toast.error(error.message || "Failed to publish article", {
+        id: "publish-article-error",
+      });
     },
   });
 
@@ -103,7 +118,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     try {
       await publishArticle();
     } catch (error: any) {
-      toast.error(error.message);
+      console.log(error);
     } finally {
       const trigger = document.querySelector(
         '[data-state="open"][data-slot="dropdown-menu-trigger"]'
@@ -119,6 +134,8 @@ export default function ArticleAction({ article }: ArticleActionProps) {
     }
   };
 
+  const isDisabled = !isOwner || isPublishing;
+
   return (
     <>
       <DropdownMenu>
@@ -129,10 +146,10 @@ export default function ArticleAction({ article }: ArticleActionProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          align="center"
+          align="end"
           className="text-muted-foreground flex flex-col gap-1 shadow-sm"
         >
-          <DropdownMenuItem>
+          <DropdownMenuItem disabled={isDisabled} asChild>
             <Link
               className="flex w-full items-center gap-2 cursor-pointer"
               href={`/${activeOrganization?.slug}/articles/${article.id}`}
@@ -142,7 +159,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => handlePublish(e)}
-            disabled={!isOwner || isPublishing}
+            disabled={isDisabled}
           >
             <Plus size={16} />{" "}
             <span>{isPublishing ? "Publishing..." : "Publish"}</span>
@@ -158,6 +175,7 @@ export default function ArticleAction({ article }: ArticleActionProps) {
                 handleDelete
               );
             }}
+            disabled={isDisabled}
           >
             <Trash className="size-4 text-red-500" /> <span>Delete</span>
           </DropdownMenuItem>

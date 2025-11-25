@@ -38,8 +38,6 @@ export function RightSidebar({
   const { article, setArticle, isLoading, isDirty, setIsDirty, articleId } =
     useArticleContext();
   const { activeOrganization } = useOrganizationContext();
-  const router = useRouter();
-
   const form = useArticleForm();
 
   const {
@@ -99,7 +97,7 @@ export function RightSidebar({
 
   return (
     <Sidebar {...props} side="right" variant="floating">
-      <div className="size-full p-4 flex flex-col gap-6">
+      <div className="size-full p-4 flex flex-col gap-6 overflow-y-auto no-scrollbar">
         <h1 className="text-muted-foreground">Article Metadata</h1>
         <div className="flex flex-col gap-4">
           <SidebarSection>

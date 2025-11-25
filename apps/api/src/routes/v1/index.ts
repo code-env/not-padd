@@ -1,8 +1,15 @@
-import type { ReqVariables } from "../../hono/index.js";
 import { db } from "@notpadd/db";
-import { articles } from "@notpadd/db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+  articles,
+  articleTag,
+  tag,
+  articleAuthor,
+  member,
+  user as userTable,
+} from "@notpadd/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
+import type { ReqVariables } from "../../hono/index.js";
 
 const v1Routes = new Hono<{ Variables: ReqVariables }>();
 
@@ -50,14 +57,122 @@ v1Routes.get("/articles", async (c) => {
   }
 
   const dbArticles = await db
-    .select()
+    .select({
+      id: articles.id,
+      title: articles.title,
+      slug: articles.slug,
+      description: articles.description,
+      published: articles.published,
+      markdown: articles.markdown,
+      createdAt: articles.createdAt,
+      updatedAt: articles.updatedAt,
+      image: articles.image,
+      imageBlurhash: articles.imageBlurhash,
+    })
     .from(articles)
-    .where(and(...whereClauses))
-    .limit(10);
+    .where(and(...whereClauses));
+
+  const articleIds = dbArticles.map((article) => article.id);
+
+  const [tagRows, authorRows] = await Promise.all([
+    articleIds.length > 0
+      ? db
+          .select({
+            articleId: articleTag.articleId,
+            name: tag.name,
+          })
+          .from(articleTag)
+          .leftJoin(
+            tag,
+            and(
+              eq(tag.id, articleTag.tagId),
+              eq(tag.organizationId, articleTag.organizationId)
+            )
+          )
+          .where(
+            and(
+              eq(articleTag.organizationId, organization_Id),
+              inArray(articleTag.articleId, articleIds)
+            )
+          )
+      : [],
+    articleIds.length > 0
+      ? db
+          .select({
+            articleId: articleAuthor.articleId,
+            id: userTable.id,
+            name: userTable.name,
+            email: userTable.email,
+            image: userTable.image,
+          })
+          .from(articleAuthor)
+          .leftJoin(
+            member,
+            and(
+              eq(member.id, articleAuthor.memberId),
+              eq(member.organizationId, articleAuthor.organizationId)
+            )
+          )
+          .leftJoin(userTable, eq(userTable.id, member.userId))
+          .where(
+            and(
+              eq(articleAuthor.organizationId, organization_Id),
+              inArray(articleAuthor.articleId, articleIds)
+            )
+          )
+      : [],
+  ]);
+
+  const tagsByArticle = tagRows.reduce(
+    (acc, row) => {
+      if (!row.articleId || !row.name) return acc;
+      if (!acc[row.articleId]) {
+        acc[row.articleId] = [];
+      }
+      acc[row.articleId].push(row.name);
+      return acc;
+    },
+    {} as Record<string, string[]>
+  );
+
+  const authorsByArticle = authorRows.reduce(
+    (acc, row) => {
+      if (!row.articleId || !row.id) return acc;
+      if (!acc[row.articleId]) {
+        acc[row.articleId] = [];
+      }
+      acc[row.articleId].push({
+        id: row.id,
+        name: (row.name as string) ?? "",
+        email: (row.email as string) ?? "",
+        image: (row.image as string) ?? "",
+      });
+      return acc;
+    },
+    {} as Record<
+      string,
+      Array<{ id: string; name: string; email: string; image: string }>
+    >
+  );
+
+  const articlesWithRelations = dbArticles.map((article) => {
+    const articleAuthors = authorsByArticle[article.id] ?? [];
+    const articleTags = tagsByArticle[article.id] ?? [];
+
+    return {
+      ...article,
+      tags: articleTags.length > 0 ? articleTags : null,
+      authors: articleAuthors.map((author) => ({
+        name: author.name,
+        email: author.email,
+        image: author.image,
+      })),
+    };
+  });
 
   return c.json({
     message: "Articles fetched successfully",
-    articles: dbArticles,
+    articles: articlesWithRelations,
   });
 });
 

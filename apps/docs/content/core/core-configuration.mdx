@@ -1,0 +1,108 @@
+---
+title: Configuration
+description: Learn how to configure notpadd-core with collections, caching, and Notpadd API integration
+---
+
+# Configuration
+
+The configuration file defines your collections and global settings for Notpadd Core.
+
+## Configuration File
+
+Create a `content-collections.ts` file in your project root:
+
+```typescript
+import { defineConfig, defineCollection } from "notpadd-core";
+import { z } from "zod";
+
+export default defineConfig({
+  collections: [
+    // Your collections here
+  ],
+  cache: "file", // Optional: "memory" | "file" | "none"
+  notpadd: {
+    // Optional: Notpadd API configuration
+    sk: "your-secret-key",
+    pk: "your-public-key",
+    orgID: "your-organization-id",
+    directory: "notpadd", // Optional, defaults to "notpadd"
+    query: "all", // Optional: "all" | "published" | "draft"
+  },
+});
+```
+
+## Configuration Options
+
+### `collections`
+
+An array of collection definitions. Each collection must be created using `defineCollection()`.
+
+### `cache`
+
+Controls how caching is handled during builds:
+
+- `"memory"`: Cache in memory (fast, but lost on restart)
+- `"file"`: Cache to disk (persists across builds)
+- `"none"`: No caching (slower, but always fresh)
+
+Default: `"file"`
+
+### `notpadd`
+
+Optional configuration for fetching content from the Notpadd API.
+
+#### `sk` (required)
+
+Your Notpadd secret key for API authentication.
+
+#### `pk` (required)
+
+Your Notpadd public key for API authentication.
+
+#### `orgID` (required)
+
+Your Notpadd organization ID.
+
+#### `directory` (optional)
+
+The directory where MDX files fetched from Notpadd will be stored. Defaults to `"notpadd"` or the first collection's directory.
+
+#### `query` (optional)
+
+Controls which articles to fetch from Notpadd:
+
+- `"all"`: Fetch all articles (default)
+- `"published"`: Fetch only published articles
+- `"draft"`: Fetch only draft articles
+
+## Type Safety
+
+The `defineConfig` function provides full TypeScript type inference. Your collections will be typed based on their schemas and transforms.
+
+## Example
+
+```typescript
+import { defineConfig, defineCollection } from "notpadd-core";
+import { z } from "zod";
+
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "blog",
+      directory: "content/blog",
+      schema: z.object({
+        title: z.string(),
+        date: z.string(),
+        tags: z.array(z.string()),
+      }),
+    }),
+  ],
+  cache: "file",
+  notpadd: {
+    sk: process.env.NOTPADD_SK!,
+    pk: process.env.NOTPADD_PK!,
+    orgID: process.env.NOTPADD_ORG_ID!,
+    query: "published",
+  },
+});
+```

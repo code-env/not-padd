@@ -3,9 +3,18 @@ import { visit } from "unist-util-visit";
 export function rehypeParseCodeBlocks() {
   return (tree) => {
     visit(tree, "element", (node, _nodeIndex, parentNode) => {
-      if (node.tagName === "code" && node.properties?.className) {
-        const language =
-          node.properties.className[0]?.replace(/^language-/, "") || "text";
+      if (
+        node.tagName === "code" &&
+        parentNode?.tagName === "pre" &&
+        node.properties?.className
+      ) {
+        const className = node.properties.className;
+        const languageClass = Array.isArray(className)
+          ? className[0]
+          : typeof className === "string"
+            ? className.split(" ")[0]
+            : "";
+        const language = languageClass?.replace(/^language-/, "") || "text";
         const metastring = node.data?.meta || "";
 
         let title = null;
@@ -26,13 +35,23 @@ export function rehypeParseCodeBlocks() {
           }
         }
 
+        let codeContent = "";
+        if (node.children && Array.isArray(node.children)) {
+          codeContent = node.children
+            .map((child) => {
+              if (child.type === "text") {
+                return child.value || "";
+              }
+              return "";
+            })
+            .join("");
+        }
+
         parentNode.properties = parentNode.properties || {};
 
         parentNode.properties.language = language;
         parentNode.properties.title = title;
         parentNode.properties.meta = metastring;
-
-        const codeContent = node.children[0]?.value || "";
 
         parentNode.properties.code = [
           "```" + language + (metastring ? " " + metastring : ""),

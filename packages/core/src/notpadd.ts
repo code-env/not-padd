@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { NotpaddConfig } from "./config";
+import type { NotpaddAuthorSchema } from "./schemas";
 
-const BACKEND_SERVER = "http://localhost:3000/api/v1";
+const BACKEND_SERVER = "https://api.notpadd.com/api/v1";
 
 export interface NotpaddData {
   slug: string;
@@ -13,6 +14,9 @@ export interface NotpaddData {
   createdAt: string;
   updatedAt: string;
   image: string | null;
+  imageBlurhash: string | null;
+  authors: NotpaddAuthorSchema[];
+  tags: string[] | null;
 }
 
 export interface NotpaddApiResponse {
@@ -34,11 +38,11 @@ export class NotpaddError extends Error {
 export async function fetchNotpaddData(
   config: NotpaddConfig
 ): Promise<NotpaddData[]> {
-  const { sk, pk, orgID } = config;
+  const { sk, pk, orgID, query = "all" } = config;
 
   try {
     const response = await fetch(
-      `${BACKEND_SERVER}/articles?type=mdx&organizationId=${orgID}&query="all"`,
+      `${BACKEND_SERVER}/articles?type=mdx&organizationId=${orgID}&query=${query}`,
       {
         method: "GET",
         headers: {
@@ -132,10 +136,13 @@ export async function generateMdxFiles(
 title: "${item.title || "Untitled"}"
 slug: "${item.slug || ""}"
 description: "${item.description || ""}"
-published: "${item.published || false}"
+published: ${item.published || false}
 createdAt: "${item.createdAt || ""}"
 updatedAt: "${item.updatedAt || ""}"
 image: "${item.image || ""}"
+imageBlurhash: "${item.imageBlurhash || ""}"
+authors: ${item.authors && item.authors.length > 0 ? JSON.stringify(item.authors) : "[]"}
+tags: ${item.tags ? JSON.stringify(item.tags) : "null"}
 ---
 
 ${item.markdown || ""}

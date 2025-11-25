@@ -9,8 +9,9 @@ import type { File as Media } from "@notpadd/db/types";
 import { Button } from "@notpadd/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, Loader } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 export const MediaSection = () => {
   const { activeOrganization } = useOrganizationContext();
@@ -48,6 +49,29 @@ export const MediaSection = () => {
 };
 
 const MediaItem = ({ media }: { media: Media }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const downloadMedia = async () => {
+    try {
+      setIsDownloading(true);
+      const response = await fetch(media.url, { mode: "cors" });
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = media.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Failed to download file.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
   return (
     <div className="flex flex-col border">
       <div className="p-1">
@@ -69,8 +93,17 @@ const MediaItem = ({ media }: { media: Media }) => {
             <p className="text-sm">{formatSize(media.size)}</p>
           </div>
         </div>
-        <Button variant="ghost" size="icon">
-          <DownloadIcon className="size-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={downloadMedia}
+          disabled={isDownloading}
+        >
+          {isDownloading ? (
+            <Loader className="size-4 animate-spin" />
+          ) : (
+            <DownloadIcon className="size-4" />
+          )}
         </Button>
       </div>
     </div>

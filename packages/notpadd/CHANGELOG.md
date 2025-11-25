@@ -1,5 +1,45 @@
 # notpadd
 
+## 3.0.3
+
+### Patch Changes
+
+- Fix TypeScript import extensions and improve build compatibility
+- Updated dependencies
+- Updated dependencies
+  - notpadd-core@3.0.3
+  - notpadd-integrations@3.0.3
+
+## 3.0.2
+
+### Patch Changes
+
+- Fix TypeScript import extensions and improve build compatibility
+- Updated dependencies
+  - notpadd-core@3.0.2
+  - notpadd-integrations@3.0.2
+
+## 3.0.1
+
+### Patch Changes
+
+- nothing some deployment error
+- Updated dependencies
+  - notpadd-core@3.0.1
+  - notpadd-integrations@3.0.1
+
+## 3.0.0
+
+### Minor Changes
+
+- modified some internals of and fixed some bugs
+
+### Patch Changes
+
+- Updated dependencies
+  - notpadd-core@3.0.0
+  - notpadd-integrations@3.0.0
+
 ## 2.2.4
 
 ### Patch Changes

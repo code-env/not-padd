@@ -1,9 +1,13 @@
+"use client";
+
 import { ConfirmationModal } from "./confirmation";
 import CreateArticle from "./create-article";
 import CreateTags from "./create-tags";
 import CreateKey from "./create-key";
 import CreateInvite from "./create-invite";
 import { GithubConfig } from "./github-config";
+import { UploadMediaModal } from "./upload-media";
+
 const Modals = () => {
   return (
     <>
@@ -13,6 +17,7 @@ const Modals = () => {
       <ConfirmationModal />
       <CreateInvite />
       <GithubConfig />
+      <UploadMediaModal />
     </>
   );
 };

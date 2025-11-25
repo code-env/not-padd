@@ -1,0 +1,85 @@
+---
+title: Core Package Overview
+description: Introduction to notpadd-core, a powerful content collection system with full TypeScript support
+---
+
+# Core Package Overview
+
+The `notpadd-core` package is the foundation of Notpadd, providing a powerful content collection system built on top of content-collections core. It enables you to collect, parse, transform, and manage content files with full TypeScript support.
+
+## Features
+
+- **Type Safe Collections**: Define collections with Zod schemas for full type safety
+- **Flexible Parsers**: Support for frontmatter, JSON, YAML, and custom parsers
+- **Transform Functions**: Transform documents with access to other collections and caching
+- **File Watching**: Automatic rebuilds on file changes during development
+- **Notpadd Integration**: Fetch and sync content from Notpadd API
+- **Event System**: Comprehensive event emission for build lifecycle hooks
+
+## Installation
+
+```bash
+npm install notpadd-core
+```
+
+## Basic Usage
+
+```typescript
+import { defineConfig, defineCollection } from "notpadd-core";
+import { z } from "zod";
+
+const config = defineConfig({
+  collections: [
+    defineCollection({
+      name: "posts",
+      directory: "content/posts",
+      schema: z.object({
+        title: z.string(),
+        description: z.string(),
+        published: z.boolean(),
+      }),
+    }),
+  ],
+});
+```
+
+## Core Concepts
+
+### Collections
+
+Collections are groups of content files that share a common schema and configuration. Each collection defines:
+- A name for type generation
+- A directory where content files are located
+- A schema for validation
+- Optional parser, transform, and filter options
+
+### Schemas
+
+Schemas use Zod to define the structure and validation rules for your content. The schema is used to:
+- Validate frontmatter and metadata
+- Generate TypeScript types
+- Ensure data consistency across documents
+
+### Parsers
+
+Parsers extract data from content files. Supported parsers include:
+- `frontmatter`: Extracts YAML frontmatter and content
+- `frontmatter-only`: Extracts only frontmatter
+- `json`: Parses JSON files
+- `yaml`: Parses YAML files
+- Custom parsers: Define your own parsing logic
+
+### Transformers
+
+Transform functions allow you to modify documents after parsing. They have access to:
+- Other collections in your configuration
+- A caching mechanism for expensive operations
+- The ability to skip documents conditionally
+
+## Next Steps
+
+- Learn about [Configuration](/docs/core-configuration)
+- Explore [Collections](/docs/core-collections)
+- Understand [Schemas](/docs/core-schemas)
+- See [Parsers](/docs/core-parsers)
+- Discover [Transformers](/docs/core-transformers)

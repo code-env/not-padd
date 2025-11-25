@@ -1,0 +1,288 @@
+---
+title: Transformers
+description: Transform documents with access to other collections, caching, and conditional skipping
+---
+
+# Transformers
+
+Transform functions allow you to modify documents after parsing, with access to other collections, caching, and conditional skipping.
+
+## Basic Transform
+
+A transform function receives the document and a context object:
+
+```typescript
+defineCollection({
+  name: "posts",
+  directory: "content/posts",
+  schema: z.object({
+    title: z.string(),
+    authorId: z.string(),
+  }),
+  transform: async (doc, context) => {
+    // Modify the document
+    return {
+      ...doc,
+      slug: doc.title.toLowerCase().replace(/\s+/g, "-"),
+    };
+  },
+});
+```
+
+## Context Object
+
+The context provides access to:
+
+### `documents(collectionName)`
+
+Get all documents from another collection:
+
+```typescript
+transform: async (doc, { documents }) => {
+  const authors = documents("authors");
+  const author = authors.find((a) => a.id === doc.authorId);
+
+  return {
+    ...doc,
+    author,
+  };
+},
+```
+
+### `cache(key, ...args, fn)`
+
+Cache expensive operations:
+
+```typescript
+transform: async (doc, { cache }) => {
+  const processedContent = await cache(
+    "process-markdown",
+    doc.content,
+    async () => {
+      // Expensive operation
+      return await markdownToHtml(doc.content);
+    }
+  );
+
+  return {
+    ...doc,
+    html: processedContent,
+  };
+},
+```
+
+The cache function:
+- Takes a key and arguments to identify the cache entry
+- Executes the function only if not cached
+- Returns cached result if available
+- Works with `cache: "file"` or `cache: "memory"` configuration
+
+### `collection`
+
+Access information about the current collection:
+
+```typescript
+transform: async (doc, { collection }) => {
+  console.log(`Processing ${collection.name} in ${collection.directory}`);
+
+  // Get all documents in this collection
+  const allDocs = await collection.documents();
+
+  return doc;
+},
+```
+
+### `skip(reason?)`
+
+Conditionally skip documents:
+
+```typescript
+transform: async (doc, { skip }) => {
+  if (!doc.published) {
+    return skip("Document is not published");
+  }
+
+  if (doc.draft) {
+    return skip("Document is a draft");
+  }
+
+  return doc;
+},
+```
+
+Skipped documents:
+- Are not included in the final collection
+- Emit a `transformer:document-skipped` event
+- Can include an optional reason
+
+## Common Patterns
+
+### Resolving References
+
+```typescript
+transform: async (doc, { documents }) => {
+  const categories = documents("categories");
+  const authors = documents("authors");
+
+  return {
+    ...doc,
+    category: categories.find((c) => c.id === doc.categoryId),
+    author: authors.find((a) => a.id === doc.authorId),
+  };
+},
+```
+
+### Computing Derived Fields
+
+```typescript
+transform: async (doc) => {
+  const words = doc.content.split(/\s+/).length;
+  const readingTime = Math.ceil(words / 200); // 200 words per minute
+
+  return {
+    ...doc,
+    wordCount: words,
+    readingTime,
+  };
+},
+```
+
+### Processing Content
+
+```typescript
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+
+transform: async (doc, { cache }) => {
+  const html = await cache(
+    "markdown-to-html",
+    doc.content,
+    async () => {
+      const result = await remark()
+        .use(remarkHtml)
+        .process(doc.content);
+      return result.toString();
+    }
+  );
+
+  return {
+    ...doc,
+    html,
+  };
+},
+```
+
+### Filtering Documents
+
+```typescript
+transform: async (doc, { skip }) => {
+  // Only include published posts
+  if (!doc.published) {
+    return skip("Not published");
+  }
+
+  // Exclude future-dated posts
+  if (new Date(doc.date) > new Date()) {
+    return skip("Scheduled for future");
+  }
+
+  return doc;
+},
+```
+
+### Sorting and Ordering
+
+```typescript
+transform: async (doc, { collection }) => {
+  const allDocs = await collection.documents();
+
+  // Add index based on date
+  const sorted = allDocs.sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  const index = sorted.findIndex((d) => d._meta.path === doc._meta.path);
+
+  return {
+    ...doc,
+    index,
+    prev: index > 0 ? sorted[index - 1] : null,
+    next: index < sorted.length - 1 ? sorted[index + 1] : null,
+  };
+},
+```
+
+## Return Types
+
+Transform functions must return:
+- The transformed document (same structure as input, but can add/modify fields)
+- A `skip()` signal to exclude the document
+- A serializable object (no functions, classes, or circular references)
+
+### Serialization Rules
+
+The return value must be serializable:
+- ✅ Primitives: `string`, `number`, `boolean`, `null`, `undefined`
+- ✅ Objects and arrays
+- ✅ Dates (serialized as ISO strings)
+- ✅ Maps and Sets (serialized as objects/arrays)
+- ✅ BigInt (serialized as strings)
+- ❌ Functions
+- ❌ Classes
+- ❌ Circular references
+
+## Imports
+
+You can return import references that will be resolved at build time:
+
+```typescript
+import { createDefaultImport, createNamedImport } from "notpadd-core";
+
+transform: async (doc) => {
+  return {
+    ...doc,
+    // Import default export
+    component: createDefaultImport("./components/Post.tsx"),
+
+    // Import named export
+    utils: createNamedImport("formatDate", "./utils.ts"),
+  };
+},
+```
+
+## Error Handling
+
+Errors in transform functions are caught and emitted as events:
+
+```typescript
+// Errors are automatically caught and emitted
+transform: async (doc) => {
+  // If this throws, it's caught and emitted as transformer:error
+  const result = await someAsyncOperation(doc);
+  return result;
+},
+```
+
+## Performance Considerations
+
+1. **Use caching**: Cache expensive operations like markdown processing
+2. **Avoid unnecessary work**: Skip documents early if possible
+3. **Batch operations**: Process multiple documents together when possible
+4. **Leverage parallel execution**: Transforms run in parallel per collection
+
+## Type Safety
+
+Transform functions are fully typed based on your schema:
+
+```typescript
+// doc is typed as Schema<"frontmatter", YourSchema> & { _meta: Meta }
+transform: async (doc, context) => {
+  // TypeScript knows doc.title exists
+  const title = doc.title;
+
+  // Return type is inferred from what you return
+  return {
+    ...doc,
+    slug: title.toLowerCase(),
+  };
+},
+```

@@ -1,0 +1,103 @@
+---
+title: Notpadd Package Overview
+description: Introduction to the notpadd package for seamless Next.js integration with Notpadd CMS
+---
+
+# Notpadd Package Overview
+
+The `notpadd` package provides seamless integration between Notpadd and Next.js, enabling you to use Notpadd as your buildtime or runtime CMS with your own data.
+
+## Features
+
+- **Next.js Integration**: Simple plugin for Next.js configuration
+- **Automatic Content Sync**: Fetches content from Notpadd API during build
+- **Type Generation**: Automatic TypeScript type generation
+- **Development Mode**: File watching and hot reloading
+- **Build Time Processing**: Processes content during Next.js build
+
+## Installation
+
+```bash
+npm install notpadd notpadd-core
+```
+
+## Quick Start
+
+1. **Configure Next.js:**
+
+```typescript
+// next.config.ts
+import { withNotpadd } from "notpadd";
+
+export default withNotpadd({
+  configPath: "content-collections.ts",
+})({
+  // Your Next.js config
+});
+```
+
+2. **Create content collections config:**
+
+```typescript
+// content-collections.ts
+import { defineConfig, defineCollection } from "notpadd-core";
+import { notpaddSchema } from "notpadd-core";
+import { z } from "zod";
+
+export default defineConfig({
+  collections: [
+    defineCollection({
+      name: "notpadd",
+      directory: "notpadd",
+      schema: notpaddSchema,
+    }),
+  ],
+  notpadd: {
+    sk: process.env.NOTPADD_SK!,
+    pk: process.env.NOTPADD_PK!,
+    orgID: process.env.NOTPADD_ORG_ID!,
+    query: "published",
+  },
+});
+```
+
+3. **Use in your pages:**
+
+```typescript
+// app/blog/page.tsx
+import { allNotpadd } from "@/content-collections/generated/notpadd";
+
+export default function BlogPage() {
+  return (
+    <div>
+      {allNotpadd.map((post) => (
+        <article key={post.slug}>
+          <h1>{post.title}</h1>
+          <p>{post.description}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+## How It Works
+
+1. **Build Time**: During `next build` or `next dev`, the plugin:
+   - Fetches content from Notpadd API
+   - Generates MDX files in your project
+   - Processes collections using Notpadd Core
+   - Generates TypeScript types
+
+2. **Development Mode**: In `next dev`:
+   - Watches for file changes
+   - Automatically rebuilds collections
+   - Provides hot reloading
+
+3. **Type Generation**: Run `next build` or use the typegen command to generate types
+
+## Next Steps
+
+- Learn about [Configuration](/docs/notpadd-configuration)
+- See [Next.js Integration](/docs/notpadd-nextjs)
+- Explore [Getting Started](/docs/notpadd-getting-started)

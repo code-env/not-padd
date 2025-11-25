@@ -2,7 +2,7 @@
   "name": "notpadd",
   "description": "Notpadd your buildtime/runtime cms with your own data",
   "private": false,
-  "version": "2.2.4",
+  "version": "3.0.3",
   "type": "module",
   "main": "dist/index.cjs",
   "author": "Bossadi Zenith <hello@bossadizenith.me>",

@@ -6,7 +6,12 @@ import { Check, Copy, Eye, EyeOff } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {
+  dracula,
+  zTouch,
+  oneLight,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
 
 interface CodeBlocksProps {
   code: string;
@@ -41,7 +46,9 @@ export const CodeBlocks = ({
   const [isCopied, setIsCopied] = useState(false);
   const [showSecretKey, setShowSecretKey] = useState(false);
   const { toast } = useToast();
-
+  const { theme, resolvedTheme } = useTheme();
+  const currentTheme = resolvedTheme || theme || "light";
+  const codeTheme = currentTheme === "dark" ? dracula : oneLight;
   const handleCopy = () => {
     if (copyKey) {
       navigator.clipboard.writeText(copyKey);
@@ -58,7 +65,7 @@ export const CodeBlocks = ({
     <div className="code-block relative">
       <SyntaxHighlighter
         language={language}
-        style={dracula}
+        style={codeTheme}
         customStyle={{
           borderRadius: "0px",
           margin: 0,
