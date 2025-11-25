@@ -9,8 +9,10 @@ import {
 
 import useModal from "@/hooks/use-modal";
 import useUploader, { type EndPoint } from "@/hooks/use-uploader";
+import { QUERY_KEYS } from "@/lib/constants";
 import { Progress } from "@notpadd/ui/components/progress";
 import { cn } from "@notpadd/ui/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useEditor } from "novel";
 import { toast } from "sonner";
@@ -23,6 +25,7 @@ interface DropZoneProps {
 const DropZone = ({ organizationId, type }: DropZoneProps) => {
   const { routeConfig, startUpload, isUploading, uploadProgress, url } =
     useUploader(type);
+  const queryClient = useQueryClient();
 
   const { onClose, type: modalType, isOpen } = useModal();
 
@@ -67,7 +70,16 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
         onClose();
       }
     }
-  }, [editor, url]);
+  }, [editor, url, modalType, isOpen, onClose]);
+
+  useEffect(() => {
+    if (url && isOpen && modalType === "upload-media") {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEDIA, organizationId],
+      });
+      onClose();
+    }
+  }, [isOpen, modalType, url, organizationId, queryClient, onClose]);
 
   return (
     <div
