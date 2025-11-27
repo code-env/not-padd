@@ -98,27 +98,26 @@ export function OrganizationSwitcher() {
                 </span>
               </DropdownMenuItem>
             ))}
-            {remainingOrganizations?.length &&
-              remainingOrganizations.length > 1 && (
-                <DropdownMenuItem className="gap-2 p-2" asChild>
-                  <Link href="/workspaces" className="flex items-center gap-2">
-                    {remainingOrganizations.slice(0, 3).map((org) => (
-                      <UserProfile
-                        key={org.id}
-                        url={org.logo}
-                        name={org.name}
-                        size="xs"
-                      />
-                    ))}
+            {remainingOrganizations && remainingOrganizations.length > 1 && (
+              <DropdownMenuItem className="gap-2 p-2" asChild>
+                <Link href="/workspaces" className="flex items-center gap-2">
+                  {remainingOrganizations.slice(0, 3).map((org) => (
+                    <UserProfile
+                      key={org.id}
+                      url={org.logo}
+                      name={org.name}
+                      size="xs"
+                    />
+                  ))}
 
-                    {remainingOrganizations.length > 3 && (
-                      <span className="text-muted-foreground font-medium ">
-                        +{remainingOrganizations.length - 3} more
-                      </span>
-                    )}
-                  </Link>
-                </DropdownMenuItem>
-              )}
+                  {remainingOrganizations.length > 3 && (
+                    <span className="text-muted-foreground font-medium ">
+                      +{remainingOrganizations.length - 3} more
+                    </span>
+                  )}
+                </Link>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
