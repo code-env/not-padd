@@ -1,12 +1,10 @@
 import { useOrganizationContext } from "@/contexts";
 import { useConfirmationModal } from "@/hooks/use-confirmation";
-import { QUERY_KEYS } from "@/lib/constants";
-import { ARTICLES_QUERIES } from "@/lib/queries";
-import type { MembersResponse } from "@/lib/types";
 import { authClient } from "@notpadd/auth/auth-client";
 import { Button } from "@notpadd/ui/components/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 type MemberActionProps = {
@@ -19,7 +17,7 @@ export default function MemberAction({
   memberName,
 }: MemberActionProps) {
   const { onOpen, onClose } = useConfirmationModal();
-  const queryClient = useQueryClient();
+  const router = useRouter();
   const { mutate: deleteMember } = useMutation({
     mutationFn: async (memberId: string) => {
       const { data, error } = await authClient.organization.removeMember({
@@ -28,21 +26,10 @@ export default function MemberAction({
       if (error) {
         throw new Error(error.message);
       }
-      return data;
     },
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       onClose();
-      queryClient.setQueryData(
-        [QUERY_KEYS.MEMBERS, activeOrganization?.id],
-        (oldData: MembersResponse[]) => {
-          return {
-            ...oldData,
-            data: oldData.filter(
-              (item: MembersResponse) => item.id !== data.data.id
-            ),
-          };
-        }
-      );
+      router.refresh();
       toast("Member deleted successfully");
     },
     onError: (error) => {
@@ -51,7 +38,6 @@ export default function MemberAction({
   });
 
   const { activeOrganization } = useOrganizationContext();
-
   if (!activeOrganization) {
     return null;
   }
