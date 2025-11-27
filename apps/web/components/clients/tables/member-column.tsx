@@ -62,7 +62,9 @@ export const memberColumns: ColumnDef<MembersResponse>[] = [
 
       return (
         <div className="flex justify-end pr-10">
-          {member.role === "owner" ? null : <MemberAction member={member} />}
+          {member.role === "owner" ? null : (
+            <MemberAction memberName={member.user.name} memberId={member.id} />
+          )}
         </div>
       );
     },
