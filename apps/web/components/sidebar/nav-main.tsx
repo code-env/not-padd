@@ -92,13 +92,13 @@ export const useSidebarRoutes = (activeOrg: string) => {
         { name: "Media", path: `/${activeOrg}/media`, finished: false },
         {
           name: "Settings",
-          finished: false,
+          finished: true,
           path: `/${activeOrg}/settings/general`,
           items: [
             {
               name: "General",
               path: `/${activeOrg}/settings/general`,
-              finished: false,
+              finished: true,
             },
             {
               name: "Members",

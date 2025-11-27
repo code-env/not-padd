@@ -1,12 +1,11 @@
 "use client";
 
-import { useOrganizationContext } from "@/contexts";
+import { KEYS_QUERIES } from "@/lib/queries";
 import {
   generateOrganizationAvatar,
   replaceOrganizationWithWorkspace,
   REQUIRED_STRING,
 } from "@/lib/utils";
-import { KEYS_QUERIES } from "@/lib/queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@notpadd/auth/auth-client";
 import {
@@ -19,8 +18,8 @@ import {
 import { Input } from "@notpadd/ui/components/input";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import { z } from "zod";
@@ -36,7 +35,7 @@ const formSchema = z.object({
 
 export function CreateWorkspace() {
   const [isLoading, setIsLoading] = useState(false);
-  const { createOrganization } = useOrganizationContext();
+  // const { createOrganization } = useOrganizationContext();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,30 +43,50 @@ export function CreateWorkspace() {
     },
   });
 
-  const name = form.watch("name");
-  const formSlug = form.watch("slug");
+  const name = useWatch({ control: form.control, name: "name" });
+  const formSlug = useWatch({ control: form.control, name: "slug" });
+  const previousNameRef = useRef<string>("");
 
   useEffect(() => {
-    if (name.length >= 5) {
+    if (!name) return;
+
+    if (name.length >= 5 && name !== previousNameRef.current) {
       const slug = name
         .toLocaleLowerCase()
         .trim()
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-+|-+$/g, "");
-      form.setValue("slug", slug);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name]);
 
-  const [debouncedSlug] = useDebounce(formSlug, 500);
+      const currentSlug = form.getValues("slug");
+      if (slug !== currentSlug) {
+        form.setValue("slug", slug, {
+          shouldValidate: false,
+          shouldDirty: false,
+          shouldTouch: false,
+        });
+      }
+      previousNameRef.current = name;
+    } else if (name.length < 5) {
+      previousNameRef.current = "";
+      if (form.getValues("slug")) {
+        form.setValue("slug", "", {
+          shouldValidate: false,
+          shouldDirty: false,
+          shouldTouch: false,
+        });
+      }
+    }
+  }, [name, form]);
+
+  const [debouncedSlug] = useDebounce(formSlug || "", 500);
 
   const {
     data: slugData,
     error: slugError,
     isPending: isCheckingSlug,
   } = useQuery({
-    queryKey: ["checkSlug", debouncedSlug],
+    queryKey: ["nothing is checking the slug", debouncedSlug],
     queryFn: async () => {
       if (!debouncedSlug || debouncedSlug.length === 0) {
         return null;
@@ -88,21 +107,59 @@ export function CreateWorkspace() {
     slugError || (slugData && slugData.status === false)
   );
 
+  const slugErrorSetRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (isSlugTaken && debouncedSlug.length > 0) {
-      form.setError("name", {
-        message: "-> Org with name '" + debouncedSlug + "' already taken",
-      });
-    } else {
-      form.clearErrors("name");
+    if (!debouncedSlug || debouncedSlug.length === 0) {
+      slugErrorSetRef.current = null;
+      return;
     }
-  }, [isSlugTaken, debouncedSlug]);
+
+    const fieldState = form.getFieldState("name");
+    const currentError = fieldState.error?.message;
+    const isSlugTakenError = currentError?.includes("already taken");
+
+    if (isSlugTaken && debouncedSlug.length > 0) {
+      const newError = "-> Org with name '" + debouncedSlug + "' already taken";
+      if (currentError !== newError) {
+        form.setError(
+          "name",
+          {
+            message: newError,
+            type: "manual",
+          },
+          { shouldFocus: false }
+        );
+        slugErrorSetRef.current = debouncedSlug;
+      }
+    } else if (
+      isSlugTaken === false &&
+      isSlugTakenError &&
+      slugErrorSetRef.current === debouncedSlug
+    ) {
+      const nameToPreserve = name || form.getValues("name");
+
+      form.clearErrors("name");
+      slugErrorSetRef.current = null;
+
+      if (nameToPreserve) {
+        const currentValue = form.getValues("name");
+        if (currentValue !== nameToPreserve) {
+          form.setValue("name", nameToPreserve, {
+            shouldValidate: false,
+            shouldDirty: false,
+            shouldTouch: false,
+          });
+        }
+      }
+    }
+  }, [isSlugTaken, debouncedSlug, name]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
       const logo = generateOrganizationAvatar(values.slug);
-      const { data, error } = await createOrganization({
+      const { data, error } = await authClient.organization.create({
         ...values,
         logo,
       });
