@@ -44,16 +44,24 @@ const CreateInvite = () => {
     resolver: zodResolver(createInviteSchema),
     defaultValues: {
       email: "",
+      role: "member",
     },
   });
 
   const { mutate: createTag, isPending } = useMutation({
-    mutationFn: (data: CreateInviteSchema) => {
-      return authClient.organization.inviteMember({
-        email: data.email,
-        role: data.role,
+    mutationFn: async (values: CreateInviteSchema) => {
+      const { data, error } = await authClient.organization.inviteMember({
+        email: values.email,
+        role: values.role,
         organizationId: activeOrganization?.id as string,
       });
+
+      if (error) {
+        console.error(error);
+        throw new Error(error.message || "Failed to create invite");
+      }
+
+      return data;
     },
     onSuccess: () => {
       toast.success("Invite created successfully");
@@ -109,8 +117,11 @@ const CreateInvite = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Select {...field}>
-                          <SelectTrigger className="w-full">
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full border-border!">
                             <SelectValue placeholder="Select Role" />
                           </SelectTrigger>
                           <SelectContent>

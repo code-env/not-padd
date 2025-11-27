@@ -1,11 +1,16 @@
 import { db } from "@notpadd/db";
-import schema from "@notpadd/db/schema";
+import schema, { member } from "@notpadd/db/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "@notpadd/env/server";
 import { organization } from "better-auth/plugins";
 import { getActiveOrganization } from "./utils/org";
-import { ac, member, admin, owner } from "./permission";
+import { ac, member as memberRole, admin, owner } from "./permission";
+import { and, eq } from "drizzle-orm";
+import type { InferInsertModel } from "drizzle-orm";
+import { sendInvitationEmail } from "./utils/send-invitation-email";
+
+type InvitationInsert = InferInsertModel<typeof schema.invitation>;
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -18,7 +23,6 @@ export const auth = betterAuth({
 
   trustedOrigins: [env.FRONTEND_URL, env.BACKEND_URL],
   appName: "Notpadd",
-  // baseURL: env.FRONTEND_URL,
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
@@ -44,7 +48,7 @@ export const auth = betterAuth({
   plugins: [
     organization({
       ac,
-      roles: { owner, admin, member },
+      roles: { owner, admin, member: memberRole },
       schema: {
         organization: {
           additionalFields: {
@@ -76,6 +80,122 @@ export const auth = betterAuth({
           },
         },
       },
+      async sendInvitationEmail(data) {
+        await sendInvitationEmail({
+          id: data.id,
+          email: data.email,
+          inviter: {
+            user: {
+              name: data.inviter.user.name,
+              email: data.inviter.user.email,
+            },
+          },
+          organization: {
+            name: data.organization.name,
+          },
+        });
+      },
+      organizationHooks: {
+        beforeCreateInvitation: async ({
+          invitation,
+          inviter,
+          organization,
+        }) => {
+          if (invitation.inviterId) {
+            const memberById = await db.query.member.findFirst({
+              where: and(
+                eq(member.id, invitation.inviterId),
+                eq(member.organizationId, organization.id)
+              ),
+            });
+
+            if (memberById) {
+              return { data: invitation };
+            }
+
+            const memberByUserId = await db.query.member.findFirst({
+              where: and(
+                eq(member.userId, invitation.inviterId),
+                eq(member.organizationId, organization.id)
+              ),
+            });
+
+            if (memberByUserId) {
+              return {
+                data: {
+                  ...invitation,
+                  inviterId: memberByUserId.id,
+                },
+              };
+            }
+          }
+          let inviterMemberId: string | undefined;
+
+          if (inviter?.id && typeof inviter.id === "string") {
+            const memberRecord = await db.query.member.findFirst({
+              where: and(
+                eq(member.id, inviter.id),
+                eq(member.organizationId, organization.id)
+              ),
+            });
+            if (memberRecord) {
+              inviterMemberId = memberRecord.id;
+            } else {
+              const memberByUserId = await db.query.member.findFirst({
+                where: and(
+                  eq(member.userId, inviter.id),
+                  eq(member.organizationId, organization.id)
+                ),
+              });
+              if (memberByUserId) {
+                inviterMemberId = memberByUserId.id;
+              }
+            }
+          }
+          if (
+            !inviterMemberId &&
+            inviter?.userId &&
+            typeof inviter.userId === "string"
+          ) {
+            const memberRecord = await db.query.member.findFirst({
+              where: and(
+                eq(member.userId, inviter.userId),
+                eq(member.organizationId, organization.id)
+              ),
+            });
+            if (memberRecord) {
+              inviterMemberId = memberRecord.id;
+            }
+          }
+
+          if (
+            !inviterMemberId &&
+            inviter?.user?.id &&
+            typeof inviter.user.id === "string"
+          ) {
+            const memberRecord = await db.query.member.findFirst({
+              where: and(
+                eq(member.userId, inviter.user.id),
+                eq(member.organizationId, organization.id)
+              ),
+            });
+            if (memberRecord) {
+              inviterMemberId = memberRecord.id;
+            }
+          }
+          if (inviterMemberId) {
+            return {
+              data: {
+                ...invitation,
+                inviterId: inviterMemberId,
+              },
+            };
+          }
+          throw new Error(
+            `Cannot determine member ID for inviter. Invitation inviterId: ${invitation.inviterId}, Inviter: ${JSON.stringify(inviter)}, Organization: ${organization.id}`
+          );
+        },
+      },
     }),
   ],
   databaseHooks: {
@@ -89,6 +209,46 @@ export const auth = betterAuth({
               activeOrganizationId: organization?.id,
             },
           };
+        },
+      },
+    },
+    invitation: {
+      create: {
+        before: async (invitation: InvitationInsert) => {
+          if (!invitation.inviterId || !invitation.organizationId) {
+            return { data: invitation };
+          }
+
+          const existingMember = await db.query.member.findFirst({
+            where: and(
+              eq(member.id, invitation.inviterId),
+              eq(member.organizationId, invitation.organizationId)
+            ),
+          });
+
+          if (existingMember) {
+            return { data: invitation };
+          }
+
+          const memberByUserId = await db.query.member.findFirst({
+            where: and(
+              eq(member.userId, invitation.inviterId),
+              eq(member.organizationId, invitation.organizationId)
+            ),
+          });
+
+          if (memberByUserId) {
+            return {
+              data: {
+                ...invitation,
+                inviterId: memberByUserId.id,
+              },
+            };
+          }
+
+          throw new Error(
+            `Invalid inviterId: ${invitation.inviterId} is not a valid member ID or user ID for organization ${invitation.organizationId}`
+          );
         },
       },
     },
