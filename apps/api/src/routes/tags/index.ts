@@ -5,6 +5,8 @@ import { and, eq, ilike, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { z } from "zod";
+import { getCache, setCache, deleteCache, deleteCacheByPattern } from "../../hono/cache.js";
+import { cacheKeys } from "../../hono/cache-keys.js";
 
 const tagsRoutes = new Hono<{ Variables: ReqVariables }>();
 
@@ -93,6 +95,9 @@ tagsRoutes.post("/:organizationId", async (c) => {
       })
       .returning();
 
+    // Invalidate cache
+    await deleteCacheByPattern(`tags:list:${organizationId}:*`);
+
     return c.json({
       success: true,
       message: "Tag created successfully",
@@ -116,6 +121,13 @@ tagsRoutes.get("/:organizationId/:id", async (c) => {
     return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
+  // Try to get from cache
+  const cacheKey = cacheKeys.tag(organizationId, id);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const rows = await db
     .select()
     .from(tag)
@@ -126,11 +138,16 @@ tagsRoutes.get("/:organizationId/:id", async (c) => {
     return c.json({ error: "Tag not found", success: false }, 404);
   }
 
-  return c.json({
+  const response = {
     success: true,
     message: "Tag fetched successfully",
     data: rows[0],
-  });
+  };
+
+  // Cache for 15 minutes (900 seconds)
+  await setCache(cacheKey, response, 900);
+
+  return c.json(response);
 });
 
 tagsRoutes.get("/:organizationId", async (c) => {
@@ -140,6 +157,13 @@ tagsRoutes.get("/:organizationId", async (c) => {
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
     return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  // Try to get from cache
+  const cacheKey = cacheKeys.tagsList(organizationId, page, limit, search);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
   }
 
   const pageNumber = parseInt(page || "1");
@@ -164,7 +188,7 @@ tagsRoutes.get("/:organizationId", async (c) => {
       .where(eq(tag.organizationId, organizationId)),
   ]);
 
-  return c.json({
+  const response = {
     success: true,
     message: "Tags fetched successfully",
     data: {
@@ -175,7 +199,12 @@ tagsRoutes.get("/:organizationId", async (c) => {
         limit: limitNumber,
       },
     },
-  });
+  };
+
+  // Cache for 10 minutes (600 seconds)
+  await setCache(cacheKey, response, 600);
+
+  return c.json(response);
 });
 
 tagsRoutes.put("/:organizationId/:slug", async (c) => {
@@ -202,6 +231,12 @@ tagsRoutes.put("/:organizationId/:slug", async (c) => {
   if (!result || !result[0]) {
     return c.json({ error: "Tag not found", success: false }, 404);
   }
+
+  // Invalidate cache
+  await Promise.all([
+    deleteCache(cacheKeys.tag(organizationId, result[0].id)),
+    deleteCacheByPattern(`tags:list:${organizationId}:*`),
+  ]);
 
   return c.json({
     success: true,
@@ -235,6 +270,12 @@ tagsRoutes.delete("/:organizationId/:tagId", async (c) => {
   await db
     .delete(tag)
     .where(and(eq(tag.organizationId, organizationId), eq(tag.id, tagId)));
+
+  // Invalidate cache
+  await Promise.all([
+    deleteCache(cacheKeys.tag(organizationId, tagId)),
+    deleteCacheByPattern(`tags:list:${organizationId}:*`),
+  ]);
 
   return c.json({
     success: true,

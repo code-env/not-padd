@@ -11,6 +11,13 @@ import { and, eq, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { z } from "zod";
+import {
+  getCache,
+  setCache,
+  deleteCache,
+  deleteCacheByPattern,
+} from "../../hono/cache.js";
+import { cacheKeys } from "../../hono/cache-keys.js";
 
 const authorsRoutes = new Hono<{ Variables: ReqVariables }>();
 
@@ -121,6 +128,13 @@ authorsRoutes.post("/:organizationId", async (c) => {
       .values({ articleId, memberId, organizationId })
       .returning();
 
+    // Invalidate cache
+    await Promise.all([
+      deleteCacheByPattern(`authors:*`),
+      deleteCache(cacheKeys.authorsByArticle(organizationId, articleId)),
+      deleteCache(cacheKeys.article(organizationId, articleId)),
+    ]);
+
     return c.json({
       success: true,
       message: "Author added successfully",
@@ -139,6 +153,18 @@ authorsRoutes.get("/:organizationId", async (c) => {
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
     return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  // Try to get from cache
+  const cacheKey = cacheKeys.authorsList(
+    organizationId,
+    page,
+    limit,
+    articleId
+  );
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
   }
 
   const pageNumber = parseInt(page || "1");
@@ -185,7 +211,7 @@ authorsRoutes.get("/:organizationId", async (c) => {
       ),
   ]);
 
-  return c.json({
+  const response = {
     success: true,
     message: "Authors fetched successfully",
     data: {
@@ -196,7 +222,12 @@ authorsRoutes.get("/:organizationId", async (c) => {
         limit: limitNumber,
       },
     },
-  });
+  };
+
+  // Cache for 5 minutes (300 seconds)
+  await setCache(cacheKey, response, 300);
+
+  return c.json(response);
 });
 
 authorsRoutes.get("/:organizationId/:articleId/:memberId", async (c) => {
@@ -255,6 +286,13 @@ authorsRoutes.get("/:organizationId/:articleId", async (c) => {
     return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
+  // Try to get from cache
+  const cacheKey = cacheKeys.authorsByArticle(organizationId, articleId);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const page = parseInt(c.req.query("page") || "1");
   const limit = parseInt(c.req.query("limit") || "10");
   const offset = (page - 1) * limit;
@@ -295,9 +333,7 @@ authorsRoutes.get("/:organizationId/:articleId", async (c) => {
       ),
   ]);
 
-  console.log(rows, total);
-
-  return c.json({
+  const response = {
     success: true,
     message: "Authors fetched successfully",
     data: {
@@ -308,7 +344,12 @@ authorsRoutes.get("/:organizationId/:articleId", async (c) => {
         limit: limit,
       },
     },
-  });
+  };
+
+  // Cache for 5 minutes (300 seconds)
+  await setCache(cacheKey, response, 300);
+
+  return c.json(response);
 });
 
 authorsRoutes.put("/:organizationId/:articleId/:memberId", async (c) => {
@@ -385,6 +426,13 @@ authorsRoutes.put("/:organizationId/:articleId/:memberId", async (c) => {
       )
       .returning();
 
+    // Invalidate cache
+    await Promise.all([
+      deleteCacheByPattern(`authors:*`),
+      deleteCache(cacheKeys.authorsByArticle(organizationId, articleId)),
+      deleteCache(cacheKeys.article(organizationId, articleId)),
+    ]);
+
     return c.json({
       success: true,
       message: "Author updated successfully",
@@ -433,6 +481,13 @@ authorsRoutes.delete("/:organizationId/:articleId/:memberId", async (c) => {
         eq(articleAuthor.memberId, memberIdParam)
       )
     );
+
+  // Invalidate cache
+  await Promise.all([
+    deleteCacheByPattern(`authors:*`),
+    deleteCache(cacheKeys.authorsByArticle(organizationId, articleId)),
+    deleteCache(cacheKeys.article(organizationId, articleId)),
+  ]);
 
   return c.json({
     success: true,

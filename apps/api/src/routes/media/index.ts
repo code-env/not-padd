@@ -5,6 +5,8 @@ import { and, ilike, sql } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import sharp from "sharp";
+import { getCache, setCache, deleteCacheByPattern } from "../../hono/cache.js";
+import { cacheKeys } from "../../hono/cache-keys.js";
 
 export async function generateBlurDataUrl(
   buffer: Buffer,
@@ -50,6 +52,19 @@ mediaRoutes.get("/:organizationId", async (c) => {
   if (!user || !user.id) {
     return c.json({ error: "Unauthorized", success: false }, 401);
   }
+
+  // Try to get from cache
+  const cacheKey = cacheKeys.mediaList(
+    organizationId,
+    page?.toString(),
+    limit?.toString(),
+    search?.toString()
+  );
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const [results, [{ count } = { count: 0 }]] = await Promise.all([
     db
       .select()
@@ -68,7 +83,7 @@ mediaRoutes.get("/:organizationId", async (c) => {
       .where(eq(media.organizationId, organizationId)),
   ]);
 
-  return c.json({
+  const response = {
     success: true,
     message: "Media fetched successfully",
     data: {
@@ -79,7 +94,12 @@ mediaRoutes.get("/:organizationId", async (c) => {
         total: Number(count),
       },
     },
-  });
+  };
+
+  // Cache for 10 minutes (600 seconds)
+  await setCache(cacheKey, response, 600);
+
+  return c.json(response);
 });
 
 export { mediaRoutes };

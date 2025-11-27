@@ -3,6 +3,8 @@ import { rateLimitAttempts, waitlist } from "@notpadd/db/schema";
 import { count, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
+import { getCache, setCache, deleteCache } from "../../../hono/cache.js";
+import { cacheKeys } from "../../../hono/cache-keys.js";
 
 const ALLOWED_DOMAINS = ["gmail.com", "outlook.com", "yahoo.com", "proton.me"];
 
@@ -113,6 +115,9 @@ waitlistRoutes.post("/join", async (c) => {
     .insert(waitlist)
     .values({ email: email.toLowerCase().trim(), id: crypto.randomUUID() });
 
+  // Invalidate cache
+  await deleteCache(cacheKeys.waitlistCount());
+
   return c.json({
     success: true,
     message: "You have been added to the waitlist",
@@ -120,9 +125,22 @@ waitlistRoutes.post("/join", async (c) => {
 });
 
 waitlistRoutes.get("/count", async (c) => {
+  // Try to get from cache
+  const cacheKey = cacheKeys.waitlistCount();
+  const cached = await getCache<{ count: number }>(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const result = await db.select({ count: count() }).from(waitlist);
   const resultCount = result[0]!.count || 0;
-  return c.json({ count: resultCount });
+
+  const response = { count: resultCount };
+
+  // Cache for 1 minute (60 seconds)
+  await setCache(cacheKey, response, 60);
+
+  return c.json(response);
 });
 
 export { waitlistRoutes };
