@@ -1,0 +1,43 @@
+{
+  "name": "@notpadd/cache",
+  "description": "Notpadd your buildtime/runtime cms with your own data",
+  "private": false,
+  "version": "3.0.3",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "author": "Bossadi Zenith <hello@bossadizenith.me>",
+  "license": "MIT",
+  "homepage": "https://notpadd.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-env/not-padd.git",
+    "directory": "packages/cache"
+  },
+  "bugs": "https://github.com/code-env/not-padd/issues",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm,cjs --dts -d dist && node -e \"const fs=require('fs');const files=fs.readdirSync('dist').filter(f=>f.endsWith('.d.ts')&&f.startsWith('index-'));if(files.length>0){fs.copyFileSync('dist/'+files[0],'dist/index.d.ts');}\"",
+    "typecheck": "tsc",
+    "test": "vitest --run --coverage"
+  },
+  "devDependencies": {
+    "@notpadd/env": "workspace:^",
+    "@notpadd/eslint-config": "workspace:^",
+    "@notpadd/typescript-config": "workspace:^",
+    "@types/node": "^22.13.4",
+    "tsdown": "^0.15.6",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.35.7"
+  }
+}

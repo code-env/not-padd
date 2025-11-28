@@ -11,6 +11,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError, UTApi } from "uploadthing/server";
 import { z } from "zod";
 import sharp from "sharp";
+import { getCache, setCache, cacheKeys } from "@notpadd/cache";
 
 const f = createUploadthing();
 
@@ -92,6 +93,12 @@ const handleOrganization = async (
 };
 
 const handleArticle = async (user: Session["user"], articleId: string) => {
+  const cacheKey = cacheKeys.article(user.id, articleId);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const article = await db.query.articles.findFirst({
     where: eq(articleTable.id, articleId),
   });

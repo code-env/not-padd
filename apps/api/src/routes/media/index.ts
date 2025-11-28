@@ -5,8 +5,7 @@ import { and, ilike, sql } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import sharp from "sharp";
-import { getCache, setCache, deleteCacheByPattern } from "../../hono/cache.js";
-import { cacheKeys } from "../../hono/cache-keys.js";
+import { getCache, setCache, cacheKeys } from "@notpadd/cache";
 
 export async function generateBlurDataUrl(
   buffer: Buffer,

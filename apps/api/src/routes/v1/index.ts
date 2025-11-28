@@ -10,8 +10,7 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import type { ReqVariables } from "../../hono/index.js";
-import { getCache, setCache } from "../../hono/cache.js";
-import { cacheKeys } from "../../hono/cache-keys.js";
+import { getCache, setCache, cacheKeys } from "@notpadd/cache";
 
 const v1Routes = new Hono<{ Variables: ReqVariables }>();
 

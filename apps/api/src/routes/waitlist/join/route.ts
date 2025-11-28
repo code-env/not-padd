@@ -3,8 +3,7 @@ import { rateLimitAttempts, waitlist } from "@notpadd/db/schema";
 import { count, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { getCache, setCache, deleteCache } from "../../../hono/cache.js";
-import { cacheKeys } from "../../../hono/cache-keys.js";
+import { getCache, setCache, deleteCache, cacheKeys } from "@notpadd/cache";
 
 const ALLOWED_DOMAINS = ["gmail.com", "outlook.com", "yahoo.com", "proton.me"];
 
