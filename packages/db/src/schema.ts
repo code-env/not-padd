@@ -18,6 +18,7 @@ import {
   user,
   verification,
 } from "./auth-schema";
+import { relations } from "drizzle-orm";
 
 export const organization = pgTable("organization", {
   id: text("id").primaryKey(),
@@ -55,6 +56,20 @@ export const member = pgTable(
   (table) => [unique().on(table.id, table.organizationId)]
 );
 
+export const team = pgTable("team", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 export const invitation = pgTable("invitation", {
   id: text("id").primaryKey(),
   email: text("email").notNull(),
@@ -73,19 +88,16 @@ export const invitation = pgTable("invitation", {
     .notNull(),
 });
 
-export const team = pgTable("team", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  organizationId: text("organization_id")
-    .notNull()
-    .references(() => organization.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-});
+export const invitationRelations = relations(invitation, ({ one }) => ({
+  organization: one(organization, {
+    fields: [invitation.organizationId],
+    references: [organization.id],
+  }),
+  inviter: one(member, {
+    fields: [invitation.inviterId],
+    references: [member.id],
+  }),
+}));
 
 export const teamMember = pgTable("team_member", {
   id: text("id").primaryKey(),
@@ -333,6 +345,7 @@ export const schema = {
   key,
   githubAppIntegration,
   waitlist,
+  invitationRelations,
 };
 
 export default schema;

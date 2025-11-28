@@ -6,7 +6,7 @@ import { Book } from "lucide-react";
 export const DocsButton = () => {
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
       onClick={() => {
         window.open("https://docs.notpadd.com", "_blank");

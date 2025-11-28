@@ -5,6 +5,7 @@
     "outDir": "dist",
     "moduleResolution": "bundler",
     "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
       "@notpadd/db": ["../db/dist/index.d.ts"],
       "@notpadd/db/*": ["../db/dist/*.d.ts"]

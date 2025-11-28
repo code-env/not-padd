@@ -6,9 +6,10 @@
     "dev": "tsx --watch src/index.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^1.13.0",
+    "@upstash/redis": "^1.35.7",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.8.10",
-    "@hono/node-server": "^1.13.0",
     "sharp": "^0.34.4",
     "zod": "^4.1.9"
   },

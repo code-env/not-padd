@@ -5,7 +5,7 @@
   "types": "./dist/auth.d.ts",
   "private": true,
   "scripts": {
-    "build": "tsup src/auth.ts src/auth-client.ts src/utils/send-mail.ts --format esm,cjs --dts -d dist --tsconfig tsconfig.build.json"
+    "build": "tsup src/auth.ts src/auth-client.ts src/utils/send-mail.ts src/utils/send-invitation-email.ts --format esm,cjs --dts -d dist --tsconfig tsconfig.build.json"
   },
   "exports": {
     "./auth-client": "./dist/auth-client.mjs",
@@ -15,16 +15,21 @@
   "devDependencies": {
     "@notpadd/typescript-config": "workspace:*",
     "@types/node": "^20",
+    "@types/react": "^19.0.0",
     "tsup": "^8.5.0"
   },
   "peerDependencies": {
+    "react": "^19.0.0",
     "typescript": "^5"
   },
   "dependencies": {
     "@notpadd/db": "workspace:^",
     "@notpadd/env": "workspace:*",
+    "@react-email/components": "^0.0.20",
+    "@react-email/render": "^0.0.12",
     "axios": "^1.10.0",
     "better-auth": "^1.2.9",
-    "drizzle-orm": "^0.44.2"
+    "drizzle-orm": "^0.44.2",
+    "resend": "^4.0.1"
   }
 }

@@ -1,6 +1,5 @@
-import { useOrganizationContext } from "@/contexts";
 import useModal from "@/hooks/use-modal";
-import { ORGANIZATION_QUERIES } from "@/lib/queries";
+import { useOrganization } from "@/hooks/use-organization";
 import { createInviteSchema } from "@/lib/schemas";
 import type { CreateInviteSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,14 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@notpadd/ui/components/select";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 const CreateInvite = () => {
   const { onClose, type } = useModal();
-  const { activeOrganization } = useOrganizationContext();
-  const queryClient = useQueryClient();
+  const { activeOrganization, isOwner } = useOrganization();
 
   const isCreateModalOpen = type === "invite-member";
 
@@ -44,16 +42,24 @@ const CreateInvite = () => {
     resolver: zodResolver(createInviteSchema),
     defaultValues: {
       email: "",
+      role: "member",
     },
   });
 
   const { mutate: createTag, isPending } = useMutation({
-    mutationFn: (data: CreateInviteSchema) => {
-      return authClient.organization.inviteMember({
-        email: data.email,
-        role: data.role,
+    mutationFn: async (values: CreateInviteSchema) => {
+      const { data, error } = await authClient.organization.inviteMember({
+        email: values.email,
+        role: values.role,
         organizationId: activeOrganization?.id as string,
       });
+
+      if (error) {
+        console.error(error);
+        throw new Error(error.message || "Failed to create invite");
+      }
+
+      return data;
     },
     onSuccess: () => {
       toast.success("Invite created successfully");
@@ -109,12 +115,17 @@ const CreateInvite = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Select {...field}>
-                          <SelectTrigger className="w-full">
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full border-border!">
                             <SelectValue placeholder="Select Role" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
+                            {isOwner && (
+                              <SelectItem value="admin">Admin</SelectItem>
+                            )}
                             <SelectItem value="member">Member</SelectItem>
                           </SelectContent>
                         </Select>

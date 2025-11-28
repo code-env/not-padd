@@ -10,6 +10,8 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import type { ReqVariables } from "../../hono/index.js";
+import { getCache, setCache } from "../../hono/cache.js";
+import { cacheKeys } from "../../hono/cache-keys.js";
 
 const v1Routes = new Hono<{ Variables: ReqVariables }>();
 
@@ -48,6 +50,13 @@ v1Routes.get("/articles", async (c) => {
 
   const articleType = query as NotpaddArticleType;
   const organization_Id = organizationId as string;
+
+  // Try to get from cache
+  const cacheKey = cacheKeys.v1Articles(organization_Id, query);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
 
   const whereClauses = [eq(articles.organizationId, organization_Id)];
   if (articleType === "published") {
@@ -170,10 +179,15 @@ v1Routes.get("/articles", async (c) => {
     };
   });
 
-  return c.json({
+  const response = {
     message: "Articles fetched successfully",
     articles: articlesWithRelations,
-  });
+  };
+
+  // Cache for 5 minutes (300 seconds)
+  await setCache(cacheKey, response, 300);
+
+  return c.json(response);
 });
 
 export { v1Routes };

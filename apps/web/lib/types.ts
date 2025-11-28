@@ -22,7 +22,7 @@ export type ModalTypes =
   | "github-config"
   | "upload-media";
 
-export type ConfirmationModalTypes = "delete-article";
+export type ConfirmationModalTypes = "delete-article" | "delete-member";
 
 export type Pagination = {
   total: number;

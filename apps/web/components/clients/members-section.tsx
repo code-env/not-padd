@@ -18,6 +18,7 @@ import useModal from "@/hooks/use-modal";
 import { Input } from "@notpadd/ui/components/input";
 import { Button } from "@notpadd/ui/components/button";
 import { Search } from "lucide-react";
+import { useOrganization } from "@/hooks/use-organization";
 
 export const MembersSection = () => {
   const queries = {
@@ -77,6 +78,7 @@ interface MembersHeaderProps {
 
 const MembersHeader = ({ disabled, onSearch }: MembersHeaderProps) => {
   const { onOpen } = useModal();
+  const { isOwner } = useOrganization();
   return (
     <div className="flex items-center justify-between">
       <div className="relative w-full max-w-sm">
@@ -88,9 +90,11 @@ const MembersHeader = ({ disabled, onSearch }: MembersHeaderProps) => {
           onChange={(e) => onSearch(e.target.value)}
         />
       </div>
-      <Button disabled={disabled} onClick={() => onOpen("invite-member")}>
-        Invite Member
-      </Button>
+      {isOwner && (
+        <Button disabled={disabled} onClick={() => onOpen("invite-member")}>
+          Invite Member
+        </Button>
+      )}
     </div>
   );
 };

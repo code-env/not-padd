@@ -87,9 +87,9 @@ export const useSidebarRoutes = (activeOrg: string) => {
     {
       name: "Workspaces",
       items: [
-        { name: "Overview", path: `/${activeOrg}`, finished: true },
+        { name: "Overview", path: `/${activeOrg}`, finished: false },
         { name: "Articles", path: `/${activeOrg}/articles`, finished: true },
-        { name: "Media", path: `/${activeOrg}/media`, finished: false },
+        { name: "Media", path: `/${activeOrg}/media`, finished: true },
         {
           name: "Settings",
           finished: true,

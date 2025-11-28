@@ -14,6 +14,8 @@ import type { Context } from "hono";
 import { Hono } from "hono";
 import sharp from "sharp";
 import { z } from "zod";
+import { getCache, setCache, deleteCache, deleteCacheByPattern } from "../../hono/cache.js";
+import { cacheKeys } from "../../hono/cache-keys.js";
 
 const articlesRoutes = new Hono<{ Variables: ReqVariables }>();
 
@@ -155,6 +157,12 @@ articlesRoutes.post("/:organizationId", async (c) => {
       return c.json({ error: "Article not created", success: false }, 400);
     }
 
+    // Invalidate cache
+    await Promise.all([
+      deleteCacheByPattern(`articles:list:${organizationId}:*`),
+      deleteCacheByPattern(`v1:articles:${organizationId}:*`),
+    ]);
+
     return c.json({
       success: true,
       message: "Article created successfully",
@@ -178,6 +186,13 @@ articlesRoutes.get("/:organizationId/:id", async (c) => {
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
     return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  // Try to get from cache
+  const cacheKey = cacheKeys.article(organizationId, id);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
   }
 
   const article = await db
@@ -230,7 +245,7 @@ articlesRoutes.get("/:organizationId/:id", async (c) => {
       ),
   ]);
 
-  return c.json({
+  const response = {
     success: true,
     message: "Article fetched successfully",
     data: {
@@ -245,7 +260,12 @@ articlesRoutes.get("/:organizationId/:id", async (c) => {
           image: (a.image as string) ?? "",
         })),
     },
-  });
+  };
+
+  // Cache for 10 minutes (600 seconds)
+  await setCache(cacheKey, response, 600);
+
+  return c.json(response);
 });
 
 articlesRoutes.get("/:organizationId", async (c) => {
@@ -255,6 +275,13 @@ articlesRoutes.get("/:organizationId", async (c) => {
   const userInOrg = await isUserInOrganization(c, organizationId);
   if (!userInOrg) {
     return c.json({ error: "Unauthorized", success: false }, 401);
+  }
+
+  // Try to get from cache
+  const cacheKey = cacheKeys.articlesList(organizationId, page, limit, search);
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return c.json(cached);
   }
 
   const pageNumber = parseInt(page || "1");
@@ -282,7 +309,7 @@ articlesRoutes.get("/:organizationId", async (c) => {
       .where(whereCondition),
   ]);
 
-  return c.json({
+  const response = {
     success: true,
     message: "Articles fetched successfully",
     data: {
@@ -293,7 +320,12 @@ articlesRoutes.get("/:organizationId", async (c) => {
         limit: limitNumber,
       },
     },
-  });
+  };
+
+  // Cache for 5 minutes (300 seconds)
+  await setCache(cacheKey, response, 300);
+
+  return c.json(response);
 });
 articlesRoutes.put("/:organizationId/:articleId", async (c) => {
   const { organizationId, articleId } = c.req.param();
@@ -448,6 +480,13 @@ articlesRoutes.put("/:organizationId/:articleId", async (c) => {
     return c.json({ error: "Article not found", success: false }, 404);
   }
 
+  // Invalidate cache
+  await Promise.all([
+    deleteCache(cacheKeys.article(organizationId, articleId)),
+    deleteCacheByPattern(`articles:list:${organizationId}:*`),
+    deleteCacheByPattern(`v1:articles:${organizationId}:*`),
+  ]);
+
   return c.json({
     success: true,
     message: "Article updated successfully",
@@ -513,6 +552,13 @@ articlesRoutes.delete("/:organizationId/:articleId", async (c) => {
       );
   });
 
+  // Invalidate cache
+  await Promise.all([
+    deleteCache(cacheKeys.article(organizationId, articleId)),
+    deleteCacheByPattern(`articles:list:${organizationId}:*`),
+    deleteCacheByPattern(`v1:articles:${organizationId}:*`),
+  ]);
+
   return c.json({
     success: true,
     message: "Article deleted successfully",
@@ -537,6 +583,19 @@ articlesRoutes.post("/:articleId/cover-image", async (c) => {
     );
   }
 
+  // Get organizationId from article
+  const article = await db
+    .select({ organizationId: articles.organizationId })
+    .from(articles)
+    .where(eq(articles.id, articleId))
+    .limit(1);
+
+  if (!article || !article[0]) {
+    return c.json({ error: "Article not found", success: false }, 404);
+  }
+
+  const organizationId = article[0].organizationId;
+
   const updated = await db
     .update(articles)
     .set({ image: url, imageBlurhash: blurDataUrl })
@@ -546,6 +605,12 @@ articlesRoutes.post("/:articleId/cover-image", async (c) => {
       image: articles.image,
       imageBlurhash: articles.imageBlurhash,
     });
+
+  // Invalidate cache for this article
+  await Promise.all([
+    deleteCache(cacheKeys.article(organizationId, articleId)),
+    deleteCacheByPattern(`articles:list:${organizationId}:*`),
+  ]);
 
   return c.json({
     success: true,

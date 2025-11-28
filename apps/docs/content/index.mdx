@@ -20,5 +20,13 @@ import { withNotpadd } from "notpadd";
 
 export default withNotpadd({
   configPath: "content-collections.ts",
-})({
+})
+
+const nextConfig => {
+  return {
+    ...withNotpadd({
+      configPath: "content-collections.ts",
+    }),
+  }
+}
 ```
