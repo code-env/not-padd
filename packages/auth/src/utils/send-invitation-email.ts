@@ -3,8 +3,6 @@ import React from "react";
 import { env } from "@notpadd/env/server";
 import TeamInviteEmail from "../emails/invitation";
 
-console.log("Sending invitation email to", env.RESEND_API_KEY);
-
 const resend = new Resend(env.RESEND_API_KEY);
 
 type SendInvitationEmailParams = {

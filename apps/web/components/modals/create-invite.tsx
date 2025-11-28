@@ -1,6 +1,5 @@
-import { useOrganizationContext } from "@/contexts";
 import useModal from "@/hooks/use-modal";
-import { ORGANIZATION_QUERIES } from "@/lib/queries";
+import { useOrganization } from "@/hooks/use-organization";
 import { createInviteSchema } from "@/lib/schemas";
 import type { CreateInviteSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,14 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@notpadd/ui/components/select";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 const CreateInvite = () => {
   const { onClose, type } = useModal();
-  const { activeOrganization } = useOrganizationContext();
-  const queryClient = useQueryClient();
+  const { activeOrganization, isOwner } = useOrganization();
 
   const isCreateModalOpen = type === "invite-member";
 
@@ -125,7 +123,9 @@ const CreateInvite = () => {
                             <SelectValue placeholder="Select Role" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
+                            {isOwner && (
+                              <SelectItem value="admin">Admin</SelectItem>
+                            )}
                             <SelectItem value="member">Member</SelectItem>
                           </SelectContent>
                         </Select>
