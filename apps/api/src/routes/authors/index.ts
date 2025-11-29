@@ -16,8 +16,8 @@ import {
   setCache,
   deleteCache,
   deleteCacheByPattern,
-} from "../../hono/cache.js";
-import { cacheKeys } from "../../hono/cache-keys.js";
+  cacheKeys,
+} from "@notpadd/cache";
 
 const authorsRoutes = new Hono<{ Variables: ReqVariables }>();
 

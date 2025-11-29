@@ -1,16 +1,22 @@
 import { auth, type Session } from "@notpadd/auth/auth";
+import {
+  cacheKeys,
+  deleteCache,
+  deleteCacheByPattern,
+  getCache,
+} from "@notpadd/cache";
 import { db } from "@notpadd/db";
 import {
+  articles as articleTable,
   file as fileTable,
   member,
-  articles as articleTable,
   organization as organizationTable,
 } from "@notpadd/db/schema";
 import { and, eq } from "drizzle-orm";
+import sharp from "sharp";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError, UTApi } from "uploadthing/server";
 import { z } from "zod";
-import sharp from "sharp";
 
 const f = createUploadthing();
 
@@ -91,7 +97,27 @@ const handleOrganization = async (
   return { organization };
 };
 
-const handleArticle = async (user: Session["user"], articleId: string) => {
+const handleArticle = async (articleId: string, organizationId: string) => {
+  const cacheKey = cacheKeys.article(organizationId, articleId);
+  console.log({ organizationId, articleId, cacheKey });
+  const cached = await getCache<{
+    success: boolean;
+    message: string;
+    data: typeof articleTable.$inferSelect & {
+      tags?: string[];
+      authors?: Array<{
+        id: string;
+        name: string;
+        email: string;
+        image: string;
+      }>;
+    };
+  }>(cacheKey);
+
+  if (cached && cached.data) {
+    return { article: cached.data };
+  }
+
   const article = await db.query.articles.findFirst({
     where: eq(articleTable.id, articleId),
   });
@@ -184,7 +210,10 @@ export const ourFileRouter = {
     )
     .middleware(async ({ req, input }) => {
       const { user } = await handleAuth(req);
-      const { article } = await handleArticle(user, input.articleId);
+      const { article } = await handleArticle(
+        input.articleId,
+        input.organizationId
+      );
 
       return { user, article };
     })
@@ -216,11 +245,23 @@ export const ourFileRouter = {
           .where(eq(articleTable.id, article.id))
           .returning({
             id: articleTable.id,
+            organizationId: articleTable.organizationId,
             image: articleTable.image,
             imageBlurhash: articleTable.imageBlurhash,
           });
 
         const updated = updatedArticle?.[0];
+
+        if (updated) {
+          await deleteCache(
+            cacheKeys.article(updated.organizationId, updated.id)
+          );
+          await deleteCacheByPattern(
+            `articles:list:${updated.organizationId}:*`
+          );
+          await deleteCacheByPattern(`v1:articles:${updated.organizationId}:*`);
+        }
+
         return {
           uploadedBy: metadata.user.id,
           articleId: updated?.id,

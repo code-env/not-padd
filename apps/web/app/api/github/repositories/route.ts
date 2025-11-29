@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInstallationRepositories } from "@/lib/github";
 import { auth } from "@notpadd/auth/auth";
 import { headers } from "next/headers";
+import { getCache, setCache, cacheKeys } from "@notpadd/cache";
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
@@ -28,16 +29,33 @@ export const GET = async (request: NextRequest) => {
   }
 
   try {
+    const cacheKey = cacheKeys.githubRepositories(
+      Number(installationId),
+      perPage,
+      search
+    );
+    const cached = await getCache<{
+      success: boolean;
+      data: unknown[];
+      total: number;
+    }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const result = await getInstallationRepositories(Number(installationId), {
       perPage,
       search: search || undefined,
     });
 
-    return NextResponse.json({
+    const response = {
       success: true,
       data: result.repositories,
       total: result.total,
-    });
+    };
+    await setCache(cacheKey, response, 300);
+
+    return NextResponse.json(response);
   } catch (error: any) {
     console.error(error);
     return NextResponse.json(

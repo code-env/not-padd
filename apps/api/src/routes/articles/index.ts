@@ -14,8 +14,13 @@ import type { Context } from "hono";
 import { Hono } from "hono";
 import sharp from "sharp";
 import { z } from "zod";
-import { getCache, setCache, deleteCache, deleteCacheByPattern } from "../../hono/cache.js";
-import { cacheKeys } from "../../hono/cache-keys.js";
+import {
+  getCache,
+  setCache,
+  deleteCache,
+  deleteCacheByPattern,
+  cacheKeys,
+} from "@notpadd/cache";
 
 const articlesRoutes = new Hono<{ Variables: ReqVariables }>();
 
@@ -188,7 +193,6 @@ articlesRoutes.get("/:organizationId/:id", async (c) => {
     return c.json({ error: "Unauthorized", success: false }, 401);
   }
 
-  // Try to get from cache
   const cacheKey = cacheKeys.article(organizationId, id);
   const cached = await getCache(cacheKey);
   if (cached) {
@@ -262,7 +266,6 @@ articlesRoutes.get("/:organizationId/:id", async (c) => {
     },
   };
 
-  // Cache for 10 minutes (600 seconds)
   await setCache(cacheKey, response, 600);
 
   return c.json(response);
