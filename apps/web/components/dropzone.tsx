@@ -70,7 +70,7 @@ const DropZone = ({ organizationId, type }: DropZoneProps) => {
         onClose();
       }
     }
-  }, [editor, url, modalType, isOpen, onClose]);
+  }, [editor, url]);
 
   useEffect(() => {
     if (url && isOpen && modalType === "upload-media") {

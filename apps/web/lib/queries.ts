@@ -23,7 +23,6 @@ export const ARTICLES_QUERIES = {
     articleId: string,
     data: UpdateArticleSchema
   ) => {
-    console.log(data);
     const response = await apiClient.put<APIResponse<{ data: Articles }>>(
       `/articles/${organizationId}/${articleId}`,
       data
