@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useMemo } from "react";
 
 import {
   AuthorSelector,
@@ -28,9 +29,9 @@ import { Button } from "@notpadd/ui/components/button";
 import { LoadingButton } from "@notpadd/ui/components/loading-button";
 import { useMutation } from "@tanstack/react-query";
 import { CircleAlert, X } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import BlurImage from "../blur-image";
+import { useDesktopOS } from "@/hooks/use-device-os";
 
 export function RightSidebar({
   ...props
@@ -39,6 +40,12 @@ export function RightSidebar({
     useArticleContext();
   const { activeOrganization } = useOrganizationContext();
   const form = useArticleForm();
+  const deviceOS = useDesktopOS();
+
+  const saveShortcut = useMemo(() => {
+    if (deviceOS === "mac") return "(Cmd+S)";
+    return "(Ctrl+S)";
+  }, [deviceOS]);
 
   const {
     register,
@@ -73,8 +80,6 @@ export function RightSidebar({
     },
   });
 
-  if (isLoading) return <RightSidebarLoading />;
-
   const removeImage = () => {
     if (!article) return;
     setArticle({
@@ -94,6 +99,38 @@ export function RightSidebar({
     console.log("Validation errors:", errors);
     toast.error("Please fix the validation errors before saving.");
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+        event.preventDefault();
+
+        const hasChanges =
+          form.formState.isDirty ||
+          Object.keys(form.formState.dirtyFields || {}).length > 0 ||
+          isDirty;
+
+        if (hasChanges && !isPending) {
+          handleSubmit(onSubmit, onInvalid)();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [
+    handleSubmit,
+    onSubmit,
+    onInvalid,
+    form.formState.isDirty,
+    form.formState.dirtyFields,
+    isDirty,
+    isPending,
+  ]);
+
+  if (isLoading) return <RightSidebarLoading />;
 
   return (
     <Sidebar {...props} side="right" variant="floating">
@@ -215,7 +252,8 @@ export function RightSidebar({
           }
           onClick={handleSubmit(onSubmit, onInvalid)}
         >
-          Save
+          Save{" "}
+          <span className="text-xs text-muted-foreground">{saveShortcut}</span>
         </LoadingButton>
       </SidebarFooter>
     </Sidebar>

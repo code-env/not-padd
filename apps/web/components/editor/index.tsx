@@ -59,12 +59,13 @@ export default function Editor() {
     useArticleContext();
   const { activeOrganization } = useOrganizationContext();
   const editorRef = useRef<EditorInstance | null>(null);
+  const editorContainerRef = useRef<HTMLDivElement | null>(null);
+  const bottomPaddingRef = useRef<HTMLDivElement | null>(null);
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
   const uploadFn = useUploadFn();
-
   const form = useArticleForm();
 
   const setFormValue = (
@@ -105,6 +106,41 @@ export default function Editor() {
     if (e.key === "Enter") {
       e.preventDefault();
       editorRef.current?.commands.focus();
+    }
+  };
+
+  const handleAutoScroll = (editor: EditorInstance) => {
+    if (!editorContainerRef.current) return;
+    if (!editor.view.hasFocus()) return;
+    if (!bottomPaddingRef.current) return;
+
+    const {
+      state: {
+        selection: {
+          $anchor: { pos },
+        },
+      },
+    } = editor.view;
+    try {
+      const coords = editor.view.coordsAtPos(pos);
+      if (!coords) return;
+
+      const viewportHeight = window.innerHeight;
+      const cursorBottom = coords.bottom;
+
+      const distanceFromBottom = viewportHeight - cursorBottom;
+      const threshold = 300;
+
+      if (distanceFromBottom < threshold) {
+        const scrollAmount = threshold - distanceFromBottom + 50;
+        bottomPaddingRef.current.style.height = `${scrollAmount}px`;
+
+        requestAnimationFrame(() => {
+          bottomPaddingRef.current?.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+    } catch (error) {
+      console.debug("Auto-scroll calculation failed:", error);
     }
   };
 
@@ -188,7 +224,10 @@ export default function Editor() {
         </Button>
         <SidebarTrigger className="text-muted-foreground hover:text-accent-foreground!" />
       </div>
-      <div className="relative w-full max-w-6xl mx-auto">
+      <div
+        className="relative w-full max-w-6xl mx-auto"
+        ref={editorContainerRef}
+      >
         <EditorRoot>
           <TextareaAutosize
             id="title"
@@ -222,6 +261,7 @@ export default function Editor() {
             onUpdate={({ editor }) => {
               editorRef.current = editor;
               debouncedUpdates(editor);
+              handleAutoScroll(editor);
             }}
             slotAfter={<ImageResizer />}
           >
@@ -251,6 +291,10 @@ export default function Editor() {
             </EditorMenu>
           </EditorContent>
         </EditorRoot>
+        <div
+          className="transition-all duration-300 ease-in-out flex flex-col justify-end"
+          ref={bottomPaddingRef}
+        />
       </div>
     </>
   );
