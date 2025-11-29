@@ -1,7 +1,8 @@
 "use client";
 
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
 import {
   EditorCommand,
   EditorCommandEmpty,
@@ -10,7 +11,6 @@ import {
   EditorRoot,
   type JSONContent,
 } from "novel";
-
 import { ImageResizer, handleCommandNavigation } from "novel/extensions";
 import { handleImageDrop, handleImagePaste } from "novel/plugins";
 import { useDebouncedCallback } from "use-debounce";
@@ -22,8 +22,6 @@ import { LinkSelector } from "@/components/editor/selector/link";
 import { NodeSelector } from "@/components/editor/selector/node";
 import { TextButtons } from "@/components/editor/selector/text-button";
 import { slashCommand } from "@/components/editor/slash-command";
-import { TextareaAutosize } from "@notpadd/ui/components/resizable-textarea";
-import { Separator } from "@notpadd/ui/components/separator";
 
 import UploadImage from "@/components/modals/upload-image";
 import {
@@ -32,9 +30,10 @@ import {
   useOrganizationContext,
 } from "@/contexts";
 import { Button } from "@notpadd/ui/components/button";
+import { TextareaAutosize } from "@notpadd/ui/components/resizable-textarea";
+import { Separator } from "@notpadd/ui/components/separator";
 import { SidebarTrigger } from "@notpadd/ui/components/sidebar";
-import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import EditorMenu from "./menu";
 import SlashCommands from "./slash-commands";
 
