@@ -1,4 +1,4 @@
-import { Builder } from "@content-collections/core";
+import { Builder } from "notpadd-core";
 import path from "node:path";
 import { isUnknownError, registerErrorListeners } from "./errors.js";
 
@@ -16,7 +16,7 @@ export function configureLogging(builder: Builder) {
       event.stats.documents,
       event.stats.documents === 1 ? "document" : "documents",
       "in",
-      event.endedAt - event.startedAt + "ms",
+      event.endedAt - event.startedAt + "ms"
     );
   });
 
@@ -33,7 +33,13 @@ export function configureLogging(builder: Builder) {
 
   builder.on("transformer:document-skipped", (event) => {
     const relativePath = path.relative(process.cwd(), event.filePath);
-    console.log("... document", relativePath, "skipped", "due to", event.reason);
+    console.log(
+      "... document",
+      relativePath,
+      "skipped",
+      "due to",
+      event.reason
+    );
   });
 
   registerErrorListeners(builder);
