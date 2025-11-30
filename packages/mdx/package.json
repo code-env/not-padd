@@ -1,7 +1,7 @@
 {
   "name": "notpadd-mdx",
   "type": "module",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Compile MDX as part of your notpadd transform function",
   "author": "Bossadi Zenith <hello@bossadizenith.me>",
   "license": "MIT",

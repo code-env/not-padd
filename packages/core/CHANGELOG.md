@@ -1,5 +1,15 @@
 # @notpadd/core
 
+## 4.0.0
+
+### Minor Changes
+
+- fixed the typescript type gen compatibility
+
+### Patch Changes
+
+- f384fe4: Fix missing query field default value - query now defaults to "all" when not provided
+
 ## 3.0.3
 
 ### Patch Changes

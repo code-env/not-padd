@@ -1,5 +1,17 @@
 # @notpadd/integrations
 
+## 4.0.0
+
+### Minor Changes
+
+- fixed the typescript type gen compatibility
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies [f384fe4]
+  - notpadd-core@4.0.0
+
 ## 3.0.3
 
 ### Patch Changes
