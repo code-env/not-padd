@@ -1,6 +1,6 @@
 {
   "name": "with-notpadd",
-  "version": "3.0.3",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@content-collections/mdx": "^0.2.2",
+    "notpadd-mdx": "workspace:*",
     "@notpadd/ui": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -9,9 +9,9 @@ import { join } from "node:path";
 describe("config", () => {
   test("should fail with non existing configuration file", async () => {
     await expect(() =>
-      createBuilder("crazy-non-existing-configuration.ts"),
+      createBuilder("crazy-non-existing-configuration.ts")
     ).rejects.toThrowError(
-      "configuration file crazy-non-existing-configuration.ts does not exist",
+      "configuration file crazy-non-existing-configuration.ts does not exist"
     );
   });
 
@@ -20,16 +20,16 @@ describe("config", () => {
     async ({ workspaceBuilder }) => {
       const workspace = workspaceBuilder("this is not a valid configuration");
       await expect(() => workspace.build()).rejects.toThrowError(
-        /^configuration file .* is invalid/,
+        /^configuration file .* is invalid/
       );
-    },
+    }
   );
 
   workspaceTest(
     "should create collection from configuration file",
     async ({ workspaceBuilder }) => {
       const workspace = workspaceBuilder /* ts */ `
-      import { defineCollection, defineConfig } from "@content-collections/core";
+      import { defineCollection, defineConfig } from "notpadd-core";
       import { z } from "zod";
 
       const posts = defineCollection({
@@ -57,7 +57,7 @@ describe("config", () => {
         ---
 
         # First post
-    `,
+    `
       );
 
       workspace.file(
@@ -69,7 +69,7 @@ describe("config", () => {
         ---
 
         # Second post
-    `,
+    `
       );
 
       const { collection } = await workspace.build();
@@ -80,7 +80,7 @@ describe("config", () => {
         "First post",
         "Second post",
       ]);
-    },
+    }
   );
 
   workspaceTest(
@@ -111,7 +111,7 @@ describe("config", () => {
         ---
 
         # First post
-    `,
+    `
       );
 
       workspace.file(
@@ -123,7 +123,7 @@ describe("config", () => {
         ---
 
         # Second post
-    `,
+    `
       );
 
       const { collection } = await workspace.build();
@@ -133,14 +133,14 @@ describe("config", () => {
         "First post",
         "Second post",
       ]);
-    },
+    }
   );
 
   workspaceTest(
     "should create collection from configuration file",
     async ({ workspaceBuilder }) => {
       const workspace = workspaceBuilder /* ts */ `
-      import { defineCollection, defineConfig } from "@content-collections/core";
+      import { defineCollection, defineConfig } from "notpadd-core";
       import { z } from "zod";
 
       const posts = defineCollection({
@@ -168,7 +168,7 @@ describe("config", () => {
         ---
 
         # First post
-    `,
+    `
       );
 
       workspace.file(
@@ -180,7 +180,7 @@ describe("config", () => {
         ---
 
         # Second post
-    `,
+    `
       );
 
       const { collection } = await workspace.build();
@@ -191,14 +191,14 @@ describe("config", () => {
         "First post",
         "Second post",
       ]);
-    },
+    }
   );
 
   workspaceTest(
     "should read configuration with import",
     async ({ workspaceBuilder }) => {
       const workspace = workspaceBuilder /* ts */ `
-      import { defineConfig } from "@content-collections/core";
+        import { defineConfig } from "notpadd-core";
       import { posts } from "./posts"
 
       export default defineConfig({
@@ -209,7 +209,7 @@ describe("config", () => {
       workspace.file(
         "posts.ts",
         /* ts */ `
-      import { defineCollection } from "@content-collections/core";
+      import { defineCollection } from "notpadd-core";
       import { z } from "zod";
 
       export const posts = defineCollection({
@@ -221,7 +221,7 @@ describe("config", () => {
           title: z.string(),
         })
       });
-      `,
+      `
       );
 
       workspace.file(
@@ -230,20 +230,20 @@ describe("config", () => {
         ---
         title: Number One
         ---
-    `,
+    `
       );
 
       const { collection } = await workspace.build();
       let allPosts = await collection("posts");
       expect(allPosts.map((p) => p.title)).toEqual(["Number One"]);
-    },
+    }
   );
 
   workspaceTest(
     "should respect tsconfigPath for configuration imports",
     async ({ workspaceBuilder }) => {
       const workspace = workspaceBuilder /* ts */ `
-      import { defineConfig } from "@content-collections/core";
+      import { defineConfig } from "notpadd-core";
       import { posts } from "@posts"
 
       export default defineConfig({
@@ -260,13 +260,13 @@ describe("config", () => {
             "@posts": ["./posts"]
           }
         }
-      }`,
+      }`
       );
 
       workspace.file(
         "posts.ts",
         /* ts */ `
-      import { defineCollection } from "@content-collections/core";
+      import { defineCollection } from "notpadd-core";
       import { z } from "zod";
 
       export const posts = defineCollection({
@@ -278,7 +278,7 @@ describe("config", () => {
           title: z.string(),
         })
       });
-      `,
+      `
       );
 
       workspace.file(
@@ -287,13 +287,13 @@ describe("config", () => {
         ---
         title: Number One
         ---
-    `,
+    `
       );
 
       const { collection } = await workspace.build();
       let allPosts = await collection("posts");
       expect(allPosts.map((p) => p.title)).toEqual(["Number One"]);
-    },
+    }
   );
 
   workspaceTest(
@@ -324,20 +324,20 @@ describe("config", () => {
         "sources/posts/one.yaml",
         `
         title: First post
-    `,
+    `
       );
 
       workspace.file(
         "sources/posts/two.yaml",
         `
         title: Second post
-    `,
+    `
       );
 
       await workspace.build();
 
       expect(titles).toEqual(["First post", "Second post"]);
-    },
+    }
   );
 
   workspaceTest(
@@ -365,12 +365,14 @@ describe("config", () => {
         "sources/posts/one.yaml",
         `
         title: First post
-    `,
+    `
       );
 
       await workspace.build();
 
-      expect(fs.existsSync(join(workspacePath, "build/allPosts.js"))).toBe(true);
-    },
+      expect(fs.existsSync(join(workspacePath, "build/allPosts.js"))).toBe(
+        true
+      );
+    }
   );
 });

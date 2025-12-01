@@ -1,4 +1,4 @@
-import { Builder } from "@content-collections/core";
+import { Builder } from "notpadd-core";
 import path from "node:path";
 
 const handledErrors = ["transformer:validation-error", "collector:parse-error"];

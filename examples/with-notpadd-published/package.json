@@ -1,6 +1,6 @@
 {
   "name": "with-notpadd-published",
-  "version": "3.0.3",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,8 +11,8 @@
   "dependencies": {
     "@content-collections/mdx": "^0.2.2",
     "next": "16.0.0",
-    "notpadd": "^3.0.3",
-    "notpadd-core": "^3.0.3",
+    "notpadd": "^4.0.0",
+    "notpadd-core": "^4.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "rehype-pretty-code": "^0.14.1",

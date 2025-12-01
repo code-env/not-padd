@@ -16,7 +16,9 @@ const Navbar = () => {
           href="/"
           className="text-lg font-semibold flex items-center gap-2"
         >
-          <Icons.icon className="size-10" /> Notpadd
+          <Icons.icon className="size-10 hidden dark:block" />
+          <Icons.iconsDark className="size-10 block dark:hidden" />
+          Notpadd
         </Link>
         <div className="flex items-center gap-2">
           <Button variant="outline" asChild>

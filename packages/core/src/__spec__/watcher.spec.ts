@@ -4,7 +4,7 @@ import { defineCollection, defineConfig } from "../config";
 import { workspaceTest } from "./workspace";
 import { Watcher } from "src/watcher";
 
-let watcher : Watcher | undefined = undefined;
+let watcher: Watcher | undefined = undefined;
 
 afterEach(() => {
   if (watcher) {
@@ -45,7 +45,7 @@ describe(
           `{
         "name": "Fight Club",
         "year": 1999
-      }`,
+      }`
         );
 
         workspace.file(
@@ -53,7 +53,7 @@ describe(
           `{
         "name": "Inception",
         "year": 2010
-      }`,
+      }`
         );
 
         let { collection } = await workspace.build();
@@ -71,7 +71,7 @@ describe(
           `{
         "name": "Interstellar",
         "year": 2014
-      }`,
+      }`
         );
 
         allMovies = await vi.waitFor(async () => {
@@ -85,7 +85,7 @@ describe(
           "Inception",
           "Interstellar",
         ]);
-      },
+      }
     );
 
     workspaceTest(
@@ -113,7 +113,7 @@ describe(
           `{
         "name": "Fight Clubbb",
         "year": 1999
-      }`,
+      }`
         );
 
         workspace.file(
@@ -121,7 +121,7 @@ describe(
           `{
         "name": "Inception",
         "year": 2010
-      }`,
+      }`
         );
 
         let { collection } = await workspace.build();
@@ -139,7 +139,7 @@ describe(
           `{
         "name": "Fight Club",
         "year": 1999
-      }`,
+      }`
         );
 
         allMovies = await vi.waitFor(async () => {
@@ -152,7 +152,7 @@ describe(
           "Fight Club",
           "Inception",
         ]);
-      },
+      }
     );
 
     workspaceTest(
@@ -180,7 +180,7 @@ describe(
           `{
         "name": "Fight Club",
         "year": 1999
-      }`,
+      }`
         );
 
         workspace.file(
@@ -188,7 +188,7 @@ describe(
           `{
         "name": "Inception",
         "year": 2010
-      }`,
+      }`
         );
 
         let { collection } = await workspace.build();
@@ -211,7 +211,7 @@ describe(
         }, 3000);
 
         expect(allMovies.map((m) => m.name)).toEqual(["Fight Club"]);
-      },
+      }
     );
 
     workspaceTest(
@@ -239,7 +239,7 @@ describe(
           `{
         "name": "Fight Club",
         "year": 1999
-      }`,
+      }`
         );
 
         workspace.file(
@@ -247,7 +247,7 @@ describe(
           `{
         "name": "Inception",
         "year": 2010
-      }`,
+      }`
         );
 
         let { collection } = await workspace.build();
@@ -265,7 +265,7 @@ describe(
           `{
         "name": "Interstellar",
         "year": 2014
-      }`,
+      }`
         );
 
         allMovies = await vi.waitFor(async () => {
@@ -280,7 +280,7 @@ describe(
           `{
         "name": "Rogue One",
         "year": 2016
-      }`,
+      }`
         );
 
         // wait 500ms to ensure the watcher has processed the change
@@ -291,12 +291,9 @@ describe(
           "Inception",
           "Interstellar",
         ]);
-      },
+      }
     );
-
-
-  },
-
+  }
 );
 
 describe(
@@ -310,7 +307,7 @@ describe(
       "should rebuilt on configuration change",
       async ({ workspaceBuilder }) => {
         const workspace = workspaceBuilder /* ts */ `
-      import { defineCollection, defineConfig } from "@content-collections/core";
+      import { defineCollection, defineConfig } from "notpadd-core";
       import { z } from "zod";
 
       const posts = defineCollection({
@@ -334,7 +331,7 @@ describe(
         ---
         title: Number One
         ---
-    `,
+    `
         );
 
         workspace.file(
@@ -343,7 +340,7 @@ describe(
         ---
         title: Number Two
         ---
-    `,
+    `
         );
 
         const { collection } = await workspace.build();
@@ -353,7 +350,7 @@ describe(
         watcher = await workspace.watch();
 
         await workspace.path("content-collections.ts").write /* ts */ `
-      import { defineCollection, defineConfig } from "@content-collections/core";
+      import { defineCollection, defineConfig } from "notpadd-core";
       import { z } from "zod";
 
       const posts = defineCollection({
@@ -378,14 +375,14 @@ describe(
         }, 3000);
 
         expect(allPosts.map((p) => p.title)).toEqual(["Number Two"]);
-      },
+      }
     );
 
     workspaceTest(
       "should rebuilt on configuration change",
       async ({ workspaceBuilder, emitter }) => {
         const workspace = workspaceBuilder /* ts */ `
-      import { defineCollection, defineConfig } from "@content-collections/core";
+      import { defineCollection, defineConfig } from "notpadd-core";
       import { z } from "zod";
 
       const posts = defineCollection({
@@ -409,7 +406,7 @@ describe(
         ---
         title: Number One
         ---
-    `,
+    `
         );
 
         const { collection } = await workspace.build();
@@ -435,14 +432,14 @@ describe(
         }
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toContain("theNewConfigurationIsBroken");
-      },
+      }
     );
 
     workspaceTest(
       "should rebuild on imported configuration file change",
       async ({ workspaceBuilder }) => {
         const workspace = workspaceBuilder /* ts */ `
-      import { defineConfig } from "@content-collections/core";
+      import { defineConfig } from "notpadd-core";
       import { posts } from "./posts"
 
       export default defineConfig({
@@ -453,7 +450,7 @@ describe(
         workspace.file(
           "posts.ts",
           /* ts */ `
-      import { defineCollection } from "@content-collections/core";
+      import { defineCollection } from "notpadd-core";
       import { z } from "zod";
 
       export const posts = defineCollection({
@@ -465,7 +462,7 @@ describe(
           title: z.string(),
         })
       });
-      `,
+      `
         );
 
         workspace.file(
@@ -474,7 +471,7 @@ describe(
         ---
         title: Number One
         ---
-    `,
+    `
         );
 
         workspace.file(
@@ -483,7 +480,7 @@ describe(
         ---
         title: Number Two
         ---
-    `,
+    `
         );
 
         const { collection } = await workspace.build();
@@ -493,7 +490,7 @@ describe(
         watcher = await workspace.watch();
 
         await workspace.path("posts.ts").write /* ts */ `
-      import { defineCollection } from "@content-collections/core";
+        import { defineCollection } from "notpadd-core";
       import { z } from "zod";
 
       export const posts = defineCollection({
@@ -514,7 +511,7 @@ describe(
         }, 3000);
 
         expect(allPosts.map((p) => p.title)).toEqual(["Number Two"]);
-      },
+      }
     );
-  },
+  }
 );

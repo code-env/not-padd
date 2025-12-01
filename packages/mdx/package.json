@@ -1,0 +1,63 @@
+{
+  "name": "notpadd-mdx",
+  "type": "module",
+  "version": "3.0.4",
+  "description": "Compile MDX as part of your notpadd transform function",
+  "author": "Bossadi Zenith <hello@bossadizenith.me>",
+  "license": "MIT",
+  "homepage": "https://notpadd.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bossadizenith/not-padd.git",
+    "directory": "packages/notpadd-mdx"
+  },
+  "bugs": "https://github.com/bossadizenith/not-padd/issues",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/client.d.ts",
+      "react-server": "./dist/react/server.js",
+      "import": "./dist/react/client.js",
+      "require": "./dist/react/client.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown && cp dist/index-*.d.ts dist/index.d.ts 2>/dev/null || true && cp dist/react/client-*.d.ts dist/react/client.d.ts 2>/dev/null || true && cp dist/react/server-*.d.ts dist/react/server.d.ts 2>/dev/null || true",
+    "test": "vitest --run --coverage",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "mdx-bundler": "^10.0.3",
+    "unified": "^11.0.5"
+  },
+  "peerDependencies": {
+    "notpadd-core": "3.0.3",
+    "react": ">= 18",
+    "react-dom": ">= 18"
+  },
+  "devDependencies": {
+    "notpadd-core": "workspace:*",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^20.14.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "happy-dom": "^15.11.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsdown": "^0.15.6",
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4"
+  }
+}
